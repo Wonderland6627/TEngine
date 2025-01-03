@@ -741,7 +741,7 @@ PlayerSettings:
   webGLDecompressionFallback: 0
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: ENABLE_LOG;TextMeshPro
+    Android: ENABLE_LOG;TextMeshPro;UNITY_UOS_SECURITY
     EmbeddedLinux: TextMeshPro
     GameCoreXboxOne: TextMeshPro
     Lumin: TextMeshPro
@@ -749,11 +749,11 @@ PlayerSettings:
     PS4: TextMeshPro
     PS5: TextMeshPro
     Stadia: TextMeshPro
-    Standalone: ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ENABLE_LOG;TextMeshPro
-    WebGL: ENABLE_LOG;TextMeshPro;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1
+    Standalone: ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ENABLE_LOG;TextMeshPro;UNITY_UOS_SECURITY
+    WebGL: ENABLE_LOG;TextMeshPro;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;UNITY_UOS_SECURITY
     Windows Store Apps: ENABLE_LOG;TextMeshPro
     XboxOne: TextMeshPro
-    iPhone: ENABLE_LOG;TextMeshPro
+    iPhone: ENABLE_LOG;TextMeshPro;UNITY_UOS_SECURITY
     tvOS: TextMeshPro
   additionalCompilerArguments: {}
   platformArchitecture: {}
