@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using GameBase;
+using GameLogic;
 using TEngine;
 
 /// <summary>
@@ -37,9 +39,10 @@ public partial class GameApp:Singleton<GameApp>
     /// </summary>
     private void StartGameLogic()
     {
-        
+        Log.Info("GameApp StartGameLogic");
+        World.Instance.Init();
     }
-
+    
     /// <summary>
     /// 关闭游戏。
     /// </summary>
