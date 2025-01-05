@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,7 +71,6 @@ public partial class World : SingletonBehaviour<World>
 
     public async void Init()
     {
-        // castles.AddRange(GameObject.FindObjectsOfType<BaseCastle>());
         await LoadConfig();
         GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
@@ -81,9 +81,7 @@ partial class World
     private async UniTask LoadConfig()
     {
         reader = new LevelReader(); 
-        await reader.LoadLevelConfig("Assets/AssetRaw/Configs/jsons/levels.json");
-        
-        Log.Info($"{reader.config.levels.Count}");
+        await reader.LoadLevelConfig("levels");
     }
 
     public LevelConfig.Level GetLevel(int levelId)

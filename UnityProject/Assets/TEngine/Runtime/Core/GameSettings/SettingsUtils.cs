@@ -64,7 +64,8 @@ public static class SettingsUtils
 
     public static string GetResDownLoadPath(string fileName = "")
     {
-        return Path.Combine(CompleteDownLoadPath, $"{ResourcesArea.ResAdminType}_{ResourcesArea.ResAdminCode}", GetPlatformName(), fileName).Replace("\\", "/");
+        // return Path.Combine(CompleteDownLoadPath, $"{ResourcesArea.ResAdminType}_{ResourcesArea.ResAdminCode}", GetPlatformName(), fileName).Replace("\\", "/");
+        return Path.Combine(CompleteDownLoadPath.Trim('/'), "StreamingAssets/package/DefaultPackage", fileName).Replace("\\", "/");
     }
 
     public static string CompleteDownLoadPath
