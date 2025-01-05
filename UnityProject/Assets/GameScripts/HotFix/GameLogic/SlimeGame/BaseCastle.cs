@@ -5,10 +5,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public enum CastleType
+public enum CastleType: int
 {
-    Nest, //巢穴
-    Tower, //塔楼
+    Nest = 0, //巢穴
+    Tower = 1, //塔楼
 }
 
 public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler

@@ -1,39 +1,28 @@
 {
   "levels": [
     {
-      "levelId": 0,
+      "levelId": 1,
       "castles": [
         {
           "id": 0,
-          "type": 1,
-          "occupiedOnStart": false,
-          "occupiedType": 1,
+          "castleType": 0,
+          "occupiedOnStart": true,
+          "occupiedSlimeType": 0,
           "occupiedUnitCount": 10,
           "position": {
-            "x": 0,
-            "y": 0
+            "x": -170,
+            "y": -340
           }
         },
         {
           "id": 1,
-          "type": 1,
+          "castleType": 0,
           "occupiedOnStart": false,
-          "occupiedType": 1,
-          "occupiedUnitCount": 10,
+          "occupiedSlimeType": 0,
+          "occupiedUnitCount": 0,
           "position": {
-            "x": 1,
-            "y": 0
-          }
-        },
-        {
-          "id": 2,
-          "type": 1,
-          "occupiedOnStart": false,
-          "occupiedType": 1,
-          "occupiedUnitCount": 10,
-          "position": {
-            "x": 2,
-            "y": 0
+            "x": 170,
+            "y": 340
           }
         }
       ],
@@ -41,14 +30,6 @@
         {
           "startCastleId": 0,
           "endCastleId": 1
-        },
-        {
-          "startCastleId": 1,
-          "endCastleId": 2
-        },
-        {
-          "startCastleId": 2,
-          "endCastleId": 0
         }
       ]
     }

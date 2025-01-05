@@ -169,6 +169,16 @@ namespace TEngine
             return null;
         }
 
+        public static RectTransform RectTransform(this Transform transform)
+        {
+            if (transform == null)
+            {
+                return null;
+            }
+            
+            return transform.GetComponent<RectTransform>();
+        }
+
         [TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
         public static Component FindChildComponent(this Transform transform, string path, Type type)
         {

@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SlimeType
+public enum SlimeType: int
 {
-    Red,
-    Blue,
+    Red = 0,
+    Blue = 1,
 }
 
 public class BaseUnit : MonoBehaviour
