@@ -112,7 +112,7 @@ partial class World
     public async void CreateUnit(BaseCastle spawnCastle, SlimeType slimeType, BaseCastle targetCastle)
     {
         var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIMainWindow>();
-        var res = await GameModule.Resource.LoadGameObjectAsync($"Assets/AssetRaw/UI/InGame/{slimeType}.prefab");
+        var res = await GameModule.Resource.LoadGameObjectAsync($"Assets/AssetRaw/UI/InGame/Slime_{slimeType}.prefab");
         var unit = res.GetComponent<BaseUnit>();
         unit.transform.SetParent(mainWindow.SlimeContainer);
         unit.transform.position = spawnCastle.transform.position;

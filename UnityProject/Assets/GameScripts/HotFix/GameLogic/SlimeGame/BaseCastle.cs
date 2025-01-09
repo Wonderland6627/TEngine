@@ -13,8 +13,8 @@ public enum CastleType: int
 
 public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public Image redImage;
-    public Image blueImage;
+    public Image playerCastleImage;
+    public Image enemy_1_CastleImage;
     public Image freeImage;
     public Text countText;
     
@@ -38,8 +38,8 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     private void Init()
     {
-        redImage = transform.Find("Image_Red").GetComponent<Image>();
-        blueImage = transform.Find("Image_Blue").GetComponent<Image>();
+        playerCastleImage = transform.Find("Image_Blue").GetComponent<Image>();
+        enemy_1_CastleImage = transform.Find("Image_Red").GetComponent<Image>();
         freeImage = transform.Find("Image_Free").GetComponent<Image>();
         countText = transform.Find("CountTxt").GetComponent<Text>();
         if (!isOccupiedOnStart)
@@ -55,8 +55,8 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     private void UpdateCastleImage(bool animate = false)
     {
-        redImage.gameObject.SetActive(false);
-        blueImage.gameObject.SetActive(false);
+        playerCastleImage.gameObject.SetActive(false);
+        enemy_1_CastleImage.gameObject.SetActive(false);
         freeImage.gameObject.SetActive(false);
         
         if (!isOccupied)
@@ -64,9 +64,9 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             freeImage.gameObject.SetActive(true);
             return;
         }
-        bool useRed = occupiedSlimeType == SlimeType.Red;
-        redImage.gameObject.SetActive(useRed);
-        blueImage.gameObject.SetActive(!useRed);
+        bool isPlayer = occupiedSlimeType == SlimeType.Player;
+        playerCastleImage.gameObject.SetActive(isPlayer);
+        enemy_1_CastleImage.gameObject.SetActive(!isPlayer);
     }
 
     private void UpdateCountText()
@@ -114,7 +114,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     private bool CanDrag()
     {
-        return isOccupied && occupiedSlimeType == SlimeType.Red;
+        return isOccupied && occupiedSlimeType == SlimeType.Player;
     }
 
     public void OnBeginDrag(PointerEventData eventData)

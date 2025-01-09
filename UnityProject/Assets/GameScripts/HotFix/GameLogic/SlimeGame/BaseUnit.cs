@@ -5,8 +5,8 @@ using UnityEngine;
 
 public enum SlimeType: int
 {
-    Red = 0,
-    Blue = 1,
+    Player = 0,
+    Enemy_1 = 1,
 }
 
 public class BaseUnit : MonoBehaviour
