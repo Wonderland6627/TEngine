@@ -39,11 +39,6 @@ public class BaseUnit : MonoBehaviour
         
         float distancePerFrame = Screen.width / moveDuration * Time.deltaTime * moveSpeed;
         transform.Translate(moveDir * distancePerFrame);
-        
-        if (Vector2.Distance(transform.position, target.transform.position) < arrivalThreshold)
-        {
-            OnReachTarget();
-        }
     }
 
     public void SetTarget(BaseCastle target)
@@ -53,7 +48,7 @@ public class BaseUnit : MonoBehaviour
         moveDir = moveDir.normalized;
     }
 
-    private void OnReachTarget()
+    private void OnTriggerTarget()
     {
         if (target == null)
         {
@@ -64,18 +59,23 @@ public class BaseUnit : MonoBehaviour
         Destroy(gameObject);
     }
 
+    private void OnTriggerEnemy(BaseUnit enemyUnit)
+    {
+        Destroy(enemyUnit.gameObject);
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        BaseUnit otherUnit = other.GetComponent<BaseUnit>();
-        if (otherUnit == null)
+        BaseCastle otherCastle = other.GetComponent<BaseCastle>();
+        if (otherCastle == target)
         {
-            return;
-        }
-        if (otherUnit.slimeType == slimeType)
-        {
-            return;
+            OnTriggerTarget();
         }
         
-        Destroy(otherUnit.gameObject);
+        BaseUnit otherUnit = other.GetComponent<BaseUnit>();
+        if (otherUnit != null && otherUnit.slimeType != slimeType)
+        {
+            OnTriggerEnemy(otherUnit);
+        }
     }
 }
