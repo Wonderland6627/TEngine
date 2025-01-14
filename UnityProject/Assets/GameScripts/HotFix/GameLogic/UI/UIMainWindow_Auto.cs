@@ -46,7 +46,7 @@ namespace GameLogic
                 var castle = castleIns.GetComponent<BaseCastle>();
                 castle.castleType = (CastleType)config.castleType;
                 castle.isOccupiedOnStart = config.occupiedOnStart;
-                castle.occupiedSlimeType = (SlimeType)config.occupiedSlimeType;
+                castle.occupiedUnitType = (UnitType)config.occupiedSlimeType;
                 castle.occupiedUnitCount = config.occupiedUnitCount;
                 
                 castle.transform.localPosition = new Vector2(config.position.x, config.position.y);

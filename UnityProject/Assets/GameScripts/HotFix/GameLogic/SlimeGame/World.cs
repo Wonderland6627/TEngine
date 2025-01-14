@@ -109,10 +109,10 @@ partial class World
         this.roads = roads;
     }
     
-    public async void CreateUnit(BaseCastle spawnCastle, SlimeType slimeType, BaseCastle targetCastle)
+    public async void CreateUnit(BaseCastle spawnCastle, UnitType unitType, BaseCastle targetCastle)
     {
         var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIMainWindow>();
-        var res = await GameModule.Resource.LoadGameObjectAsync($"Assets/AssetRaw/UI/InGame/Slime_{slimeType}.prefab");
+        var res = await GameModule.Resource.LoadGameObjectAsync($"Assets/AssetRaw/UI/InGame/Unit_{unitType}.prefab");
         var unit = res.GetComponent<BaseUnit>();
         unit.transform.SetParent(mainWindow.SlimeContainer);
         unit.transform.position = spawnCastle.transform.position;

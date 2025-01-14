@@ -21,7 +21,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public CastleType castleType;
     public bool isOccupiedOnStart = true; //初始不为空塔
     public bool isOccupied => occupiedUnitCount > 0; //是否被任何单位占领
-    public SlimeType occupiedSlimeType; //占领单位类型
+    public UnitType occupiedUnitType; //占领单位类型
     public int occupiedUnitCount; //占领单位数量
 
     public float unitSpawnInterval = 1f;
@@ -64,7 +64,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             freeImage.gameObject.SetActive(true);
             return;
         }
-        bool isPlayer = occupiedSlimeType == SlimeType.Player;
+        bool isPlayer = occupiedUnitType == UnitType.Player;
         playerCastleImage.gameObject.SetActive(isPlayer);
         enemy_1_CastleImage.gameObject.SetActive(!isPlayer);
     }
@@ -89,11 +89,11 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         countText.text = $"{occupiedUnitCount}";
     }
     
-    public void OnOccupyByUnit(SlimeType slimeType)
+    public void OnOccupyByUnit(UnitType unitType)
     {
         if (occupiedUnitCount == 0)
         {
-            occupiedSlimeType = slimeType;
+            occupiedUnitType = unitType;
             StopCurrentAttack();
         }
         // Debug.Log($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
@@ -106,7 +106,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         else
         {
             //被攻击或者获得增援
-            occupiedUnitCount = slimeType == occupiedSlimeType ? occupiedUnitCount + 1 : occupiedUnitCount - 1;
+            occupiedUnitCount = unitType == occupiedUnitType ? occupiedUnitCount + 1 : occupiedUnitCount - 1;
         }
         UpdateCountText();
         UpdateCastleImage();
@@ -114,7 +114,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     private bool CanDrag()
     {
-        return isOccupied && occupiedSlimeType == SlimeType.Player;
+        return isOccupied && occupiedUnitType == UnitType.Player;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -180,7 +180,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         for (int i = 0; i < count; i++)
         {        
             yield return wait;
-            World.Instance.CreateUnit(this, occupiedSlimeType, target);
+            World.Instance.CreateUnit(this, occupiedUnitType, target);
             occupiedUnitCount--;
             countText.text = $"{occupiedUnitCount}";
         }

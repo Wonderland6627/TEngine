@@ -6,7 +6,7 @@ SpriteAtlas:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UIRaw_Atlas_Slime
+  m_Name: UIRaw_Atlas_Unit
   serializedVersion: 2
   m_EditorData:
     serializedVersion: 2
@@ -85,12 +85,12 @@ SpriteAtlas:
   - {fileID: 21300000, guid: e396086991b48b644a7da28a58bb9f36, type: 3}
   - {fileID: 21300000, guid: f2a1831df0b1de947b83efe4827ec66b, type: 3}
   m_PackedSpriteNamesToIndex:
-  - Slime_Blue
+  - Unit_Blue
   - Castle_Free
   - Castle_Blue
   - Castle_Red
-  - Slime_Red
+  - Unit_Red
   m_RenderDataMap: {}
-  m_Tag: UIRaw_Atlas_Slime
+  m_Tag: UIRaw_Atlas_Unit
   m_IsVariant: 0
   m_IsPlaceholder: 0

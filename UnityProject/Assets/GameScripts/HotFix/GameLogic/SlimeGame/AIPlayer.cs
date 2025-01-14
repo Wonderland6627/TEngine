@@ -19,7 +19,7 @@ public class AIPlayer : MonoBehaviour
 
     void Execute()
     {
-        List<BaseCastle> aiCastles = World.Instance.castles.FindAll(castle => castle.occupiedSlimeType != SlimeType.Player);
+        List<BaseCastle> aiCastles = World.Instance.castles.FindAll(castle => castle.occupiedUnitType != UnitType.Player);
         for (int i = 0; i < aiCastles.Count; i++)
         {
             BaseCastle aiCastle = aiCastles[i];
@@ -34,7 +34,7 @@ public class AIPlayer : MonoBehaviour
 
             //蚂蚁首先找最近的蜜蜂点位 找到路径 攻占路径上的点位
             List<BaseCastle> playerCastles = World.Instance.castles
-                .FindAll(castle => castle != aiCastle && castle.occupiedSlimeType == SlimeType.Player || !castle.isOccupied)
+                .FindAll(castle => castle != aiCastle && castle.occupiedUnitType == UnitType.Player || !castle.isOccupied)
                 .OrderBy(castle => Vector2.Distance(castle.transform.position, aiCastle.transform.position))
                 .ToList();
             foreach (var playerCastle in playerCastles)

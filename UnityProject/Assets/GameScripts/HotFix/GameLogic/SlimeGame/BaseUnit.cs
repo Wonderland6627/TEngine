@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SlimeType: int
+public enum UnitType: int
 {
     Player = 0,
     Enemy_1 = 1,
@@ -11,7 +11,7 @@ public enum SlimeType: int
 
 public class BaseUnit : MonoBehaviour
 {
-    public SlimeType slimeType;
+    public UnitType unitType;
     
     public float moveDuration = 15f;
     public float moveSpeed = 1.0f;
@@ -55,7 +55,7 @@ public class BaseUnit : MonoBehaviour
             return;
         }
         
-        target.OnOccupyByUnit(slimeType);
+        target.OnOccupyByUnit(unitType);
         Destroy(gameObject);
     }
 
@@ -73,7 +73,7 @@ public class BaseUnit : MonoBehaviour
         }
         
         BaseUnit otherUnit = other.GetComponent<BaseUnit>();
-        if (otherUnit != null && otherUnit.slimeType != slimeType)
+        if (otherUnit != null && otherUnit.unitType != unitType)
         {
             OnTriggerEnemy(otherUnit);
         }
