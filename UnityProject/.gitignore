@@ -99,3 +99,6 @@ yoo/
 WXExport/
 
 [Aa]ssets/StreamingAssets.meta
+
+#VSCode
+.vscode/

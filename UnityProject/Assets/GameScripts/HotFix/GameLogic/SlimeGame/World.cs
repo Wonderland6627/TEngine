@@ -18,13 +18,10 @@ public class Road
 
 public class LevelConfig
 {
-    public class Level
-    {
-        public int levelId { get; set; }
-        public List<Castle> castles { get; set; }
-        public List<Road> roads { get; set; }
-    }
-        
+    public int levelId { get; set; }
+    public List<Castle> castles { get; set; }
+    public List<Road> roads { get; set; }
+
     public class Castle
     {
         public int id { get; set; }
@@ -33,7 +30,7 @@ public class LevelConfig
         public int occupiedSlimeType { get; set; }
         public int occupiedUnitCount { get; set; }
         public Position position { get; set; }
-            
+
         public class Position
         {
             public int x { get; set; }
@@ -46,19 +43,17 @@ public class LevelConfig
         public int startCastleId { get; set; }
         public int endCastleId { get; set; }
     }
-        
-    public List<Level> levels { get; set; }
 }
 
 public class LevelReader
 {
-    public LevelConfig config { get; private set; }
+    public List<LevelConfig> configs { get; private set; }
 
     public async UniTask LoadLevelConfig(string jsonPath)
     {
         var res = await GameModule.Resource.LoadAssetAsync<TextAsset>(jsonPath);
         var json = res.text;
-        config = Utility.Json.ToObject<LevelConfig>(json);
+        configs = Utility.Json.ToObject<List<LevelConfig>>(json);
     }
 }
 
@@ -72,6 +67,7 @@ public partial class World : SingletonBehaviour<World>
     public async void Init()
     {
         await LoadConfig();
+        // GameModule.UI.ShowUIAsync<UILevelWindow>();
         GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
 }
@@ -80,20 +76,19 @@ partial class World
 {
     private async UniTask LoadConfig()
     {
-        reader = new LevelReader(); 
+        reader = new LevelReader();
         await reader.LoadLevelConfig("levels");
     }
 
-    public LevelConfig.Level GetLevel(int levelId)
+    public LevelConfig GetLevel(int levelId)
     {
-        if (reader.config == null ||
-            reader.config.levels == null ||
-            reader.config.levels.Count == 0)
+        if (reader.configs == null ||
+            reader.configs.Count == 0)
         {
             return null;
         }
         
-        return reader.config.levels.Find(level => level.levelId == levelId);
+        return reader.configs.Find(level => level.levelId == levelId);
     }
 }
 
