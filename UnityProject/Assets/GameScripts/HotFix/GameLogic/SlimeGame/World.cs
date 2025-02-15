@@ -79,6 +79,11 @@ partial class World
         reader = new LevelReader();
         await reader.LoadLevelConfig("levels");
     }
+    
+    public List<LevelConfig> GetAllLevels()
+    {
+        return reader.configs;
+    }
 
     public LevelConfig GetLevel(int levelId)
     {
