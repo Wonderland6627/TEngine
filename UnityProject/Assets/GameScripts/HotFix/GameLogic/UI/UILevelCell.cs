@@ -15,12 +15,19 @@ namespace GameLogic
         {
             base.OnCreate();
             Log.Debug("UILevelCell OnCreate");
+            EventTriggerListener.Get(gameObject).OnClick = OnCellClick;
         }
 
         public void SetConfig(LevelConfig config)
         {
             this.config = config;
             m_textLevelTxt.text = config.levelId.ToString();
+        }
+
+        private void OnCellClick(GameObject go) 
+        {
+            GameModule.UI.ShowUIAsync<UIMainWindow>();
+            Log.Debug($"{go.name}");
         }
     }
 

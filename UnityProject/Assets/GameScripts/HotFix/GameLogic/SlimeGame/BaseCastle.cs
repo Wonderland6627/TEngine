@@ -17,6 +17,8 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public Image enemy_1_CastleImage;
     public Image freeImage;
     public Text countText;
+
+    public Transform unitContainer;
     
     public CastleType castleType;
     public bool isOccupiedOnStart = true; //初始不为空塔
@@ -180,7 +182,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         for (int i = 0; i < count; i++)
         {        
             yield return wait;
-            World.Instance.CreateUnit(this, occupiedUnitType, target);
+            World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
             occupiedUnitCount--;
             countText.text = $"{occupiedUnitCount}";
         }

@@ -9,8 +9,6 @@ namespace GameLogic
     [Window(UILayer.UI)]
     partial class UIMainWindow : UIWindow
     {
-        public Transform SlimeContainer => m_tfSlimeContainer;
-        
         private List<BaseCastle> m_Castles = new List<BaseCastle>();
         private List<Road> m_Roads = new List<Road>();
         
@@ -18,6 +16,16 @@ namespace GameLogic
         {
             base.OnCreate();
             LoadLevel(1);
+        }
+
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                Close();
+                GameModule.UI.ShowUIAsync<UILevelWindow>();
+                World.Instance.ClearItems();
+            }
         }
 
         private async void LoadLevel(int levelID)
@@ -48,6 +56,7 @@ namespace GameLogic
                 castle.isOccupiedOnStart = config.occupiedOnStart;
                 castle.occupiedUnitType = (UnitType)config.occupiedSlimeType;
                 castle.occupiedUnitCount = config.occupiedUnitCount;
+                castle.unitContainer = m_tfUnitContainer;
                 
                 castle.transform.localPosition = new Vector2(config.position.x, config.position.y);
                 castle.transform.localScale = Vector3.one;
@@ -105,12 +114,12 @@ namespace GameLogic
         #region 脚本工具生成的代码
         private Transform m_tfRoadContainer;
         private Transform m_tfCastleContainer;
-        private Transform m_tfSlimeContainer;
+        private Transform m_tfUnitContainer;
         protected override void ScriptGenerator()
         {
             m_tfRoadContainer = FindChild("bg/m_tfRoadContainer");
             m_tfCastleContainer = FindChild("bg/m_tfCastleContainer");
-            m_tfSlimeContainer = FindChild("bg/m_tfSlimeContainer");
+            m_tfUnitContainer = FindChild("bg/m_tfUnitContainer");
         }
         #endregion
     }

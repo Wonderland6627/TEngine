@@ -40,7 +40,7 @@ public partial class GameApp:Singleton<GameApp>
     private void StartGameLogic()
     {
         Log.Info("GameApp StartGameLogic");
-        World.Instance.Init();
+        World.Instance.AsyncInit();
     }
     
     /// <summary>

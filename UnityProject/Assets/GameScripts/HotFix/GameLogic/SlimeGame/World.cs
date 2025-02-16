@@ -57,18 +57,23 @@ public class LevelReader
     }
 }
 
-public partial class World : SingletonBehaviour<World>
+public partial class World : 
+#if UNITY_EDITOR
+    SingletonBehaviour<World>
+#else
+    Singleton<World>
+#endif
 {
     public LevelReader reader { get; private set; }
     
     public List<BaseCastle> castles = new List<BaseCastle>();
     public List<Road> roads = new List<Road>();
 
-    public async void Init()
+    public async void AsyncInit()
     {
         await LoadConfig();
-        // GameModule.UI.ShowUIAsync<UILevelWindow>();
-        GameModule.UI.ShowUIAsync<UIMainWindow>();
+        GameModule.UI.ShowUIAsync<UILevelWindow>();
+        // GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
 }
 
@@ -99,6 +104,12 @@ partial class World
 
 partial class World
 {
+    public void ClearItems() 
+    {
+        castles.Clear();
+        roads.Clear();
+    }
+
     public void SetCastles(List<BaseCastle> castles)
     {
         this.castles = castles;
@@ -109,12 +120,12 @@ partial class World
         this.roads = roads;
     }
     
-    public async void CreateUnit(BaseCastle spawnCastle, UnitType unitType, BaseCastle targetCastle)
+    public async void CreateUnit(BaseCastle spawnCastle, UnitType unitType, BaseCastle targetCastle, Transform container)
     {
         var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIMainWindow>();
         var res = await GameModule.Resource.LoadGameObjectAsync($"Assets/AssetRaw/UI/InGame/Unit_{unitType}.prefab");
         var unit = res.GetComponent<BaseUnit>();
-        unit.transform.SetParent(mainWindow.SlimeContainer);
+        unit.transform.SetParent(container);
         unit.transform.position = spawnCastle.transform.position;
         unit.transform.localScale = Vector3.one;
         unit.SetTarget(targetCastle);
