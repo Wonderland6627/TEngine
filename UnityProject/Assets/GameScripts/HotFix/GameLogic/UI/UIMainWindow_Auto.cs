@@ -48,18 +48,16 @@ namespace GameLogic
             m_Castles.Clear();
             foreach (var config in castles)
             {
-                var castleIns = await GameModule.Resource.LoadGameObjectAsync("Assets/AssetRaw/UI/InGame/Castle.prefab");
-                castleIns.transform.SetParent(m_tfCastleContainer);
-                castleIns.name = $"Castle_{config.id}";
-                var castle = castleIns.GetComponent<BaseCastle>();
+                var castle = await CreateWidgetByPathAsync<BaseCastle>(m_tfCastleContainer, "Assets/AssetRaw/UI/InGame/Castle.prefab");
+                castle.gameObject.name = $"Castle_{config.id}";
                 castle.castleType = (CastleType)config.castleType;
                 castle.isOccupiedOnStart = config.occupiedOnStart;
                 castle.occupiedUnitType = (UnitType)config.occupiedSlimeType;
                 castle.occupiedUnitCount = config.occupiedUnitCount;
                 castle.unitContainer = m_tfUnitContainer;
-                
                 castle.transform.localPosition = new Vector2(config.position.x, config.position.y);
                 castle.transform.localScale = Vector3.one;
+                castle.Init();
                 m_Castles.Add(castle);
             }
             World.Instance.SetCastles(m_Castles);

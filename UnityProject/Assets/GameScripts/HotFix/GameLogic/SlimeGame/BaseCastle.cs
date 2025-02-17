@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TEngine;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,13 +12,8 @@ public enum CastleType: int
     Tower = 1, //塔楼
 }
 
-public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public partial class BaseCastle : UIWidget
 {
-    public Image playerCastleImage;
-    public Image enemy_1_CastleImage;
-    public Image freeImage;
-    public Text countText;
-
     public Transform unitContainer;
     
     public CastleType castleType;
@@ -32,18 +28,22 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public Vector2 dragDir;
     
     private Coroutine currentAttackCoroutine;
+    private int spawnTimer = -1;
+    private int attackTimer = -1;
 
-    private void Start()
+    protected override void OnCreate()
     {
-        Init();
+        base.OnCreate();
     }
 
-    private void Init()
+    protected override void OnDestroy()
     {
-        playerCastleImage = transform.Find("Image_Blue").GetComponent<Image>();
-        enemy_1_CastleImage = transform.Find("Image_Red").GetComponent<Image>();
-        freeImage = transform.Find("Image_Free").GetComponent<Image>();
-        countText = transform.Find("CountTxt").GetComponent<Text>();
+        GameModule.Timer.RemoveTimer(spawnTimer);
+        base.OnDestroy();
+    }
+
+    public void Init()
+    {
         if (!isOccupiedOnStart)
         {
             occupiedUnitCount = -10;
@@ -52,31 +52,36 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         UpdateCountText();
         UpdateCastleImage();
         
-        InvokeRepeating("SpawnUnit", 1f, unitSpawnInterval);
+        spawnTimer = GameModule.Timer.AddTimer(SpawnUnit, unitSpawnInterval, true);
+
+        var trigger = EventTriggerListener.Get(gameObject);
+        trigger.OnDragBegin = OnBeginDrag;
+        trigger.OnDragEvent = OnDrag;
+        trigger.OnDragEnd = OnEndDrag;
     }
 
     private void UpdateCastleImage(bool animate = false)
     {
-        playerCastleImage.gameObject.SetActive(false);
-        enemy_1_CastleImage.gameObject.SetActive(false);
-        freeImage.gameObject.SetActive(false);
+        m_imgPlayerImg.gameObject.SetActive(false);
+        m_imgEnemy_1_Img.gameObject.SetActive(false);
+        m_imgFreeImg.gameObject.SetActive(false);
         
         if (!isOccupied)
         {
-            freeImage.gameObject.SetActive(true);
+            m_imgFreeImg.gameObject.SetActive(true);
             return;
         }
         bool isPlayer = occupiedUnitType == UnitType.Player;
-        playerCastleImage.gameObject.SetActive(isPlayer);
-        enemy_1_CastleImage.gameObject.SetActive(!isPlayer);
+        m_imgPlayerImg.gameObject.SetActive(isPlayer);
+        m_imgEnemy_1_Img.gameObject.SetActive(!isPlayer);
     }
 
     private void UpdateCountText()
     {
-        countText.text = $"{Mathf.Abs(occupiedUnitCount)}";
+        m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
     }
 
-    private void SpawnUnit()
+    private void SpawnUnit(object[] args)
     {
         if (!isOccupied)
         {
@@ -88,7 +93,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         }
 
         occupiedUnitCount++;
-        countText.text = $"{occupiedUnitCount}";
+        m_textCountTxt.text = $"{occupiedUnitCount}";
     }
     
     public void OnOccupyByUnit(UnitType unitType)
@@ -96,7 +101,8 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         if (occupiedUnitCount == 0)
         {
             occupiedUnitType = unitType;
-            StopCurrentAttack();
+            GameModule.Timer.RemoveTimer(attackTimer);
+            attackTimer = -1;
         }
         // Debug.Log($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
 
@@ -119,7 +125,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         return isOccupied && occupiedUnitType == UnitType.Player;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnBeginDrag(GameObject go, PointerEventData eventData)
     {
         if (!CanDrag())
         {
@@ -128,7 +134,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         startDragPos = eventData.position;
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void OnDrag(GameObject go, PointerEventData eventData)
     {
         if (!CanDrag())
         {
@@ -138,7 +144,7 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         dragDir.Normalize();
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public void OnEndDrag(GameObject go, PointerEventData eventData)
     {
         if (!CanDrag())
         {
@@ -160,31 +166,44 @@ public class BaseCastle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             return;
         }
 
-        StopCurrentAttack();
-        currentAttackCoroutine = StartCoroutine(SendSlime(occupiedUnitCount, target));
-        
+        SendSlime(occupiedUnitCount, target);
         // Debug.Log($"[{GetType().Name}] attack [{target.name}]");
     }
 
-    private void StopCurrentAttack()
+    private void SendSlime(int count, BaseCastle target)
     {
-        if (currentAttackCoroutine == null)
+        if (attackTimer != -1) 
         {
-            return;
+            GameModule.Timer.RemoveTimer(attackTimer);
         }
-        StopCoroutine(currentAttackCoroutine);
-        currentAttackCoroutine = null;
-    }
+        int remainingCount = count;
+        attackTimer = GameModule.Timer.AddTimer( _ => {
+            if (remainingCount == -1) {
+                GameModule.Timer.RemoveTimer(attackTimer);
+                attackTimer = -1;
+                return;
+            }
 
-    private IEnumerator SendSlime(int count, BaseCastle target)
-    {
-        var wait = new WaitForSeconds(0.5f);
-        for (int i = 0; i < count; i++)
-        {        
-            yield return wait;
             World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
             occupiedUnitCount--;
-            countText.text = $"{occupiedUnitCount}";
-        }
+            m_textCountTxt.text = $"{occupiedUnitCount}";
+        }, 0.5f, true);
     }
+}
+
+partial class BaseCastle
+{
+    #region 脚本工具生成的代码
+    private Image m_imgPlayerImg;
+    private Image m_imgEnemy_1_Img;
+    private Image m_imgFreeImg;
+    private Text m_textCountTxt;
+    protected override void ScriptGenerator()
+    {
+        m_imgPlayerImg = FindChildComponent<Image>("m_imgPlayerImg");
+        m_imgEnemy_1_Img = FindChildComponent<Image>("m_imgEnemy_1_Img");
+        m_imgFreeImg = FindChildComponent<Image>("m_imgFreeImg");
+        m_textCountTxt = FindChildComponent<Text>("m_textCountTxt");
+    }
+    #endregion
 }
