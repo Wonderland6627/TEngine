@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7252019628184621401}
-  - component: {fileID: 1837297504856919611}
   - component: {fileID: 2708194567434514851}
   - component: {fileID: -6613292639012848377}
   - component: {fileID: 7033518915556150839}
@@ -41,24 +40,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 35, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1837297504856919611
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6579996926914668228}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bfaa93c5427f575469590f05c2130e27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slimeType: 1
-  moveDuration: 15
-  moveSpeed: 0.01
-  moveDir: {x: 0, y: 0}
-  arrivalThreshold: 0.1
-  target: {fileID: 0}
 --- !u!61 &2708194567434514851
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -139,7 +120,7 @@ GameObject:
   - component: {fileID: 3083232693297966344}
   - component: {fileID: 2965665365372992198}
   m_Layer: 5
-  m_Name: Image
+  m_Name: m_imgUnit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
