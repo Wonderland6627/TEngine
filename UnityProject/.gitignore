@@ -100,5 +100,8 @@ WXExport/
 
 [Aa]ssets/StreamingAssets.meta
 
+#CDN Backup
+CDN_Backup/MiniGame/
+
 #VSCode
 .vscode/
