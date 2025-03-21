@@ -39,16 +39,12 @@ public partial class BaseUnit : UIWidget
     protected override void OnUpdate()
     {
         base.OnUpdate();
-        Execute();
+        Move2Target();
+        CheckTriggered();
     }
 
-    private void Execute()
+    private void Move2Target()
     {
-        if (target == null)
-        {
-            return;
-        }
-        
         var uiRootRect = GameModule.UI.UIRootRect;
         float screenWidth = uiRootRect.rect.width;
         float distancePerFrame = screenWidth / moveDuration * Time.deltaTime;
@@ -64,15 +60,23 @@ public partial class BaseUnit : UIWidget
         moveDir = moveDir.normalized;
     }
 
-    private void OnTriggerTarget()
-    {
+    private void CheckTriggered() {
         if (target == null)
         {
             return;
         }
-        
+
+        //check castle
+        float distance = Vector2.Distance(transform.position, target.transform.position);
+        if (distance < arrivalThreshold)
+        {
+            OnTriggerTarget();
+        }
+    }
+
+    private void OnTriggerTarget()
+    {
         target.OnOccupyByUnit(unitType);
-        
         Destroy();
     }
 
