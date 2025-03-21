@@ -22,7 +22,7 @@ public partial class BaseCastle : UIWidget
     public UnitType occupiedUnitType; //占领单位类型
     public int occupiedUnitCount; //占领单位数量
 
-    public float unitSpawnInterval = 1f;
+    public float unitSpawnInterval = 2f;
 
     public Vector2 startDragPos;
     public Vector2 dragDir;

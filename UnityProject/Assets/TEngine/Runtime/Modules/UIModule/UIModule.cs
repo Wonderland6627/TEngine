@@ -33,6 +33,8 @@ namespace TEngine
         /// </summary>
         public Transform UIRoot => m_InstanceRoot;
 
+        public RectTransform UIRootRect => m_InstanceRoot as RectTransform;
+
         public static Transform UIRootStatic;
 
         /// <summary>

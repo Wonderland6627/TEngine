@@ -3,14 +3,12 @@
     "unitType": "0",
     "unitImageName": "Unit_Player",
     "unitPrefabPath": "Assets/AssetRaw/UI/InGame/Unit_Player.prefab",
-    "moveDuration": 10,
-    "moveSpeed": 1
+    "moveDuration": 10
   },
   {
     "unitType": "1",
     "unitImageName": "Enemy_1",
     "unitPrefabPath": "Assets/AssetRaw/UI/InGame/Unit_Enemy_1.prefab",
-    "moveDuration": 10,
-    "moveSpeed": 1
+    "moveDuration": 10
   }
 ]

@@ -293,24 +293,27 @@ namespace TEngine
                 listNextUpdateChild = m_listUpdateChild;
                 var updateListValid = m_updateListValid;
                 List<UIWidget> listChild = null;
-                if (!updateListValid)
-                {
-                    if (listNextUpdateChild == null)
-                    {
-                        listNextUpdateChild = new List<UIWidget>();
-                        m_listUpdateChild = listNextUpdateChild;
-                    }
-                    else
-                    {
-                        listNextUpdateChild.Clear();
-                    }
+                // if (!updateListValid)
+                // {
+                //     if (listNextUpdateChild == null)
+                //     {
+                //         listNextUpdateChild = new List<UIWidget>();
+                //         m_listUpdateChild = listNextUpdateChild;
+                //     }
+                //     else
+                //     {
+                //         listNextUpdateChild.Clear();
+                //     }
 
-                    listChild = ListChild;
-                }
-                else
-                {
-                    listChild = listNextUpdateChild;
-                }
+                //     listChild = ListChild;
+                // }
+                // else
+                // {
+                //     listChild = listNextUpdateChild;
+                // }
+                // Log.Info("WindowName:{0} WidgetCount:{1} childCount:{2} time: {3}", WindowName, listChild.Count, ListChild.Count, Time.time);
+
+                listChild = ListChild;
 
                 for (int i = 0; i < listChild.Count; i++)
                 {

@@ -16,7 +16,6 @@ public partial class BaseUnit : UIWidget
     public UnitType unitType;
     
     public float moveDuration = 15f;
-    public float moveSpeed = 1.0f;
     public float arrivalThreshold = 0.1f;
     
     public BaseCastle target;
@@ -50,8 +49,12 @@ public partial class BaseUnit : UIWidget
             return;
         }
         
-        float distancePerFrame = Screen.width / moveDuration * Time.deltaTime * moveSpeed;
-        transform.Translate(moveDir * distancePerFrame);
+        var uiRootRect = GameModule.UI.UIRootRect;
+        float screenWidth = uiRootRect.rect.width;
+        float distancePerFrame = screenWidth / moveDuration * Time.deltaTime;
+        Vector2 currentPos = transform.localPosition;
+        currentPos += moveDir * distancePerFrame;
+        transform.localPosition = currentPos;
     }
 
     public void SetTarget(BaseCastle target)

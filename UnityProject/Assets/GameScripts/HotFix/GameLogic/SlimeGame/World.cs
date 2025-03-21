@@ -98,10 +98,9 @@ partial class World
         }
         var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIMainWindow>();
         var unit = await mainWindow.CreateWidgetByPathAsync<BaseUnit>(container, unitConfig.unitPrefabPath);
-        unit.gameObject.name = unitType.ToString();
+        unit.gameObject.name = $"{unitType}_{unit.gameObject.GetInstanceID()}";
         unit.unitType = unitType;
         unit.moveDuration = unitConfig.moveDuration;
-        unit.moveSpeed = unitConfig.moveSpeed;
         unit.transform.position = spawnCastle.transform.position;
         unit.transform.localScale = Vector3.one;
         unit.SetTarget(targetCastle);
