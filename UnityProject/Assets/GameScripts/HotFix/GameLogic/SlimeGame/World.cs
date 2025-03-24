@@ -29,14 +29,15 @@ public partial class World : Singleton<World>
         await LoadConfig();
         // GameModule.UI.ShowUIAsync<UILevelWindow>();
 
-        currentLevelId = 1;
+        //Test
+        StartGame(1);
         GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
 
     public void StartGame(int levelId) 
     {
         currentLevelId = levelId;
-        aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 3f, true);
+        aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 5f, true);
     }
 }
 
@@ -231,8 +232,8 @@ partial class World
                     if (nearestCrossCastle != null)
                     {
                         aiCastle.MoveTo(nearestCrossCastle);
-                        continue;
                     }
+                    continue;
                 }
                 aiCastle.MoveTo(playerCastle);
             }

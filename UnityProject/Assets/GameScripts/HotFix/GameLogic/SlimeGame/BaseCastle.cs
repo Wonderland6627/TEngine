@@ -173,7 +173,7 @@ public partial class BaseCastle : UIWidget
         }
 
         SendSlime(occupiedUnitCount, target);
-        Debug.Log($"[{GetType().Name}] attack [{target.name}], send count: {occupiedUnitCount}");
+        Debug.Log($"[{GetType().Name}] [{gameObject.name}] attack [{target.gameObject.name}], send count: {occupiedUnitCount}");
     }
 
     private void SendSlime(int count, BaseCastle target)
