@@ -33,6 +33,12 @@ namespace GameLogic
             public int startCastleId { get; set; }
             public int endCastleId { get; set; }
         }
+
+        public class Config
+        {
+            public float playerSpawnInterval { get; set; }
+            public float enemy_1_SpawnInterval { get; set; }
+        }
     }
 
     public class LevelReader
