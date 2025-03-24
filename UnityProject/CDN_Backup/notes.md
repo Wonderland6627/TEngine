@@ -15,8 +15,9 @@ CDN_Backup
    https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/release_by_badge/【版本号】/content/
 3. 将InnerResourceSourceUrl复制到小游戏导出配置的CDN地址
 4. 导出微信小游戏工程
-5. 将导出工程中的StreamingAssets文件夹和bin.txt文件上传到UOSCDN
-6. 在UOSCDN中创建一个新的release，并将assign设置为修改后的版本号
-7. 在Unity和微信小游戏开发者工具中测试
+5. 将导出工程中的StreamingAssets文件夹和bin.txt文件根据版本好复制到Backup目录下的对应版本号文件夹中
+6. 将导出工程中的StreamingAssets文件夹和bin.txt文件上传到UOSCDN
+7. 在UOSCDN中创建一个新的release，并将assign设置为修改后的版本号
+8. 在Unity和微信小游戏开发者工具中测试
 
 UOSCDN: https://uos.unity.cn/services/bd2fcdf8-2152-4e5f-b1be-3f6b950c8034/asset/bucket/cde09f24-d39c-4845-a3e3-17344f4f2894
