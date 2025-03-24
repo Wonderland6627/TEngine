@@ -11,12 +11,7 @@ public class Road
     public List<BaseCastle> points; //限制points的长度为2
 }
 
-public partial class World : 
-#if UNITY_EDITOR
-    SingletonBehaviour<World>
-#else
-    Singleton<World>
-#endif
+public partial class World : Singleton<World>
 {
     public LevelReader levelReader { get; private set; }
     public UnitReader unitReader { get; private set; }
@@ -25,11 +20,20 @@ public partial class World :
 
     public List<BaseRoad> roads = new List<BaseRoad>();
 
+    public int currentLevelId = 0;
+
     public async void AsyncInit()
     {
         await LoadConfig();
         // GameModule.UI.ShowUIAsync<UILevelWindow>();
+
+        currentLevelId = 1；
         GameModule.UI.ShowUIAsync<UIMainWindow>();
+    }
+
+    public void StartGame(int levelId) 
+    {
+        currentLevelId = levelId;
     }
 }
 
@@ -57,6 +61,11 @@ partial class World
         }
         
         return levelReader.configs.Find(level => level.levelId == levelId);
+    }
+
+    public LevelConfig GetCurrentLevel()
+    {
+        return GetLevel(currentLevelId);
     }
 
     public UnitConfig GetUnitConfig(UnitType unitType)

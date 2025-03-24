@@ -26,6 +26,7 @@ namespace GameLogic
 
         private void OnCellClick(GameObject go) 
         {
+            World.Instance.StartGame(1);
             GameModule.UI.ShowUIAsync<UIMainWindow>();
             Log.Debug($"{go.name}");
         }

@@ -15,7 +15,7 @@ namespace GameLogic
         protected override void OnCreate()
         {
             base.OnCreate();
-            LoadLevel(1);
+            LoadLevel(World.Instance.currentLevelId);
         }
 
         protected override void OnUpdate()

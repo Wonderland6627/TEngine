@@ -23,8 +23,6 @@ public partial class BaseCastle : UIWidget
     public UnitType occupiedUnitType; //占领单位类型
     public int occupiedUnitCount; //占领单位数量
 
-    public float unitSpawnInterval = 2f;
-
     public Vector2 startDragPos;
     public Vector2 dragDir;
     
@@ -177,7 +175,14 @@ public partial class BaseCastle : UIWidget
             GameModule.Timer.RemoveTimer(attackTimer);
         }
         int remainingCount = count;
-        float sendDuration = occupiedUnitType == UnitType.Player? 1 : 3;
+        var curLevel = World.Instance.GetCurrentLevel();
+        if (curLevel == null) 
+        {
+            Log.Error($"[{GetType().Name}] no find current level");
+            return;
+        }
+        var curLevelConfig = curLevel.config;
+        float attackDuration = occupiedUnitType == UnitType.Player ? curLevelConfig.playerAttackInterval : curLevelConfig.enemy_1_AttackInterval;
         attackTimer = GameModule.Timer.AddTimer( _ => {
             if (remainingCount == -1) {
                 GameModule.Timer.RemoveTimer(attackTimer);
@@ -188,7 +193,7 @@ public partial class BaseCastle : UIWidget
             World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
             occupiedUnitCount--;
             m_textCountTxt.text = $"{occupiedUnitCount}";
-        }, sendDuration, true);
+        }, attackDuration, true);
     }
 }
 

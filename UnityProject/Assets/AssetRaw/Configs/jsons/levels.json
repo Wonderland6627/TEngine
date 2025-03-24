@@ -86,8 +86,8 @@
     ],
     "config": 
     {
-      "playerSpawnInterval": 1,
-      "enemy_1_SpawnInterval": 3
+      "playerAttackInterval": 1,
+      "enemy_1_AttackInterval": 3
     }
   }
 ]
