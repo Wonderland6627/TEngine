@@ -27,7 +27,7 @@ public partial class World : Singleton<World>
         await LoadConfig();
         // GameModule.UI.ShowUIAsync<UILevelWindow>();
 
-        currentLevelId = 1；
+        currentLevelId = 1;
         GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
 
@@ -66,6 +66,16 @@ partial class World
     public LevelConfig GetCurrentLevel()
     {
         return GetLevel(currentLevelId);
+    }
+
+    public LevelConfig.Config GetCurrentLevelConfig()
+    {
+        var currentLevel = GetLevel(currentLevelId);
+        if (currentLevel == null)
+        {
+            return null;
+        }
+        return currentLevel.config;
     }
 
     public UnitConfig GetUnitConfig(UnitType unitType)

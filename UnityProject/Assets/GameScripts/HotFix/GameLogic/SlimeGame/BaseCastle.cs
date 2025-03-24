@@ -50,7 +50,15 @@ public partial class BaseCastle : UIWidget
         UpdateCountText();
         UpdateCastleImage();
         
-        spawnTimer = GameModule.Timer.AddTimer(SpawnUnit, unitSpawnInterval, true);
+        //todo: 拆出来 当占领单位变化的时候重置间隔
+        var curLevelConfig = World.Instance.GetCurrentLevelConfig();
+        if (curLevelConfig == null) 
+        {
+            Log.Error($"[{GetType().Name}] no find current level config");
+            return;
+        }
+        float spawnInterval = occupiedUnitType == UnitType.Player ? curLevelConfig.playerSpawnInterval : curLevelConfig.enemy_1_SpawnInterval;
+        spawnTimer = GameModule.Timer.AddTimer(SpawnUnit, spawnInterval, true);
 
         var trigger = EventTriggerListener.Get(gameObject);
         trigger.OnDragBegin = OnBeginDrag;
@@ -175,14 +183,13 @@ public partial class BaseCastle : UIWidget
             GameModule.Timer.RemoveTimer(attackTimer);
         }
         int remainingCount = count;
-        var curLevel = World.Instance.GetCurrentLevel();
-        if (curLevel == null) 
+        var curLevelConfig = World.Instance.GetCurrentLevelConfig();
+        if (curLevelConfig == null) 
         {
-            Log.Error($"[{GetType().Name}] no find current level");
+            Log.Error($"[{GetType().Name}] no find current level config");
             return;
         }
-        var curLevelConfig = curLevel.config;
-        float attackDuration = occupiedUnitType == UnitType.Player ? curLevelConfig.playerAttackInterval : curLevelConfig.enemy_1_AttackInterval;
+        float attackInterval = occupiedUnitType == UnitType.Player ? curLevelConfig.playerAttackInterval : curLevelConfig.enemy_1_AttackInterval;
         attackTimer = GameModule.Timer.AddTimer( _ => {
             if (remainingCount == -1) {
                 GameModule.Timer.RemoveTimer(attackTimer);
@@ -193,7 +200,7 @@ public partial class BaseCastle : UIWidget
             World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
             occupiedUnitCount--;
             m_textCountTxt.text = $"{occupiedUnitCount}";
-        }, attackDuration, true);
+        }, attackInterval, true);
     }
 }
 

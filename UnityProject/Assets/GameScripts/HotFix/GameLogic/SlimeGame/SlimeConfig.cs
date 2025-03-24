@@ -12,6 +12,8 @@ namespace GameLogic
         public List<Castle> castles { get; set; }
         public List<Road> roads { get; set; }
 
+        public Config config { get; set; }
+
         public class Castle
         {
             public int id { get; set; }
@@ -37,7 +39,9 @@ namespace GameLogic
         public class Config
         {
             public float playerSpawnInterval { get; set; }
+            public float playerAttackInterval { get; set; }
             public float enemy_1_SpawnInterval { get; set; }
+            public float enemy_1_AttackInterval { get; set; }
         }
     }
 
