@@ -176,21 +176,27 @@ public partial class BaseCastle : UIWidget
         Debug.Log($"[{GetType().Name}] [{gameObject.name}] attack [{target.gameObject.name}], send count: {occupiedUnitCount}");
     }
 
-    private void SendSlime(int count, BaseCastle target)
+    private void SendSlime(int count, BaseCastle target, bool sendDirectly = true)
     {
         if (attackTimer != -1) 
         {
             GameModule.Timer.RemoveTimer(attackTimer);
         }
         int remainingCount = count;
+        float attackInterval = 1f;
         var curLevelConfig = World.Instance.GetCurrentLevelConfig();
-        if (curLevelConfig == null) 
+        if (curLevelConfig != null) 
         {
-            Log.Error($"[{GetType().Name}] no find current level config");
-            return;
+             attackInterval = occupiedUnitType == UnitType.Player ? curLevelConfig.playerAttackInterval : curLevelConfig.enemy_1_AttackInterval;
         }
-        float attackInterval = occupiedUnitType == UnitType.Player ? curLevelConfig.playerAttackInterval : curLevelConfig.enemy_1_AttackInterval;
-        attackTimer = GameModule.Timer.AddTimer( _ => {
+        if (sendDirectly)
+        {
+            Attack();
+        }
+        attackTimer = GameModule.Timer.AddTimer(Attack, attackInterval, true);
+
+        void Attack(params object[] args)
+        {
             if (remainingCount == 0) {
                 GameModule.Timer.RemoveTimer(attackTimer);
                 attackTimer = -1;
@@ -201,7 +207,7 @@ public partial class BaseCastle : UIWidget
             remainingCount--;
             occupiedUnitCount--;
             m_textCountTxt.text = $"{occupiedUnitCount}";
-        }, attackInterval, true);
+        }
     }
 }
 
