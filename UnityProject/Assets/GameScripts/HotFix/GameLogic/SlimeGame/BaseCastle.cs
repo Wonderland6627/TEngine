@@ -16,6 +16,7 @@ public partial class BaseCastle : UIWidget
 {
     public Transform unitContainer;
     
+    public int ID;
     public CastleType castleType;
     public bool isOccupiedOnStart = true; //初始不为空塔
     public bool isOccupied => occupiedUnitCount > 0; //是否被任何单位占领
@@ -27,7 +28,6 @@ public partial class BaseCastle : UIWidget
     public Vector2 startDragPos;
     public Vector2 dragDir;
     
-    private Coroutine currentAttackCoroutine;
     private int spawnTimer = -1;
     private int attackTimer = -1;
 
@@ -177,6 +177,7 @@ public partial class BaseCastle : UIWidget
             GameModule.Timer.RemoveTimer(attackTimer);
         }
         int remainingCount = count;
+        float sendDuration = occupiedUnitType == UnitType.Player? 1 : 3;
         attackTimer = GameModule.Timer.AddTimer( _ => {
             if (remainingCount == -1) {
                 GameModule.Timer.RemoveTimer(attackTimer);
@@ -187,7 +188,7 @@ public partial class BaseCastle : UIWidget
             World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
             occupiedUnitCount--;
             m_textCountTxt.text = $"{occupiedUnitCount}";
-        }, 0.5f, true);
+        }, sendDuration, true);
     }
 }
 

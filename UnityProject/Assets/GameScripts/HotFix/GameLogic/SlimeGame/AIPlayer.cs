@@ -8,7 +8,7 @@ public class AIPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("Execute", 1f, 2.5f);
+        InvokeRepeating("Execute", 1f, 4f);
     }
 
     // Update is called once per frame

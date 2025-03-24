@@ -47,6 +47,8 @@ namespace GameLogic
         }
     }
 
+    //===================================================================================
+
     public class UnitConfig
     {
         public int unitType { get; set; }

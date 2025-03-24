@@ -6,10 +6,9 @@ using GameBase;
 using GameLogic;
 using TEngine;
 
-[System.Serializable]
 public class Road
 {
-    public List<RectTransform> points; //限制points的长度为2
+    public List<BaseCastle> points; //限制points的长度为2
 }
 
 public partial class World : 
@@ -23,13 +22,14 @@ public partial class World :
     public UnitReader unitReader { get; private set; }
     
     public List<BaseCastle> castles = new List<BaseCastle>();
-    public List<Road> roads = new List<Road>();
+
+    public List<BaseRoad> roads = new List<BaseRoad>();
 
     public async void AsyncInit()
     {
         await LoadConfig();
-        GameModule.UI.ShowUIAsync<UILevelWindow>();
-        // GameModule.UI.ShowUIAsync<UIMainWindow>();
+        // GameModule.UI.ShowUIAsync<UILevelWindow>();
+        GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
 }
 
@@ -84,7 +84,7 @@ partial class World
         this.castles = castles;
     }
 
-    public void SetRoads(List<Road> roads)
+    public void SetRoads(List<BaseRoad> roads)
     {
         this.roads = roads;
     }
@@ -104,16 +104,14 @@ partial class World
         unit.transform.position = spawnCastle.transform.position;
         unit.transform.localScale = Vector3.one;
         unit.SetTarget(targetCastle);
+
+        RegisterUnit2Road(unit, spawnCastle, targetCastle);
     }
 
     public bool FindCastle(BaseCastle origin, Vector2 dir, out BaseCastle target)
     {
         target = null;
         List<BaseCastle> inAngleCastles = new List<BaseCastle>();
-        // if (castles.Count == 0)
-        // {
-        //     castles.AddRange(GameObject.FindObjectsOfType<BaseCastle>());
-        // }
         foreach (var castle in castles)
         {
             if (castle == origin)
@@ -141,8 +139,25 @@ partial class World
         return IsOnSameRoad(origin, target);
     }
 
+    public BaseRoad FindRoad(BaseCastle castle1, BaseCastle castle2)
+    {
+        return roads.FirstOrDefault(road => road.data.points.Contains(castle1) && road.data.points.Contains(castle2));
+    }
+
+    public bool RegisterUnit2Road(BaseUnit unit, BaseCastle spawnCastle, BaseCastle targetCastle) 
+    {
+        BaseRoad road = FindRoad(spawnCastle, targetCastle);
+        if (road == null)
+        {
+            Log.Error($"road is null between {spawnCastle.gameObject.name} and {targetCastle.gameObject.name}");
+            return false;
+        }
+        road.RegisterUnit(unit);
+        return true;
+    }
+
     public bool IsOnSameRoad(BaseCastle castle1, BaseCastle castle2)
     {
-        return roads.Any(road => road.points.Contains(castle1.transform as RectTransform) && road.points.Contains(castle2.transform as RectTransform));
+        return roads.Any(road => road.data.points.Contains(castle1) && road.data.points.Contains(castle2));
     }
 }

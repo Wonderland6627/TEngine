@@ -79,26 +79,6 @@ public partial class BaseUnit : UIWidget
         target.OnOccupyByUnit(unitType);
         Destroy();
     }
-
-    private void OnTriggerEnemy(BaseUnit enemyUnit)
-    {
-        enemyUnit.Destroy();
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        // BaseCastle otherCastle = other.GetComponent<BaseCastle>();
-        // if (otherCastle == target)
-        // {
-        //     OnTriggerTarget();
-        // }
-        
-        // BaseUnit otherUnit = other.GetComponent<BaseUnit>();
-        // if (otherUnit != null && otherUnit.unitType != unitType)
-        // {
-        //     OnTriggerEnemy(otherUnit);
-        // }
-    }
 }
 
 partial class BaseUnit

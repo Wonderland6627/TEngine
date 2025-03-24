@@ -10,7 +10,7 @@ namespace GameLogic
     partial class UIMainWindow : UIWindow
     {
         private List<BaseCastle> m_Castles = new List<BaseCastle>();
-        private List<Road> m_Roads = new List<Road>();
+        private List<BaseRoad> m_Roads = new List<BaseRoad>();
         
         protected override void OnCreate()
         {
@@ -49,6 +49,7 @@ namespace GameLogic
             foreach (var config in castles)
             {
                 var castle = await CreateWidgetByPathAsync<BaseCastle>(m_tfCastleContainer, "Assets/AssetRaw/UI/InGame/Castle.prefab");
+                castle.ID = config.id;
                 castle.gameObject.name = $"Castle_{config.id}";
                 castle.castleType = (CastleType)config.castleType;
                 castle.isOccupiedOnStart = config.occupiedOnStart;
@@ -58,6 +59,10 @@ namespace GameLogic
                 castle.transform.localPosition = new Vector2(config.position.x, config.position.y);
                 castle.transform.localScale = Vector3.one;
                 castle.Init();
+                if (castle.occupiedUnitType != UnitType.Player) 
+                {
+                    castle.gameObject.AddComponent<AIPlayer>();
+                }
                 m_Castles.Add(castle);
             }
             World.Instance.SetCastles(m_Castles);
@@ -75,20 +80,31 @@ namespace GameLogic
                     continue;
                 }
                 
-                var startCastle = m_Castles[config.startCastleId];
-                var endCastle = m_Castles[config.endCastleId];
-                var road = new Road();
-                road.points = new List<RectTransform>();
-                road.points.Add(startCastle.transform.RectTransform());
-                road.points.Add(endCastle.transform.RectTransform());
-                
-                var roadIns = await GameModule.Resource.LoadGameObjectAsync("Assets/AssetRaw/UI/InGame/Road.prefab");
+                var startCastle = FindCastleByID(config.startCastleId);
+                var endCastle = FindCastleByID(config.endCastleId);
+                if (startCastle == null || endCastle == null)
+                {
+                    Log.Error("road invalid: " + config.startCastleId + " " + config.endCastleId);
+                    continue;
+                }
+                var roadData = new Road
+                {
+                    points = new List<BaseCastle>
+                    {
+                        startCastle,
+                        endCastle
+                    }
+                };
+
+                var roadIns = await CreateWidgetByPathAsync<BaseRoad>(m_tfCastleContainer, "Assets/AssetRaw/UI/InGame/Road.prefab");
                 roadIns.transform.SetParent(m_tfRoadContainer);
-                roadIns.name = $"Road_{config.startCastleId}_{config.endCastleId}";
-                
+                roadIns.gameObject.name = $"Road_{config.startCastleId}_{config.endCastleId}";
+                roadIns.data = roadData;
+                m_Roads.Add(roadIns);
+
                 var roadRect = roadIns.transform.RectTransform();
-                Vector2 start = road.points[0].anchoredPosition;
-                Vector2 end = road.points[1].anchoredPosition;
+                Vector2 start = roadData.points[0].transform.RectTransform().anchoredPosition;
+                Vector2 end = roadData.points[1].transform.RectTransform().anchoredPosition;
                 
                 float distance = Vector2.Distance(start, end);
                 roadRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, distance);
@@ -100,10 +116,13 @@ namespace GameLogic
 
                 Vector2 center = (start + end) / 2;
                 roadRect.localPosition = center;
-                
-                m_Roads.Add(road);
             }
             World.Instance.SetRoads(m_Roads);
+        }
+
+        private BaseCastle FindCastleByID(int castleID)
+        {
+            return m_Castles.Find(castle => castle.ID == castleID);
         }
     }
 
