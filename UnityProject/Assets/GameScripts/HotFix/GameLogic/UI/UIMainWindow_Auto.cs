@@ -59,10 +59,6 @@ namespace GameLogic
                 castle.transform.localPosition = new Vector2(config.position.x, config.position.y);
                 castle.transform.localScale = Vector3.one;
                 castle.Init();
-                if (castle.occupiedUnitType != UnitType.Player) 
-                {
-                    castle.gameObject.AddComponent<AIPlayer>();
-                }
                 m_Castles.Add(castle);
             }
             World.Instance.SetCastles(m_Castles);

@@ -22,6 +22,8 @@ public partial class World : Singleton<World>
 
     public int currentLevelId = 0;
 
+    private int aiPlayerExeTimer = -1;
+
     public async void AsyncInit()
     {
         await LoadConfig();
@@ -34,6 +36,7 @@ public partial class World : Singleton<World>
     public void StartGame(int levelId) 
     {
         currentLevelId = levelId;
+        aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 3f, true);
     }
 }
 
@@ -90,12 +93,18 @@ partial class World
     }
 }
 
+//Game Items
 partial class World
 {
     public void ClearItems() 
     {
         castles.Clear();
         roads.Clear();
+        if (aiPlayerExeTimer != -1)
+        {
+            GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
+            aiPlayerExeTimer = -1;
+        }
     }
 
     public void SetCastles(List<BaseCastle> castles)
@@ -178,5 +187,51 @@ partial class World
     public bool IsOnSameRoad(BaseCastle castle1, BaseCastle castle2)
     {
         return roads.Any(road => road.data.points.Contains(castle1) && road.data.points.Contains(castle2));
+    }
+}
+
+//AI
+partial class World
+{
+    void ExecuteAI()
+    {
+        List<BaseCastle> aiCastles = World.Instance.castles.FindAll(castle => castle.occupiedUnitType != UnitType.Player);
+        for (int i = 0; i < aiCastles.Count; i++)
+        {
+            BaseCastle aiCastle = aiCastles[i];
+            if (aiCastle == null)
+            {
+                continue;
+            }
+            if (aiCastle.occupiedUnitCount < 5)
+            {
+                continue;
+            }
+
+            //蚂蚁首先找最近的蜜蜂点位 找到路径 攻占路径上的点位
+            List<BaseCastle> playerCastles = World.Instance.castles
+                .FindAll(castle => castle != aiCastle && castle.occupiedUnitType == UnitType.Player || !castle.isOccupied)
+                .OrderBy(castle => Vector2.Distance(castle.transform.position, aiCastle.transform.position))
+                .ToList();
+            foreach (var playerCastle in playerCastles)
+            {
+                if (!World.Instance.IsOnSameRoad(aiCastle, playerCastle))
+                {
+                    //找交叉点
+                    var allCrossCastles = World.Instance.castles.FindAll(castle =>
+                        World.Instance.IsOnSameRoad(aiCastle, castle) &&
+                        World.Instance.IsOnSameRoad(playerCastle, castle));
+                    var nearestCrossCastle = allCrossCastles
+                       .OrderBy(castle => Vector2.Distance(castle.transform.position, aiCastle.transform.position))
+                       .FirstOrDefault();
+                    if (nearestCrossCastle != null)
+                    {
+                        aiCastle.MoveTo(nearestCrossCastle);
+                        continue;
+                    }
+                }
+                aiCastle.MoveTo(playerCastle);
+            }
+        }
     }
 }
