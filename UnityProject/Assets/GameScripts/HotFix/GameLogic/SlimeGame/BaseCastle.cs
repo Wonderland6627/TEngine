@@ -173,7 +173,7 @@ public partial class BaseCastle : UIWidget
         }
 
         SendSlime(occupiedUnitCount, target);
-        // Debug.Log($"[{GetType().Name}] attack [{target.name}]");
+        Debug.Log($"[{GetType().Name}] attack [{target.name}], send count: {occupiedUnitCount}");
     }
 
     private void SendSlime(int count, BaseCastle target)
@@ -191,13 +191,14 @@ public partial class BaseCastle : UIWidget
         }
         float attackInterval = occupiedUnitType == UnitType.Player ? curLevelConfig.playerAttackInterval : curLevelConfig.enemy_1_AttackInterval;
         attackTimer = GameModule.Timer.AddTimer( _ => {
-            if (remainingCount == -1) {
+            if (remainingCount == 0) {
                 GameModule.Timer.RemoveTimer(attackTimer);
                 attackTimer = -1;
                 return;
             }
 
             World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
+            remainingCount--;
             occupiedUnitCount--;
             m_textCountTxt.text = $"{occupiedUnitCount}";
         }, attackInterval, true);
