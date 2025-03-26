@@ -138,6 +138,7 @@ public partial class BaseCastle : UIWidget
             return;
         }
         startDragPos = eventData.position;
+        ShowDragArrow();
     }
 
     public void OnDrag(GameObject go, PointerEventData eventData)
@@ -148,6 +149,7 @@ public partial class BaseCastle : UIWidget
         }
         dragDir = eventData.position - startDragPos;
         dragDir.Normalize();
+        OnDragArrow(eventData.position);
     }
 
     public void OnEndDrag(GameObject go, PointerEventData eventData)
@@ -156,6 +158,7 @@ public partial class BaseCastle : UIWidget
         {
             return;
         }
+        HideDragArrow();
         if (!World.Instance.FindCastle(this, dragDir, out BaseCastle target))
         {
             Debug.Log($"[{GetType().Name}] no find target castle");
@@ -213,17 +216,43 @@ public partial class BaseCastle : UIWidget
 
 partial class BaseCastle
 {
+    private void ShowDragArrow()
+    {
+        m_rectDragArrow.gameObject.SetActive(true);
+    }
+
+    private void OnDragArrow(Vector2 mousePos)
+    {
+        Vector2 dragVector = mousePos - startDragPos;
+        float angle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
+        float length = dragVector.magnitude;
+        m_rectDragArrow.rotation = Quaternion.Euler(0, 0, angle);
+        float minLength = 50f;
+        length = Mathf.Clamp(length, minLength, length);
+        m_rectDragArrow.sizeDelta = new Vector2(length, m_rectDragArrow.sizeDelta.y);
+    }
+
+    private void HideDragArrow()
+    {
+        m_rectDragArrow.gameObject.SetActive(false);
+    }
+}
+
+partial class BaseCastle
+{
     #region 脚本工具生成的代码
     private Image m_imgPlayerImg;
     private Image m_imgEnemy_1_Img;
     private Image m_imgFreeImg;
     private Text m_textCountTxt;
+    private RectTransform m_rectDragArrow;
     protected override void ScriptGenerator()
     {
         m_imgPlayerImg = FindChildComponent<Image>("m_imgPlayerImg");
         m_imgEnemy_1_Img = FindChildComponent<Image>("m_imgEnemy_1_Img");
         m_imgFreeImg = FindChildComponent<Image>("m_imgFreeImg");
         m_textCountTxt = FindChildComponent<Text>("m_textCountTxt");
+        m_rectDragArrow = FindChildComponent<RectTransform>("m_rectDragArrow");
     }
     #endregion
 }
