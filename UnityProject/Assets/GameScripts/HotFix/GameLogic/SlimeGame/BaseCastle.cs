@@ -18,10 +18,10 @@ public partial class BaseCastle : UIWidget
     
     public int ID;
     public CastleType castleType;
+    public UnitType occupiedUnitType; //占领单位类型
     public bool isOccupiedOnStart = true; //初始不为空塔
     public bool isOccupied => occupiedUnitCount > 0 || occupiedTime > 0; //是否被任何单位占领
     public int occupiedTime = 0; //被占领次数
-    public UnitType occupiedUnitType; //占领单位类型
     public int occupiedUnitCount; //占领单位数量
 
     public Vector2 startDragPos;

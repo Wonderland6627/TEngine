@@ -14,7 +14,6 @@ namespace GameLogic
         protected override void OnCreate()
         {
             base.OnCreate();
-            Log.Debug("UILevelCell OnCreate");
             EventTriggerListener.Get(gameObject).OnClick = OnCellClick;
         }
 
@@ -26,9 +25,10 @@ namespace GameLogic
 
         private void OnCellClick(GameObject go) 
         {
-            World.Instance.StartGame(1);
+            int levelId = config.levelId;
+            World.Instance.StartGame(levelId);
             GameModule.UI.ShowUIAsync<UIMainWindow>();
-            Log.Debug($"{go.name}");
+            Log.Debug($"[UILevelCell] OnCellClick [{levelId}]");
         }
     }
 

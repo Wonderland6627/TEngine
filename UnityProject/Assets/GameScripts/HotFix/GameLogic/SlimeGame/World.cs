@@ -27,11 +27,11 @@ public partial class World : Singleton<World>
     public async void AsyncInit()
     {
         await LoadConfig();
-        // GameModule.UI.ShowUIAsync<UILevelWindow>();
+        GameModule.UI.ShowUIAsync<UILevelWindow>();
 
         //Test
-        StartGame(1);
-        GameModule.UI.ShowUIAsync<UIMainWindow>();
+        // StartGame(1);
+        // GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
 
     public void StartGame(int levelId) 
