@@ -19,7 +19,8 @@ public partial class BaseCastle : UIWidget
     public int ID;
     public CastleType castleType;
     public bool isOccupiedOnStart = true; //初始不为空塔
-    public bool isOccupied => occupiedUnitCount > 0; //是否被任何单位占领
+    public bool isOccupied => occupiedUnitCount > 0 || occupiedTime > 0; //是否被任何单位占领
+    public int occupiedTime = 0; //被占领次数
     public UnitType occupiedUnitType; //占领单位类型
     public int occupiedUnitCount; //占领单位数量
 
@@ -45,6 +46,9 @@ public partial class BaseCastle : UIWidget
         if (!isOccupiedOnStart)
         {
             occupiedUnitCount = -10;
+        } else 
+        {
+            occupiedTime = 1;
         }
 
         UpdateCountText();
@@ -109,6 +113,7 @@ public partial class BaseCastle : UIWidget
             occupiedUnitType = unitType;
             GameModule.Timer.RemoveTimer(attackTimer);
             attackTimer = -1;
+            occupiedTime++;
         }
         // Debug.Log($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
 
