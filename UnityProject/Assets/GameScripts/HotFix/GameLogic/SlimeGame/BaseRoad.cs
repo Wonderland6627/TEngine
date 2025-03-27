@@ -9,11 +9,22 @@ public partial class BaseRoad : UIWidget
     public Road data;
 
     private List<BaseUnit> m_Units = new List<BaseUnit>();
+    public List<BaseUnit> Units => m_Units;
 
     protected override void OnUpdate()
     {
         base.OnUpdate();
         CheckUnitsTriggered();
+    }
+
+    protected override void OnDestroy()
+    {
+        for (int i = 0; i < m_Units.Count; i++)
+        {
+            m_Units[i].Destroy();
+        }
+        m_Units.Clear();
+        base.OnDestroy();
     }
 
     private void CheckUnitsTriggered()

@@ -38,6 +38,7 @@ public partial class BaseCastle : UIWidget
     protected override void OnDestroy()
     {
         GameModule.Timer.RemoveTimer(spawnTimer);
+        GameModule.Timer.RemoveTimer(attackTimer);
         base.OnDestroy();
     }
 

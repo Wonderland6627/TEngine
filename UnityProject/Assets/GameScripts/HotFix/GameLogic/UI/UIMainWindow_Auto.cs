@@ -6,7 +6,7 @@ using TEngine;
 
 namespace GameLogic
 {
-    [Window(UILayer.UI)]
+    [Window(UILayer.UI, fullScreen: true)]
     partial class UIMainWindow : UIWindow
     {
         private List<BaseCastle> m_Castles = new List<BaseCastle>();
@@ -22,9 +22,9 @@ namespace GameLogic
         {
             base.OnUpdate();
             if (Input.GetKeyDown(KeyCode.Escape)) {
+                
+                World.Instance.EndGame();
                 Close();
-                GameModule.UI.ShowUIAsync<UILevelWindow>();
-                World.Instance.ClearItems();
             }
         }
 

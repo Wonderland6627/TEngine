@@ -11,7 +11,12 @@ public class Road
     public List<BaseCastle> points; //限制points的长度为2
 }
 
-public partial class World : Singleton<World>
+public partial class World : 
+#if UNITY_EDITOR
+    SingletonBehaviour<World>
+#else
+    Singleton<World>
+#endif
 {
     public LevelReader levelReader { get; private set; }
     public UnitReader unitReader { get; private set; }
@@ -39,6 +44,41 @@ public partial class World : Singleton<World>
         currentLevelId = levelId;
         aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 5f, true);
     }
+
+    public void EndGame()
+    {
+        foreach (var castle in castles)
+        {
+            castle.Destroy();
+        }
+        castles.Clear();
+
+        foreach (var road in roads)
+        {
+            road.Destroy();
+        }
+        roads.Clear();
+
+        GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
+        GameModule.UI.ShowUIAsync<UILevelWindow>();
+    }
+
+#if UNITY_EDITOR
+    void Update()
+    {
+        return;
+        string log = "[World]";
+        foreach (var road in roads)
+        {
+            log += $"[road:{road.gameObject.name}, units count: {road.Units.Count}]";
+        }
+        foreach (var castle in castles)
+        {
+            log += $"[castle:{castle.gameObject.name}]";
+        }
+        Log.Info(log);
+    } 
+#endif
 }
 
 partial class World
@@ -97,17 +137,6 @@ partial class World
 //Game Items
 partial class World
 {
-    public void ClearItems() 
-    {
-        castles.Clear();
-        roads.Clear();
-        if (aiPlayerExeTimer != -1)
-        {
-            GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
-            aiPlayerExeTimer = -1;
-        }
-    }
-
     public void SetCastles(List<BaseCastle> castles)
     {
         this.castles = castles;
@@ -126,6 +155,10 @@ partial class World
             return;
         }
         var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIMainWindow>();
+        if (mainWindow == null)
+        {
+            return;
+        }
         var unit = await mainWindow.CreateWidgetByPathAsync<BaseUnit>(container, unitConfig.unitPrefabPath);
         unit.gameObject.name = $"{unitType}_{unit.gameObject.GetInstanceID()}";
         unit.unitType = unitType;
