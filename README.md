@@ -1,3 +1,30 @@
+# 任务清单
+
+<summary>🔄 热更新系统</summary>
+
+- [ ] 热更界面更新
+- [ ] CDN流程
+
+<summary>🎮 关卡系统</summary>
+
+- [ ] 关卡进度
+- [ ] 关卡解锁
+
+<summary>🎯 游戏核心功能</summary>
+
+- [x] 游戏基本逻辑实现
+- [ ] 游戏结算
+- [ ] 游戏暂停与继续
+- [ ] 游戏道具系统
+- [ ] 广告弹出送奖励
+
+<summary>📢 广告系统</summary>
+
+- [ ] 多平台广告集成
+- [ ] 广告奖励机制
+
+---
+
 # TEngine
 <p align="center">
     <img src="Books/src/TEngine512.png" alt="logo" width="384" height="384">
