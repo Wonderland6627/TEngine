@@ -72,6 +72,8 @@ MonoBehaviour:
       componentName: RedNoteBehaviour
     - uiElementRegex: m_slider
       componentName: Slider
+    - uiElementRegex: m_tog
+      componentName: Toggle
     - uiElementRegex: m_group
       componentName: ToggleGroup
     - uiElementRegex: m_curve
