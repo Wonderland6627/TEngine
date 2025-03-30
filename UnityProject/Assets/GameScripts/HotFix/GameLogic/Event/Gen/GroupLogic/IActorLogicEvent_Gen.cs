@@ -20,6 +20,7 @@ namespace GameLogic
 		public static readonly int OnMainPlayerBindDiamondChange = RuntimeId.ToRuntimeId("IActorLogicEvent_Event.OnMainPlayerBindDiamondChange");
 		public static readonly int OnMainPlayerCurrencyChange = RuntimeId.ToRuntimeId("IActorLogicEvent_Event.OnMainPlayerCurrencyChange");
 		public static readonly int OnMainPlayerExpChange = RuntimeId.ToRuntimeId("IActorLogicEvent_Event.OnMainPlayerExpChange");
+		public static readonly int OnGameOver = RuntimeId.ToRuntimeId("IActorLogicEvent_Event.OnGameOver");
 	}
 
 	[EventInterfaceImp(EEventGroup.GroupLogic)]
@@ -64,6 +65,11 @@ namespace GameLogic
         public void OnMainPlayerExpChange(System.UInt64 oldVal,System.UInt64 newVal)
         {
             _dispatcher.Send(IActorLogicEvent_Event.OnMainPlayerExpChange,oldVal,newVal);
+        }
+
+        public void OnGameOver(GameLogic.GameOverParam param)
+        {
+            _dispatcher.Send(IActorLogicEvent_Event.OnGameOver,param);
         }
 
 	}
