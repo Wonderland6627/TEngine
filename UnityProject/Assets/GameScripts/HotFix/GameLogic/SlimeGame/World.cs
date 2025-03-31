@@ -11,12 +11,22 @@ public class Road
     public List<BaseCastle> points; //限制points的长度为2
 }
 
-public partial class World : 
-#if UNITY_EDITOR
-    SingletonBehaviour<World>
-#else
-    Singleton<World>
-#endif
+public class UserData
+{
+    public static int UnlockedLevelId
+    {
+        get
+        {
+            return GameModule.Setting.GetInt("UnlockedLevelId", 1);
+        }
+        set
+        {
+            GameModule.Setting.SetInt("UnlockedLevelId", value);
+        }
+    }
+}
+
+public partial class World : BaseLogicSys<World>
 {
     public LevelReader levelReader { get; private set; }
     public UnitReader unitReader { get; private set; }
@@ -25,7 +35,9 @@ public partial class World :
 
     public List<BaseRoad> roads = new List<BaseRoad>();
 
-    public int currentLevelId = 0;
+    public int playingLevelId = 0;
+
+    public bool isPlaying = false;
 
     private int aiPlayerExeTimer = -1;
 
@@ -39,14 +51,23 @@ public partial class World :
         // GameModule.UI.ShowUIAsync<UIMainWindow>();
     }
 
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+        CheckGameOver();
+        DebugUpdate();
+    }
+
     public void StartGame(int levelId) 
     {
-        currentLevelId = levelId;
+        playingLevelId = levelId;
         aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 5f, true);
+        isPlaying = true;
     }
 
     public void EndGame()
     {
+        isPlaying = false;
         foreach (var castle in castles)
         {
             castle.Destroy();
@@ -63,8 +84,29 @@ public partial class World :
         GameModule.UI.ShowUIAsync<UILevelWindow>();
     }
 
-#if UNITY_EDITOR
-    void Update()
+    private void CheckGameOver()
+    {
+        if (!isPlaying) return;
+        if (castles.Count == 0) return;
+
+        //检查所有的castle的被占领类型是否都相同
+        List<UnitType> unitTypes = castles.Select(castle => castle.occupiedUnitType).Distinct().ToList();
+        if (unitTypes.Count > 1) return;
+        UnitType winUnitType = unitTypes[0];
+        if (winUnitType == UnitType.Player)
+        {
+            if (UserData.UnlockedLevelId < playingLevelId)
+            {
+                UserData.UnlockedLevelId = playingLevelId;
+            }
+        }
+
+        isPlaying = false;
+        GameEvent.Send("GameOver", new GameOverParam() { winUnitType = winUnitType });
+        GameEvent.Get<IActorLogicEvent>().OnGameOver(new GameOverParam() { winUnitType = winUnitType });
+    }
+
+    void DebugUpdate()
     {
         return;
         string log = "[World]";
@@ -78,7 +120,6 @@ public partial class World :
         }
         Log.Info(log);
     } 
-#endif
 }
 
 partial class World
@@ -109,12 +150,12 @@ partial class World
 
     public LevelConfig GetCurrentLevel()
     {
-        return GetLevel(currentLevelId);
+        return GetLevel(playingLevelId);
     }
 
     public LevelConfig.Config GetCurrentLevelConfig()
     {
-        var currentLevel = GetLevel(currentLevelId);
+        var currentLevel = GetLevel(playingLevelId);
         if (currentLevel == null)
         {
             return null;

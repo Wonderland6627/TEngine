@@ -15,7 +15,20 @@ namespace GameLogic
         protected override void OnCreate()
         {
             base.OnCreate();
-            LoadLevel(World.Instance.currentLevelId);
+            LoadLevel(World.Instance.playingLevelId);
+            GameEvent.AddEventListener<GameOverParam>(IActorLogicEvent_Event.OnGameOver, OnGameOver);
+
+        }
+
+        protected override void OnDestroy()
+        {
+            GameEvent.RemoveEventListener<GameOverParam>(IActorLogicEvent_Event.OnGameOver, OnGameOver);
+            base.OnDestroy();
+        }
+
+        private void OnGameOver(GameOverParam  p)
+        {
+            Log.Info("GameOver" + p.winUnitType);
         }
 
         protected override void OnUpdate()
