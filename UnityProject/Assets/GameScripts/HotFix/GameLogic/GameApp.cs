@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using GameBase;
 using GameLogic;
 using TEngine;
+using WeChatWASM;
 
 /// <summary>
 /// 游戏App。
@@ -40,7 +41,15 @@ public partial class GameApp:Singleton<GameApp>
     private void StartGameLogic()
     {
         Log.Info("GameApp StartGameLogic");
-        World.Instance.AsyncInit();
+        WX.InitSDK((code) => 
+        {
+            Log.Info($"GameApp StartGameLogic WX.InitSDK: {0}", code);
+            // if (code != 0)
+            // {
+            //     return;
+            // }
+            World.Instance.AsyncInit();
+        });
     }
     
     /// <summary>

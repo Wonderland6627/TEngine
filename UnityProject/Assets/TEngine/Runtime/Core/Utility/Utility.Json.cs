@@ -108,5 +108,15 @@ namespace TEngine
                 }
             }
         }
+
+        public static string ToJson(this object obj)
+        {
+            return Json.ToJson(obj);
+        }
+
+        public static T ToObject<T>(this string json)
+        {
+            return Json.ToObject<T>(json);
+        }
     }
 }
