@@ -32,6 +32,12 @@ namespace TEngine
 		public EventDelegate OnDropEvent;
 
 		public delegate void ClickEffectDelegate();
+
+		public static EventTriggerListener Get(UnityEngine.UI.Selectable obj, float time = -1, bool play_ani = true, float scale = 1)
+		{
+			return Get(obj.gameObject, time, play_ani, scale);
+		}
+
 		public static EventTriggerListener Get(GameObject go, float time = -1, bool play_ani = true, float scale = 1)
 		{
 			if (!go)

@@ -44,7 +44,8 @@ public partial class World : BaseLogicSys<World>
     public async void AsyncInit()
     {
         await LoadConfig();
-        GameModule.UI.ShowUIAsync<UILevelWindow>();
+        GameModule.UI.ShowUIAsync<UIMenuWindow>();
+        // GameModule.UI.ShowUIAsync<UILevelWindow>();
 
         //Test
         // StartGame(1);

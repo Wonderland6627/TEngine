@@ -17,18 +17,25 @@ namespace GameLogic
 				UILevelCell levelCell = CreateWidgetByPrefab<UILevelCell>(m_itemLevelCell, m_rectContent);
 				levelCell.SetConfig(levels[i]);
 			}
+
+			EventTriggerListener.Get(m_btnBack).OnClick = go =>
+			{
+				Close();
+			};
 		}
 	}
 	
 	partial class UILevelWindow
 	{
 		#region 脚本工具生成的代码
+		private Button m_btnBack;
 		private GameObject m_itemLevelCell;
 		private Transform m_tfLevelContainer;
 		private ScrollRect m_scrollRectLevelScroll;
 		private RectTransform m_rectContent;
 		protected override void ScriptGenerator()
 		{
+			m_btnBack = FindChildComponent<Button>("bg/m_btnBack");
 			m_itemLevelCell = FindChild("bg/m_itemLevelCell").gameObject;
 			m_tfLevelContainer = FindChild("bg/m_tfLevelContainer");
 			m_scrollRectLevelScroll = FindChildComponent<ScrollRect>("bg/m_tfLevelContainer/m_scrollRectLevelScroll");
