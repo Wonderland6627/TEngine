@@ -4,6 +4,7 @@
 
 - [ ] 热更界面更新
 - [x] CDN流程
+- [ ] CDN结构更新
 
 <summary>🎮 关卡系统</summary>
 
