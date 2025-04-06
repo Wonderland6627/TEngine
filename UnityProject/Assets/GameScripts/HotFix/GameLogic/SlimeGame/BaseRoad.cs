@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TEngine;
 using System.Collections.Generic;
 using System;
+using GameLogic;
 
 public partial class BaseRoad : UIWidget
 {

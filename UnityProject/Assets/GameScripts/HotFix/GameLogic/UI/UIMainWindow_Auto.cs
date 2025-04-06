@@ -17,7 +17,6 @@ namespace GameLogic
             base.OnCreate();
             LoadLevel(World.Instance.playingLevelId);
             GameEvent.AddEventListener<GameOverParam>(IActorLogicEvent_Event.OnGameOver, OnGameOver);
-
         }
 
         protected override void OnDestroy()

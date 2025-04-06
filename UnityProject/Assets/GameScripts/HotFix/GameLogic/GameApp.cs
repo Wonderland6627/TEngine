@@ -41,15 +41,7 @@ public partial class GameApp:Singleton<GameApp>
     private void StartGameLogic()
     {
         Log.Info("GameApp StartGameLogic");
-        WX.InitSDK((code) => 
-        {
-            Log.Info($"GameApp StartGameLogic WX.InitSDK: {0}", code);
-            // if (code != 0)
-            // {
-            //     return;
-            // }
-            World.Instance.AsyncInit();
-        });
+        World.Instance.AsyncInit();
     }
     
     /// <summary>
