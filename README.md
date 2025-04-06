@@ -4,12 +4,16 @@
 
 - [ ] 热更界面更新
 - [x] CDN流程
-- [ ] CDN结构更新
+- [x] CDN结构更新
 
 <summary>🎮 关卡系统</summary>
 
-- [ ] 关卡进度
+- [x] 关卡进度
 - [ ] 关卡解锁
+
+<summary>🚀 排行榜系统</summary>
+
+- [ ] 好友排行
 
 <summary>🎯 游戏核心功能</summary>
 
