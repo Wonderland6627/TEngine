@@ -10,8 +10,8 @@ namespace GameLogic
     {
         public SlimeGameData gameData =
 #if UNITY_EDITOR
-            // new EditorUserData();
-            new WXUserData();
+            new EditorUserData();
+        // new WXUserData();
 #else
             new WXUserData();
 #endif
@@ -155,6 +155,28 @@ namespace GameLogic
                     Log.Error("call cloud function getCode2Session failed: " + err.ToJson().ToString());
                 }
             });
+        }
+    }
+
+    partial class World
+    {
+        public void InitEditor()
+        {
+            if (string.IsNullOrEmpty(gameData.UserInfo.openId))
+            {
+                gameData.UserInfo = new UserInfo()
+                {
+                    openId = "test",
+                    nickName = "EditorPlayer",
+                    avatarUrl = "https://i1.hdslb.com/bfs/face/6532675fc11c0451826ab97f53a771a0d9d4ef79.jpg@150w_150h.jpg",
+                    gender = 1,
+                    province = "",
+                    city = "",
+                    country = "",
+                    language = ""
+                };
+            }
+            Log.Info($"[World] InitEditor, UserInfo: {gameData.UserInfo.ToJson()}");
         }
     }
 }

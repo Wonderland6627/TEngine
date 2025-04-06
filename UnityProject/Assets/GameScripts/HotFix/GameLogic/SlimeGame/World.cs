@@ -48,19 +48,32 @@ namespace GameLogic
         public async void AsyncInit()
         {
             await LoadConfig();
+
+            bool hasOpenID = !string.IsNullOrEmpty(gameData.UserInfo.openId);
+            bool hasBasicInfo = !string.IsNullOrEmpty(gameData.UserInfo.nickName);
+#if UNITY_EDITOR
+            InitEditor();
+#else
             InitWX((success) =>
             {
                 if (success)
                 {
-                    Log.Info("Init WX SDK success");
-                    GetSetting();
-                    WXLogin();
+                    Log.Info($"Init WX SDK success, hasOpenID: {hasOpenID}, hasBasicInfo: {hasBasicInfo}");
+                    if (!hasOpenID)
+                    {
+                        GetSetting();
+                    }
+                    if (!hasBasicInfo)
+                    {
+                        WXLogin();
+                    }
                 }
                 else
                 {
                     Log.Error("Init WX SDK failed");
                 }
             });
+#endif
             GameModule.UI.ShowUIAsync<UIMenuWindow>();
         }
 
@@ -115,7 +128,6 @@ namespace GameLogic
             }
 
             isPlaying = false;
-            GameEvent.Send("GameOver", new GameOverParam() { winUnitType = winUnitType });
             GameEvent.Get<IActorLogicEvent>().OnGameOver(new GameOverParam() { winUnitType = winUnitType });
         }
 

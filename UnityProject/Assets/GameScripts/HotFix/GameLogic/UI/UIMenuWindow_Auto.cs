@@ -1,9 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
-using WeChatWASM;
 using Cysharp.Threading.Tasks;
-using UnityEngine.Networking;
 
 namespace GameLogic
 {
@@ -13,7 +11,21 @@ namespace GameLogic
         protected override void OnCreate()
         {
             base.OnCreate();
+            m_textTitle.text = $"Hello, {World.Instance.gameData.UserInfo.nickName}!";
             EventTriggerListener.Get(m_btnStartGame).OnClick = OnStartGameClick;
+            GameEvent.AddEventListener<UserInfo>(IActorLogicEvent_Event.OnUserInfoUpdate, OnUserInfoUpdate);
+        }
+
+        protected override void OnDestroy()
+        {
+            GameEvent.RemoveEventListener<UserInfo>(IActorLogicEvent_Event.OnUserInfoUpdate, OnUserInfoUpdate);
+            base.OnDestroy();
+        }
+
+        private void OnUserInfoUpdate(UserInfo userInfo)
+        {
+            Log.Info("[UIMenuWindow] OnUserInfoUpdate");
+            m_textTitle.text = $"Hello, {userInfo.nickName}!";
         }
 
         private void OnStartGameClick(GameObject go)

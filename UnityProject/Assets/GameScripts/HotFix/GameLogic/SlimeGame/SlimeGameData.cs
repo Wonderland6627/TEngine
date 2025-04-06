@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using TEngine;
-using UnityEngine;
 using WeChatWASM;
 
 namespace GameLogic
@@ -29,12 +26,12 @@ namespace GameLogic
             {
                 if (value == null)
                 {
-                    Log.Error($"Set user info is null.");
+                    Log.Error($"[SlimeGameData] Set user info is null.");
                     return;
                 }
                 _userInfo = value;
                 SaveUserInfo();
-                Log.Info($"Set user info, Current: [{UserInfo.ToJson()}]");
+                Log.Info($"[SlimeGameData] Update user info, Current: [{UserInfo.ToJson()}]");
             }
         }
 
@@ -43,51 +40,40 @@ namespace GameLogic
             LoadUserInfo();
         }
 
+        private const string USER_INFO_KEY = "slime_user_info";
+
         protected virtual void LoadUserInfo()
         {
-
+            string json = PlayerPrefs.GetString(USER_INFO_KEY, "");
+            if (string.IsNullOrEmpty(json))
+            {
+                Log.Warning($"[SlimeGameData] Local User info is empty, Current: [{json}]");
+                return;
+            }
+            var info = json.ToObject<UserInfo>();
+            Log.Info($"[SlimeGameData] Load user info, Current: [{json}]");
+            UserInfo = info;
         }
 
         protected virtual void SaveUserInfo()
-        {
-
-        }
-    }
-
-    public class WXUserData : SlimeGameData
-    {
-        private const string USER_INFO_KEY = "wx_user_info";
-
-        protected override void SaveUserInfo()
         {
             if (UserInfo == null)
             {
                 return;
             }
             string json = UserInfo.ToJson();
-            GameModule.Setting.SetString(USER_INFO_KEY, json);
-            GameModule.Setting.Save();
+            PlayerPrefs.SetString(USER_INFO_KEY, json);
+            GameEvent.Get<IActorLogicEvent>().OnUserInfoUpdate(UserInfo);
         }
+    }
 
-        protected override void LoadUserInfo()
-        {
-            string json = GameModule.Setting.GetString(USER_INFO_KEY, "");
-            if (string.IsNullOrEmpty(json))
-            {
-                Log.Warning($"WX Local User info is empty, Current: [{json}]");
-                return;
-            }
-            var info = json.ToObject<UserInfo>();
-            UserInfo = info;
-            Log.Info($"WX Load user info, Current: [{json}]");
-        }
+    public class WXUserData : SlimeGameData
+    {
+
     }
 
     public class EditorUserData : SlimeGameData
     {
-        protected override void LoadUserInfo()
-        {
-            Log.Info($"Editor Load user info, Current: [{UserInfo.ToJson()}]");
-        }
+
     }
 }
