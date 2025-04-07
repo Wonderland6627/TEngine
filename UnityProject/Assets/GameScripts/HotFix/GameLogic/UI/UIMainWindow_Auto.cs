@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
+using UnityEngine.Events;
 
 namespace GameLogic
 {
@@ -17,6 +18,19 @@ namespace GameLogic
             base.OnCreate();
             LoadLevel(World.Instance.playingLevelId);
             GameEvent.AddEventListener<GameOverParam>(IActorLogicEvent_Event.OnGameOver, OnGameOver);
+            EventTriggerListener.Get(m_btnBack).OnClick = go =>
+			{
+				Close();
+			};
+            EventTriggerListener.Get(m_btnSettings).OnClick = go =>
+			{
+                World.Instance.PauseGame();
+                UnityAction closeAction = () =>
+                {
+                    World.Instance.ResumeGame();
+                };
+                GameModule.UI.ShowUIAsync<UISettingsWindow>(closeAction);
+			};
         }
 
         protected override void OnDestroy()
@@ -136,16 +150,20 @@ namespace GameLogic
 
     partial class UIMainWindow
     {
-        #region 脚本工具生成的代码
-        private Transform m_tfRoadContainer;
-        private Transform m_tfCastleContainer;
-        private Transform m_tfUnitContainer;
-        protected override void ScriptGenerator()
-        {
-            m_tfRoadContainer = FindChild("bg/m_tfRoadContainer");
-            m_tfCastleContainer = FindChild("bg/m_tfCastleContainer");
-            m_tfUnitContainer = FindChild("bg/m_tfUnitContainer");
-        }
-        #endregion
+		#region 脚本工具生成的代码
+		private Transform m_tfRoadContainer;
+		private Transform m_tfCastleContainer;
+		private Transform m_tfUnitContainer;
+		private Button m_btnBack;
+		private Button m_btnSettings;
+		protected override void ScriptGenerator()
+		{
+			m_tfRoadContainer = FindChild("bg/m_tfRoadContainer");
+			m_tfCastleContainer = FindChild("bg/m_tfCastleContainer");
+			m_tfUnitContainer = FindChild("bg/m_tfUnitContainer");
+			m_btnBack = FindChildComponent<Button>("bg/m_btnBack");
+			m_btnSettings = FindChildComponent<Button>("bg/m_btnSettings");
+		}
+		#endregion
     }
 }

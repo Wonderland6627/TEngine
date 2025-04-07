@@ -15,21 +15,6 @@ namespace GameLogic
         public List<BaseCastle> points; //限制points的长度为2
     }
 
-    public class UserData
-    {
-        public static int UnlockedLevelId
-        {
-            get
-            {
-                return GameModule.Setting.GetInt("UnlockedLevelId", 1);
-            }
-            set
-            {
-                GameModule.Setting.SetInt("UnlockedLevelId", value);
-            }
-        }
-    }
-
     public partial class World : BaseLogicSys<World>
     {
         public LevelReader levelReader { get; private set; }
@@ -110,6 +95,18 @@ namespace GameLogic
             GameModule.UI.ShowUIAsync<UILevelWindow>();
         }
 
+        public void PauseGame()
+        {
+            isPlaying = false;
+            GameModule.Base.PauseGame();
+        }
+
+        public void ResumeGame()
+        {
+            GameModule.Base.ResumeGame();
+            isPlaying = true;
+        }
+
         private void CheckGameOver()
         {
             if (!isPlaying) return;
@@ -121,9 +118,9 @@ namespace GameLogic
             UnitType winUnitType = unitTypes[0];
             if (winUnitType == UnitType.Player)
             {
-                if (UserData.UnlockedLevelId < playingLevelId)
+                if (gameData.UnlockedLevelId < playingLevelId)
                 {
-                    UserData.UnlockedLevelId = playingLevelId;
+                    gameData.UnlockedLevelId = playingLevelId;
                 }
             }
 

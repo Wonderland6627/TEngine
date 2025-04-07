@@ -21,6 +21,14 @@ namespace GameLogic
         {
             this.config = config;
             m_textLevelTxt.text = config.levelId.ToString();
+            bool isLocked = config.levelId > World.Instance.gameData.UnlockedLevelId;
+            SetLockState(isLocked);
+        }
+
+        private void SetLockState(bool isLock)
+        {
+            gameObject.GetComponent<Image>().color = isLock ? Color.gray : Color.white;
+            EventTriggerListener.Get(gameObject).enabled = !isLock;
         }
 
         private void OnCellClick(GameObject go) 

@@ -18,6 +18,9 @@ namespace GameLogic
 
     public class SlimeGameData
     {
+        private const string User_Info_Key = "slime_user_info";
+        private const string Unlocked_Level_ID_Key = "slime_unlocked_level_id";
+
         private UserInfo _userInfo = new();
         public UserInfo UserInfo
         {
@@ -35,16 +38,27 @@ namespace GameLogic
             }
         }
 
+        private int _unlockedLevelId = 1;
+        public int UnlockedLevelId
+        {
+            get => _unlockedLevelId;
+            set 
+            {
+                _unlockedLevelId = value;
+                PlayerPrefs.SetInt(Unlocked_Level_ID_Key, _unlockedLevelId);
+                Log.Info($"[SlimeGameData] set unlock level id: [{_unlockedLevelId}]");
+            }
+        }
+
         public SlimeGameData()
         {
+            _unlockedLevelId = PlayerPrefs.GetInt(Unlocked_Level_ID_Key, 1);
             LoadUserInfo();
         }
 
-        private const string USER_INFO_KEY = "slime_user_info";
-
         protected virtual void LoadUserInfo()
         {
-            string json = PlayerPrefs.GetString(USER_INFO_KEY, "");
+            string json = PlayerPrefs.GetString(User_Info_Key, "");
             if (string.IsNullOrEmpty(json))
             {
                 Log.Warning($"[SlimeGameData] Local User info is empty, Current: [{json}]");
@@ -62,7 +76,7 @@ namespace GameLogic
                 return;
             }
             string json = UserInfo.ToJson();
-            PlayerPrefs.SetString(USER_INFO_KEY, json);
+            PlayerPrefs.SetString(User_Info_Key, json);
             GameEvent.Get<IActorLogicEvent>().OnUserInfoUpdate(UserInfo);
         }
     }
