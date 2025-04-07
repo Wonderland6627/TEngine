@@ -39,9 +39,10 @@ namespace GameLogic
             base.OnDestroy();
         }
 
-        private void OnGameOver(GameOverParam  p)
+        private void OnGameOver(GameOverParam  param)
         {
-            Log.Info("GameOver" + p.winUnitType);
+            Log.Info("GameOver" + param.winUnitType);
+            GameModule.UI.ShowUIAsync<UIGameOverWindow>(param);
         }
 
         protected override void OnUpdate()

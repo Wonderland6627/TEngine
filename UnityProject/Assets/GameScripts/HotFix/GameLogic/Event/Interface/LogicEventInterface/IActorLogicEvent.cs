@@ -43,6 +43,18 @@ namespace GameLogic
     
     public class GameOverParam
     {
+        public double duration;
         public UnitType winUnitType;
+
+        public bool IsWin()
+        {
+            return winUnitType == UnitType.Player;  
+        }
+
+        public int GetStarCount()
+        {
+            if (!IsWin()) return 0;
+            return 3;
+        }
     }
 }
