@@ -20,6 +20,8 @@ namespace GameLogic
     {
         private const string User_Info_Key = "slime_user_info";
         private const string Unlocked_Level_ID_Key = "slime_unlocked_level_id";
+        private const string Enable_Sound_Key = "slime_enable_sound";
+        private const string Enable_Vibration_Key = "slime_enable_vibration";
 
         private UserInfo _userInfo = new();
         public UserInfo UserInfo
@@ -50,9 +52,35 @@ namespace GameLogic
             }
         }
 
+        private bool _enableSound = true;
+        public bool EnableSound
+        {
+            get => _enableSound;
+            set
+            {
+                _enableSound = value;
+                PlayerPrefs.SetInt(Enable_Sound_Key, _enableSound ? 1 : 0);
+                Log.Info($"[SlimeGameData] set enable sound: [{_enableSound}]");
+            }
+        }
+
+        private bool _enableVibration = true;
+        public bool EnableVibration
+        {
+            get => _enableVibration;
+            set
+            {
+                _enableVibration = value;
+                PlayerPrefs.SetInt(Enable_Vibration_Key, _enableVibration ? 1 : 0);
+                Log.Info($"[SlimeGameData] set enable vibration: [{_enableVibration}]");
+            }
+        }
+
         public SlimeGameData()
         {
             _unlockedLevelId = PlayerPrefs.GetInt(Unlocked_Level_ID_Key, 1);
+            _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
+            _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
             LoadUserInfo();
         }
 

@@ -22,6 +22,18 @@ namespace GameLogic
 				}
 			}
 
+			m_togSound.isOn = World.Instance.gameData.EnableSound;
+			m_togVibration.isOn = World.Instance.gameData.EnableVibration;
+
+			m_togSound.onValueChanged.AddListener(value =>
+			{
+				World.Instance.gameData.EnableSound = value;
+			});
+			m_togVibration.onValueChanged.AddListener(value =>
+			{
+				World.Instance.gameData.EnableVibration = value;
+			});
+
 			EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
 				Close();
@@ -33,7 +45,6 @@ namespace GameLogic
 			closeAction?.Invoke();
             base.OnDestroy();
         }
-    
 	}
 
 	partial class UISettingsWindow

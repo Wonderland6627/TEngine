@@ -13,6 +13,8 @@ namespace GameLogic
             base.OnCreate();
             m_textTitle.text = $"Hello, {World.Instance.gameData.UserInfo.nickName}!";
             EventTriggerListener.Get(m_btnStartGame).OnClick = OnStartGameClick;
+            EventTriggerListener.Get(m_btnRank).OnClick = OnRankClick;
+            EventTriggerListener.Get(m_btnSettings).OnClick = OnSettingsClick;
             GameEvent.AddEventListener<UserInfo>(IActorLogicEvent_Event.OnUserInfoUpdate, OnUserInfoUpdate);
         }
 
@@ -32,6 +34,18 @@ namespace GameLogic
         {
             Log.Info("[UIMenuWindow] OnStartGameClick");
             GameModule.UI.ShowUIAsync<UILevelWindow>();
+        }
+
+        private void OnRankClick(GameObject go)
+        {
+            Log.Info("[UIMenuWindow] OnRankClick");
+            // GameModule.UI.ShowUIAsync<UIRankWindow>();
+        }
+
+        private void OnSettingsClick(GameObject go)
+        {
+            Log.Info("[UIMenuWindow] OnSettingsClick");
+            GameModule.UI.ShowUIAsync<UISettingsWindow>();
         }
 	}
 
