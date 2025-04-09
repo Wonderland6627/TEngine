@@ -39,15 +39,15 @@ namespace GameLogic
 	partial class UISettingsWindow
 	{
 		#region 脚本工具生成的代码
-		private Toggle m_togCommon;
+		private Toggle m_togSound;
 		private Toggle m_togVibration;
-		private Button m_btnCommon;
+		private Button m_btnConfirm;
 		private Button m_btnBack;
 		protected override void ScriptGenerator()
 		{
-			m_togCommon = FindChildComponent<Toggle>("bg/m_togCommon");
+			m_togSound = FindChildComponent<Toggle>("bg/m_togSound");
 			m_togVibration = FindChildComponent<Toggle>("bg/m_togVibration");
-			m_btnCommon = FindChildComponent<Button>("bg/m_btnCommon");
+			m_btnConfirm = FindChildComponent<Button>("bg/m_btnConfirm");
 			m_btnBack = FindChildComponent<Button>("bg/m_btnBack");
 		}
 		#endregion
