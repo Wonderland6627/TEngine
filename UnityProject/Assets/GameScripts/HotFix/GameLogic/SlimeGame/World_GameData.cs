@@ -19,10 +19,10 @@ namespace GameLogic
 
         public void InitWX(System.Action<bool> callback)
         {
-            Log.Info("World WX.InitSDK");
+            Log.Info("[World] InitWX WX.InitSDK");
             WX.InitSDK((code) =>
             {
-                Log.Info($"World InitWX WX.InitSDK code: {code}");
+                Log.Info($"[World] InitWX WX.InitSDK callback code: {code}");
                 // if (code != 0)
                 // {
                 //     Log.Error($"World InitWX WX.InitSDK failed with code: {code}");
@@ -41,13 +41,13 @@ namespace GameLogic
 
         public void GetSetting()
         {
-            Log.Info("World WX.GetSetting");
+            Log.Info("[World] WX.GetSetting");
             WX.GetSetting(new GetSettingOption()
             {
                 // {"authSetting":{"scope.address":true,"scope.invoice":true,"scope.invoiceTitle":true},"subscriptionsSetting":{"mainSwitch":false,"itemSettings":{}},"miniprogramAuthSetting":{},"errMsg":"getSetting:ok"}
                 success = (res) =>
                 {
-                    Log.Info($"World GetSetting success: {res.ToJson()}");
+                    Log.Info($"[World] WX.GetSetting success: {res.ToJson()}");
                     if (res.authSetting.TryGetValue("scope.userInfo", out var hasUserInfo))
                     {
                         if (hasUserInfo)
@@ -69,19 +69,19 @@ namespace GameLogic
                 },
                 fail = (err) =>
                 {
-                    Log.Error($"World GetSetting fail: {err.ToJson()}");
+                    Log.Error($"[World] WX.GetSetting fail: {err.ToJson()}");
                 }
             });
         }
 
         private void GetUserInfo(string log)
         {
-            Log.Info($"World GetUserInfo: {log}");
+            Log.Info($"[World] WX.GetUserInfo: {log}");
             WX.GetUserInfo(new GetUserInfoOption()
             {
                 success = (res) =>
                 {
-                    Log.Info($"World GetUserInfo success: {res.ToJson()}");
+                    Log.Info($"[World] WX.GetUserInfo success: {res.ToJson()}");
                     var result = res.userInfo;
                     var currentUserInfo = gameData.UserInfo;
                     currentUserInfo.nickName = result.nickName;
@@ -95,18 +95,18 @@ namespace GameLogic
                 },
                 fail = (err) =>
                 {
-                    Log.Error($"World GetUserInfo fail: {err.ToJson()}");
+                    Log.Error($"[World] WX.GetUserInfo fail: {err.ToJson()}");
                 }
             });
         }
 
         private void CreateUserInfoButton()
         {
-            Log.Info("World CreateUserInfoButton");
+            Log.Info("[World] WX.CreateUserInfoButton");
             var button = WX.CreateUserInfoButton(0, 0, Screen.width, Screen.height, "zh_CN", false);
             button.OnTap((tapRes) =>
             {
-                Log.Info("CreateUserInfoButton OnTap: " + tapRes.ToJson());
+                Log.Info("[World] WX.CreateUserInfoButton OnTap: " + tapRes.ToJson());
                 button.Hide();
                 GetUserInfo("by create user info button");
             });
@@ -114,25 +114,25 @@ namespace GameLogic
 
         private void WXLogin()
         {
-            Log.Info("World WXLogin");
+            Log.Info("[World] WX.WXLogin");
             WX.Login(new LoginOption()
             {
                 // {"code":"0b1KH20w3mbkG43mRW1w3Z5cZz4KH20o","errMsg":"login:ok"}
                 success = (res) =>
                 {
-                    Log.Info("WX.Login success: " + res.ToJson());
+                    Log.Info("[World] WX.Login success: " + res.ToJson());
                     GetOpenID(res.code);
                 },
                 fail = (err) =>
                 {
-                    Log.Error("WX.Login fail: " + err.ToJson());
+                    Log.Error("[World] WX.Login fail: " + err.ToJson());
                 }
             });
         }
 
         private void GetOpenID(string code)
         {
-            Log.Info("World GetOpenID");
+            Log.Info("[World] GetOpenID");
             var param = new
             {
                 code = "0a1HYj0w3dCzE43twJ2w36iCMz1HYj02"
@@ -144,7 +144,7 @@ namespace GameLogic
                 // {"result":"{\"event\":{\"code\":\"0a1HYj0w3dCzE43twJ2w36iCMz1HYj02\",\"tcbContext\":{},\"userInfo\":{\"appId\":\"wxf55f604f65c8f87b\",\"openId\":\"ox0H160OiHbng6giS50wOp6YZ7R4\"}},\"openid\":\"ox0H160OiHbng6giS50wOp6YZ7R4\",\"appid\":\"wxf55f604f65c8f87b\",\"unionid\":\"\"}","requestID":"d54da294-36e2-40c8-9765-4d68a8134d98","errMsg":"cloud.callFunction:ok"}
                 success = (res) =>
                 {
-                    Log.Info("call cloud function getCode2Session success: " + res.ToJson().ToString());
+                    Log.Info("[World] call cloud function getCode2Session success: " + res.ToJson().ToString());
                     var resultDict = res.result.ToObject<Dictionary<string, object>>();
                     var currentUserInfo = gameData.UserInfo;
                     currentUserInfo.openId = resultDict["openid"].ToString();
@@ -152,7 +152,7 @@ namespace GameLogic
                 },
                 fail = (err) =>
                 {
-                    Log.Error("call cloud function getCode2Session failed: " + err.ToJson().ToString());
+                    Log.Error("[World] call cloud function getCode2Session failed: " + err.ToJson().ToString());
                 }
             });
         }

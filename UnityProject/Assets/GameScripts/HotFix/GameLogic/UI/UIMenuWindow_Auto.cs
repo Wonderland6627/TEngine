@@ -24,7 +24,7 @@ namespace GameLogic
 
         private void OnUserInfoUpdate(UserInfo userInfo)
         {
-            Log.Info("[UIMenuWindow] OnUserInfoUpdate");
+            Log.Info("[UIMenuWindow] trigger OnUserInfoUpdate");
             m_textTitle.text = $"Hello, {userInfo.nickName}!";
         }
 

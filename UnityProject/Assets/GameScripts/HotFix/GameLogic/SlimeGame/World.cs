@@ -43,7 +43,7 @@ namespace GameLogic
             {
                 if (success)
                 {
-                    Log.Info($"Init WX SDK success, hasOpenID: {hasOpenID}, hasBasicInfo: {hasBasicInfo}");
+                    Log.Info($"[World] Init WX SDK success, hasOpenID: {hasOpenID}, hasBasicInfo: {hasBasicInfo}");
                     if (!hasOpenID)
                     {
                         GetSetting();
@@ -55,7 +55,7 @@ namespace GameLogic
                 }
                 else
                 {
-                    Log.Error("Init WX SDK failed");
+                    Log.Error("[World] Init WX SDK failed");
                 }
             });
 #endif

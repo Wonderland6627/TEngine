@@ -39,9 +39,10 @@ namespace GameLogic
             base.OnDestroy();
         }
 
-        private void OnGameOver(GameOverParam  param)
+        private void OnGameOver(GameOverParam param)
         {
-            Log.Info("GameOver" + param.winUnitType);
+            Log.Info("[UIMainWindow] trigger GameOver: " + param.winUnitType);
+            World.Instance.PauseGame();
             GameModule.UI.ShowUIAsync<UIGameOverWindow>(param);
         }
 

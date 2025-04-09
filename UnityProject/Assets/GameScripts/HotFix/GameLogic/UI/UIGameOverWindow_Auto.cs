@@ -43,6 +43,7 @@ namespace GameLogic
 			{
 				m_Stars[i].gameObject.SetActive(true);
 			}
+			m_textResult.text = m_Param.IsWin() ? "Victory" : "Defeat";
 
 			EventTriggerListener.Get(m_tfTapArea.gameObject).OnClick = go =>
 			{
