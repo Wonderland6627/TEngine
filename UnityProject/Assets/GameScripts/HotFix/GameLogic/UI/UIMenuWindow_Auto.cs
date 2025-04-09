@@ -11,7 +11,7 @@ namespace GameLogic
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_textTitle.text = $"Hello, {World.Instance.gameData.UserInfo.nickName}!";
+            m_textTitle.text = $"Hello, {World.Instance.GameData.UserInfo.nickName}!";
             EventTriggerListener.Get(m_btnStartGame).OnClick = OnStartGameClick;
             EventTriggerListener.Get(m_btnRank).OnClick = OnRankClick;
             EventTriggerListener.Get(m_btnSettings).OnClick = OnSettingsClick;

@@ -8,7 +8,7 @@ namespace GameLogic
 {
     partial class World
     {
-        public SlimeGameData gameData =
+        public SlimeGameData GameData =
 #if UNITY_EDITOR
             new EditorUserData();
         // new WXUserData();
@@ -83,7 +83,7 @@ namespace GameLogic
                 {
                     Log.Info($"[World] WX.GetUserInfo success: {res.ToJson()}");
                     var result = res.userInfo;
-                    var currentUserInfo = gameData.UserInfo;
+                    var currentUserInfo = GameData.UserInfo;
                     currentUserInfo.nickName = result.nickName;
                     currentUserInfo.avatarUrl = result.avatarUrl;
                     currentUserInfo.gender = result.gender;
@@ -91,7 +91,7 @@ namespace GameLogic
                     currentUserInfo.city = result.city;
                     currentUserInfo.country = result.country;
                     currentUserInfo.language = result.language;
-                    gameData.UserInfo = currentUserInfo;
+                    GameData.UserInfo = currentUserInfo;
                 },
                 fail = (err) =>
                 {
@@ -146,9 +146,9 @@ namespace GameLogic
                 {
                     Log.Info("[World] call cloud function getCode2Session success: " + res.ToJson().ToString());
                     var resultDict = res.result.ToObject<Dictionary<string, object>>();
-                    var currentUserInfo = gameData.UserInfo;
+                    var currentUserInfo = GameData.UserInfo;
                     currentUserInfo.openId = resultDict["openid"].ToString();
-                    gameData.UserInfo = currentUserInfo;
+                    GameData.UserInfo = currentUserInfo;
                 },
                 fail = (err) =>
                 {
@@ -162,9 +162,9 @@ namespace GameLogic
     {
         public void InitEditor()
         {
-            if (string.IsNullOrEmpty(gameData.UserInfo.openId))
+            if (string.IsNullOrEmpty(GameData.UserInfo.openId))
             {
-                gameData.UserInfo = new UserInfo()
+                GameData.UserInfo = new UserInfo()
                 {
                     openId = "test",
                     nickName = "EditorPlayer",
@@ -176,7 +176,7 @@ namespace GameLogic
                     language = ""
                 };
             }
-            Log.Info($"[World] InitEditor, UserInfo: {gameData.UserInfo.ToJson()}");
+            Log.Info($"[World] InitEditor, UserInfo: {GameData.UserInfo.ToJson()}");
         }
     }
 }

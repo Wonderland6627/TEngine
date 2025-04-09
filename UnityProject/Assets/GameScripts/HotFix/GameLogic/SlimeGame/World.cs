@@ -34,8 +34,8 @@ namespace GameLogic
         {
             await LoadConfig();
 
-            bool hasOpenID = !string.IsNullOrEmpty(gameData.UserInfo.openId);
-            bool hasBasicInfo = !string.IsNullOrEmpty(gameData.UserInfo.nickName);
+            bool hasOpenID = !string.IsNullOrEmpty(GameData.UserInfo.openId);
+            bool hasBasicInfo = !string.IsNullOrEmpty(GameData.UserInfo.nickName);
 #if UNITY_EDITOR
             InitEditor();
 #else
@@ -118,9 +118,9 @@ namespace GameLogic
             UnitType winUnitType = unitTypes[0];
             if (winUnitType == UnitType.Player)
             {
-                if (gameData.UnlockedLevelId < playingLevelId)
+                if (GameData.UnlockedLevelId < playingLevelId)
                 {
-                    gameData.UnlockedLevelId = playingLevelId;
+                    GameData.UnlockedLevelId = playingLevelId;
                 }
             }
 

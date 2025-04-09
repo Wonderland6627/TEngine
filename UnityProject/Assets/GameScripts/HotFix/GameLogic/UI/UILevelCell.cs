@@ -21,7 +21,7 @@ namespace GameLogic
         {
             this.config = config;
             m_textLevelTxt.text = config.levelId.ToString();
-            bool isLocked = config.levelId > World.Instance.gameData.UnlockedLevelId;
+            bool isLocked = config.levelId > World.Instance.GameData.UnlockedLevelId;
             SetLockState(isLocked);
         }
 

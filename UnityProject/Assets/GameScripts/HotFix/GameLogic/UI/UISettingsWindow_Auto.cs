@@ -22,16 +22,16 @@ namespace GameLogic
 				}
 			}
 
-			m_togSound.isOn = World.Instance.gameData.EnableSound;
-			m_togVibration.isOn = World.Instance.gameData.EnableVibration;
+			m_togSound.isOn = World.Instance.GameData.EnableSound;
+			m_togVibration.isOn = World.Instance.GameData.EnableVibration;
 
 			m_togSound.onValueChanged.AddListener(value =>
 			{
-				World.Instance.gameData.EnableSound = value;
+				World.Instance.GameData.EnableSound = value;
 			});
 			m_togVibration.onValueChanged.AddListener(value =>
 			{
-				World.Instance.gameData.EnableVibration = value;
+				World.Instance.GameData.EnableVibration = value;
 			});
 
 			EventTriggerListener.Get(m_btnBack).OnClick = go =>
