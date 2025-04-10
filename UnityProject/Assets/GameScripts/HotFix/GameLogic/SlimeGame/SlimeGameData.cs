@@ -82,6 +82,7 @@ namespace GameLogic
             _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
             _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
             LoadUserInfo();
+            Log.Info($"[SlimeGameData] init data: {this.ToJson()}");
         }
 
         protected virtual void LoadUserInfo()

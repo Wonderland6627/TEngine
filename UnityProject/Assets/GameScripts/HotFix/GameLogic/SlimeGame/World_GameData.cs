@@ -135,7 +135,7 @@ namespace GameLogic
             Log.Info("[World] GetOpenID");
             var param = new
             {
-                code = "0a1HYj0w3dCzE43twJ2w36iCMz1HYj02"
+                code
             };
             WX.cloud.CallFunction(new CallFunctionParam()
             {
@@ -176,7 +176,6 @@ namespace GameLogic
                     language = ""
                 };
             }
-            Log.Info($"[World] InitEditor, UserInfo: {GameData.UserInfo.ToJson()}");
         }
     }
 }

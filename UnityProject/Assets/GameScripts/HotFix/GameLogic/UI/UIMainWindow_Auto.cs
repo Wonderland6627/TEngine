@@ -20,6 +20,7 @@ namespace GameLogic
             GameEvent.AddEventListener<GameOverParam>(IActorLogicEvent_Event.OnGameOver, OnGameOver);
             EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
+                World.Instance.EndGame();
 				Close();
 			};
             EventTriggerListener.Get(m_btnSettings).OnClick = go =>
