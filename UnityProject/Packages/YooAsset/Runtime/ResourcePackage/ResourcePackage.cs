@@ -282,6 +282,7 @@ namespace YooAsset
         public UpdatePackageVersionOperation UpdatePackageVersionAsync(bool appendTimeTicks = true, int timeout = 60)
         {
             DebugCheckInitialize(false);
+            YooLogger.Log($"[ResUpdate-3] [ResourcePackage] UpdatePackageVersionAsync _playModeImpl.UpdatePackageVersionAsync");
             return _playModeImpl.UpdatePackageVersionAsync(appendTimeTicks, timeout);
         }
 

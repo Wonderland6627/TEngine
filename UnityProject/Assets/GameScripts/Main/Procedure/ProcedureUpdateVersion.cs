@@ -48,14 +48,18 @@ namespace GameMain
         {
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
 
+            Log.Info($"[ResUpdate-1] [ProcedureUpdateVersion] GetStaticVersion UpdatePackageVersionAsync, GameModule.Resource.GetPackageVersion(): [{GameModule.Resource.GetPackageVersion()}], GameModule.Resource.PackageVersion: [{GameModule.Resource.PackageVersion}]");
             var operation = GameModule.Resource.UpdatePackageVersionAsync();
 
             try
             {
+                Log.Info($"[ResUpdate-1.1] [ProcedureUpdateVersion] after UpdatePackageVersionAsync init");
                 await operation.ToUniTask();
+                Log.Info($"[ResUpdate-1.2] [ProcedureUpdateVersion] after UpdatePackageVersionAsync task");
 
                 if (operation.Status == EOperationStatus.Succeed)
                 {
+                    Log.Info($"[ResUpdate-1.3] [ProcedureUpdateVersion] after UpdatePackageVersionAsync succeed, operation.PackageVersion: [{operation.PackageVersion}]");
                     //线上最新版本operation.PackageVersion
                     GameModule.Resource.PackageVersion = operation.PackageVersion;
                     Log.Debug($"Updated package Version : from {GameModule.Resource.GetPackageVersion()} to {operation.PackageVersion}");

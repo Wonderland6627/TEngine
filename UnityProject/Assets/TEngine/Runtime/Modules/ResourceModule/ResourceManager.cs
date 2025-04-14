@@ -249,11 +249,12 @@ namespace TEngine
                 createParameters.BuildinQueryServices = new GameQueryServices();
                 createParameters.RemoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
                 initializationOperation = package.InitializeAsync(createParameters);
+                Log.Info($"Init package : {packageName}, play mode : {playMode}, host server : {defaultHostServer}, fallback host server : {fallbackHostServer}");
             }
 
             await initializationOperation.ToUniTask();
 
-            Log.Info($"Init resource package version : {initializationOperation?.PackageVersion}");
+            Log.Info($"Init resource package version : {initializationOperation?.PackageVersion}, Game Version: {Version.GameVersion}");
 
             return initializationOperation;
         }

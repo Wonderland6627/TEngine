@@ -97,6 +97,7 @@ namespace YooAsset
 
         UpdatePackageVersionOperation IPlayMode.UpdatePackageVersionAsync(bool appendTimeTicks, int timeout)
         {
+            YooLogger.Log($"[ResUpdate-4] [WebPlayModeImpl] IPlayMode.UpdatePackageVersionAsync {PackageName}");
             var operation = new WebPlayModeUpdatePackageVersionOperation(this, appendTimeTicks, timeout);
             OperationSystem.StartOperation(PackageName, operation);
             return operation;

@@ -353,6 +353,7 @@ namespace TEngine
         public UpdatePackageVersionOperation UpdatePackageVersionAsync(bool appendTimeTicks = false, int timeout = 60,
             string customPackageName = "")
         {
+            Log.Info($"[ResUpdate-2] [ResourceModule] UpdatePackageVersionAsync package.UpdatePackageVersionAsync");
             var package = string.IsNullOrEmpty(customPackageName)
                 ? YooAssets.GetPackage(PackageName)
                 : YooAssets.GetPackage(customPackageName);

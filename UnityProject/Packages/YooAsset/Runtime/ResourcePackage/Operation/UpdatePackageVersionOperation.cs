@@ -140,6 +140,7 @@ namespace YooAsset
             {
                 if (_queryRemotePackageVersionOp == null)
                 {
+                    YooLogger.Log("[ResUpdate-5] [UpdatePackageVersionOperation] Start QueryRemotePackageVersionOperation");
                     _queryRemotePackageVersionOp = new QueryRemotePackageVersionOperation(_impl.RemoteServices, _impl.PackageName, _appendTimeTicks, _timeout);
                     OperationSystem.StartOperation(_impl.PackageName, _queryRemotePackageVersionOp);
                 }

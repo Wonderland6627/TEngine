@@ -47,7 +47,7 @@ namespace YooAsset
                 {
                     string fileName = YooAssetSettingsData.GetPackageVersionFileName(_packageName);
                     string webURL = GetPackageVersionRequestURL(fileName);
-                    YooLogger.Log($"Beginning to request package version : {webURL}");
+                    YooLogger.Log($"[ResUpdate-6] [QueryRemotePackageVersionOperation] Beginning to request package version : {webURL}");
                     _downloader = new UnityWebDataRequester();
                     _downloader.SendRequest(webURL, _timeout);
                 }

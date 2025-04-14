@@ -58,6 +58,9 @@ namespace YooAsset.Editor
             _buildVersionField = Root.Q<TextField>("BuildVersion");
             _buildVersionField.style.width = StyleWidth;
             _buildVersionField.SetValueWithoutNotify(GetDefaultPackageVersion());
+            
+            var version = Resources.Load<YooAssetSettings>("YooAssetSettings").BuildVersion;
+            _buildVersionField.SetValueWithoutNotify(version);
 
             // 构建模式
             {
@@ -187,6 +190,8 @@ namespace YooAsset.Editor
         /// </summary>
         protected string GetPackageVersion()
         {
+            var version = Resources.Load<YooAssetSettings>("YooAssetSettings").BuildVersion;
+            return version;
             return _buildVersionField.value;
         }
 

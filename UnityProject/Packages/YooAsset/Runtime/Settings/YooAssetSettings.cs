@@ -5,6 +5,8 @@ namespace YooAsset
     [CreateAssetMenu(fileName = "YooAssetSettings", menuName = "YooAsset/Create YooAsset Settings")]
     internal class YooAssetSettings : ScriptableObject
     {
+        public string BuildVersion = "v0.0.1";
+
         /// <summary>
         /// 清单文件名称
         /// </summary>

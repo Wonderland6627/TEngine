@@ -26,6 +26,7 @@ namespace GameMain
         {
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
             
+            Log.Info($"[ManifestUpdate-1] [ProcedureUpdateManifest] UpdateManifest UpdatePackageManifestAsync {GameModule.Resource.PackageVersion}");
             var operation = GameModule.Resource.UpdatePackageManifestAsync(GameModule.Resource.PackageVersion);
             
             await operation.ToUniTask();
