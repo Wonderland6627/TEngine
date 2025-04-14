@@ -11,7 +11,7 @@ CDN_Backup
 ```
 
 ### CDN结构1
-1. YooAsset Builder打Bundle时，按顺序修改版本号（v0.1、v0.2等）
+1. YooAsset Builder打Bundle时，按顺序修改版本号 YooAssetSettings.asset 的BuildVersion（v0.1、v0.2等）
 2. 修改InnerResourceSourceUrl的版本号：
    https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/release_by_badge/【版本号】/content/
 3. 将InnerResourceSourceUrl复制到小游戏导出配置的CDN地址
