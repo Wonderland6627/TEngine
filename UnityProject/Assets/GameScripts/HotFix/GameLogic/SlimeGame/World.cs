@@ -118,13 +118,14 @@ namespace GameLogic
             UnitType winUnitType = unitTypes[0];
             if (winUnitType == UnitType.Player)
             {
-                if (GameData.UnlockedLevelId < playingLevelId)
+                if (GameData.ProgressLevelId < playingLevelId)
                 {
-                    GameData.UnlockedLevelId = playingLevelId;
+                    GameData.ProgressLevelId = playingLevelId;
                 }
             }
 
             isPlaying = false;
+            GameEvent.Send("OnGameOver", new GameOverParam() { winUnitType = winUnitType });
             GameEvent.Get<IActorLogicEvent>().OnGameOver(new GameOverParam() { winUnitType = winUnitType });
         }
 

@@ -16,12 +16,12 @@ namespace GameLogic
             EventTriggerListener.Get(m_btnStartGame).OnClick = OnStartGameClick;
             EventTriggerListener.Get(m_btnRank).OnClick = OnRankClick;
             EventTriggerListener.Get(m_btnSettings).OnClick = OnSettingsClick;
-            GameEvent.AddEventListener<UserInfo>(IActorLogicEvent_Event.OnUserInfoUpdate, OnUserInfoUpdate);
+            GameEvent.AddEventListener<UserInfo>(SlimeEvent.OnUserInfoUpdate, OnUserInfoUpdate);
         }
 
         protected override void OnDestroy()
         {
-            GameEvent.RemoveEventListener<UserInfo>(IActorLogicEvent_Event.OnUserInfoUpdate, OnUserInfoUpdate);
+            GameEvent.RemoveEventListener<UserInfo>(SlimeEvent.OnUserInfoUpdate, OnUserInfoUpdate);
             base.OnDestroy();
         }
 

@@ -19,7 +19,7 @@ namespace GameLogic
     public class SlimeGameData
     {
         private const string User_Info_Key = "slime_user_info";
-        private const string Unlocked_Level_ID_Key = "slime_unlocked_level_id";
+        private const string Progress_Level_ID_Key = "slime_progress_level_id";
         private const string Enable_Sound_Key = "slime_enable_sound";
         private const string Enable_Vibration_Key = "slime_enable_vibration";
 
@@ -40,15 +40,15 @@ namespace GameLogic
             }
         }
 
-        private int _unlockedLevelId = 1;
-        public int UnlockedLevelId
+        private int _progressLevelId = 0;
+        public int ProgressLevelId
         {
-            get => _unlockedLevelId;
+            get => _progressLevelId;
             set 
             {
-                _unlockedLevelId = value;
-                PlayerPrefs.SetInt(Unlocked_Level_ID_Key, _unlockedLevelId);
-                Log.Info($"[SlimeGameData] set unlock level id: [{_unlockedLevelId}]");
+                _progressLevelId = value;
+                PlayerPrefs.SetInt(Progress_Level_ID_Key, _progressLevelId);
+                Log.Info($"[SlimeGameData] set progress level id: [{_progressLevelId}]");
             }
         }
 
@@ -78,7 +78,7 @@ namespace GameLogic
 
         public SlimeGameData()
         {
-            _unlockedLevelId = PlayerPrefs.GetInt(Unlocked_Level_ID_Key, 1);
+            _progressLevelId = PlayerPrefs.GetInt(Progress_Level_ID_Key, 1);
             _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
             _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
             LoadUserInfo();

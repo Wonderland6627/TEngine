@@ -17,7 +17,7 @@ namespace GameLogic
         {
             base.OnCreate();
             LoadLevel(World.Instance.playingLevelId);
-            GameEvent.AddEventListener<GameOverParam>(IActorLogicEvent_Event.OnGameOver, OnGameOver);
+            GameEvent.AddEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
                 World.Instance.EndGame();
@@ -36,7 +36,7 @@ namespace GameLogic
 
         protected override void OnDestroy()
         {
-            GameEvent.RemoveEventListener<GameOverParam>(IActorLogicEvent_Event.OnGameOver, OnGameOver);
+            GameEvent.RemoveEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             base.OnDestroy();
         }
 
