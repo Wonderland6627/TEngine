@@ -5,7 +5,6 @@ using UnityEngine;
 using GameBase;
 using GameLogic;
 using TEngine;
-using WeChatWASM;
 
 namespace GameLogic
 {

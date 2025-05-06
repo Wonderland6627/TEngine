@@ -1,5 +1,4 @@
 using TEngine;
-using WeChatWASM;
 
 namespace GameLogic
 {
@@ -7,6 +6,7 @@ namespace GameLogic
     public class UserInfo
     {
         public string openId;
+
         public string nickName;
         public string avatarUrl;
         public double gender; // 0：未知、1：男、2：女

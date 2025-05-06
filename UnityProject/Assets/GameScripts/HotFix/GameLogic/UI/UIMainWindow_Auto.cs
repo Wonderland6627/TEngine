@@ -50,11 +50,13 @@ namespace GameLogic
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
                 World.Instance.EndGame();
                 Close();
             }
+#endif
         }
 
         private async void LoadLevel(int levelID)

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using GameBase;
 using GameLogic;
 using TEngine;
-using WeChatWASM;
 
 /// <summary>
 /// 游戏App。
