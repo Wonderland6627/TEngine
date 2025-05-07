@@ -41,6 +41,7 @@ namespace GameLogic
         {
             Log.Info("[UIMenuWindow] OnRankClick");
             // GameModule.UI.ShowUIAsync<UIRankWindow>();
+            World.Instance.SetUserGameInfo(2);
         }
 
         private void OnSettingsClick(GameObject go)

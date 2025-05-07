@@ -40,15 +40,15 @@ namespace GameLogic
             }
         }
 
-        private int _progressLevelId = 0;
-        public int ProgressLevelId
+        private int _progressLevelID = 0;
+        public int ProgressLevelID
         {
-            get => _progressLevelId;
+            get => _progressLevelID;
             set 
             {
-                _progressLevelId = value;
-                PlayerPrefs.SetInt(Progress_Level_ID_Key, _progressLevelId);
-                Log.Info($"[SlimeGameData] set progress level id: [{_progressLevelId}]");
+                _progressLevelID = value;
+                PlayerPrefs.SetInt(Progress_Level_ID_Key, _progressLevelID);
+                Log.Info($"[SlimeGameData] set progress level id: [{_progressLevelID}]");
             }
         }
 
@@ -78,7 +78,7 @@ namespace GameLogic
 
         public SlimeGameData()
         {
-            _progressLevelId = PlayerPrefs.GetInt(Progress_Level_ID_Key, 1);
+            _progressLevelID = PlayerPrefs.GetInt(Progress_Level_ID_Key, 1);
             _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
             _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
             LoadUserInfo();
@@ -102,6 +102,7 @@ namespace GameLogic
         {
             if (UserInfo == null)
             {
+                Log.Warning($"[SlimeGameData] Save user info is null.");
                 return;
             }
             string json = UserInfo.ToJson();

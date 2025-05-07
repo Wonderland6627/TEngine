@@ -45,12 +45,13 @@ namespace GameLogic
                     Log.Info($"[World] Init WX SDK success, hasOpenID: {hasOpenID}, hasBasicInfo: {hasBasicInfo}");
                     if (!hasOpenID)
                     {
-                        GetSetting();
+                        WXLogin();
                     }
                     if (!hasBasicInfo)
                     {
-                        WXLogin();
+                        GetSetting();
                     }
+                    GetUserGameInfo();
                 }
                 else
                 {
@@ -117,9 +118,9 @@ namespace GameLogic
             UnitType winUnitType = unitTypes[0];
             if (winUnitType == UnitType.Player)
             {
-                if (GameData.ProgressLevelId < playingLevelId)
+                if (GameData.ProgressLevelID < playingLevelId)
                 {
-                    GameData.ProgressLevelId = playingLevelId;
+                    GameData.ProgressLevelID = playingLevelId;
                 }
             }
 

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TEngine;
 using WeChatWASM;
+using System;
+using Newtonsoft.Json.Linq;
 
 namespace GameLogic
 {
@@ -141,7 +143,25 @@ namespace GameLogic
             {
                 name = "getCode2Session",
                 data = param,
-                // {"result":"{\"event\":{\"code\":\"0a1HYj0w3dCzE43twJ2w36iCMz1HYj02\",\"tcbContext\":{},\"userInfo\":{\"appId\":\"wxf55f604f65c8f87b\",\"openId\":\"ox0H160OiHbng6giS50wOp6YZ7R4\"}},\"openid\":\"ox0H160OiHbng6giS50wOp6YZ7R4\",\"appid\":\"wxf55f604f65c8f87b\",\"unionid\":\"\"}","requestID":"d54da294-36e2-40c8-9765-4d68a8134d98","errMsg":"cloud.callFunction:ok"}
+/*
+{
+    "result": {
+        "event": {
+            "code": "0a1HYj0w3dCzE43twJ2w36iCMz1HYj02",
+            "tcbContext": {},
+            "userInfo": {
+                "appId": "wxf55f604f65c8f87b",
+                "openId": "ox0H160OiHbng6giS50wOp6YZ7R4"
+            }
+        },
+        "openid": "ox0H160OiHbng6giS50wOp6YZ7R4",
+        "appid": "wxf55f604f65c8f87b",
+        "unionid": ""
+    },
+    "requestID": "d54da294-36e2-40c8-9765-4d68a8134d98",
+    "errMsg": "cloud.callFunction:ok"
+}
+*/
                 success = (res) =>
                 {
                     Log.Info("[World] call cloud function getCode2Session success: " + res.ToJson().ToString());
@@ -176,6 +196,123 @@ namespace GameLogic
                     language = ""
                 };
             }
+        }
+    }
+
+    partial class World
+    {
+        public void GetUserGameInfo()
+        {
+            Log.Info("[World] GetUserGameInfo");
+            WX.cloud.CallFunction(new CallFunctionParam()
+            {
+                name = "getUserGameInfo",
+                success = (res) =>
+                {
+                    Log.Info("[World] call cloud function getUserGameInfo success: " + res.ToJson().ToString());
+                    OnGetUserGameInfoSuccess(res);
+                },
+                fail = (err) =>
+                {
+                    Log.Error("[World] call cloud function getUserGameInfo failed: " + err.ToJson().ToString());
+                }
+            });
+
+            void OnGetUserGameInfoSuccess(CallFunctionResult res)
+            {
+/*
+{
+    "result": {
+        "code": 0,
+        "data": {
+            "_id": "073a77ac681a0c320284cee70fe9ff04",
+            "openid": "ox0H160OiHbng6giS50wOp6YZ7R4",
+            "userGameInfo": {
+                "progressLevelID": 2,
+                "userInfo": {
+                    "appId": "wxf55f604f65c8f87b",
+                    "openId": "ox0H160OiHbng6giS50wOp6YZ7R4"
+                }
+            },
+            "createdAt": "2025-05-06T13:18:42.514Z",
+            "updatedAt": "2025-05-06T13:50:00.139Z"
+        },
+        "msg": "get user game info success"
+    },
+    "requestID": "c50afb2b-0c6e-4fd1-bc76-dd401d6df02a",
+    "errMsg": "cloud.callFunction:ok"
+}
+*/
+                try
+                {
+                    JObject resultJson = JObject.Parse(res.result);
+                    if (resultJson.TryGetValue("code", out var code))
+                    {
+                        int codeInt = code.ToObject<int>();
+                        if (codeInt != 0)
+                        {
+                            Log.Error($"[World] parse getUserGameInfo response failed, code: {codeInt}");
+                            return;
+                        }
+                    }
+
+                    if (!resultJson.TryGetValue("data", out var dataJson) || dataJson == null)
+                    {
+                        Log.Error("[World] parse getUserGameInfo response failed, data is null");
+                        return;
+                    }
+
+                    var dataDict = JObject.Parse(dataJson.ToString());
+                    if (!dataDict.TryGetValue("userGameInfo", out var userGameInfoJson) || userGameInfoJson == null)
+                    {
+                        Log.Error("[World] parse getUserGameInfo response failed, userGameInfo is null");
+                        return;
+                    }
+
+                    var userGameInfoDict = userGameInfoJson.ToObject<Dictionary<string, object>>();
+                    if (userGameInfoDict == null || userGameInfoDict.Count == 0)
+                    {
+                        Log.Error("[World] parse getUserGameInfo response failed, userGameInfo is empty");
+                        return;
+                    }
+                    Log.Info($"[World] parse getUserGameInfo response success: {userGameInfoDict.Count}, {userGameInfoJson}");
+                    foreach (var item in userGameInfoDict)
+                    {
+                        Log.Info($"[World] parse getUserGameInfo response item[{item.Key}] : {item.Value} ({item.Value.GetType()})");
+                    }
+                    if (userGameInfoDict.TryGetValue("progressLevelID", out var value))
+                    {
+                        int progressLevelID = Convert.ToInt32(value);
+                        GameData.ProgressLevelID = progressLevelID;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error("[World] parse userGameInfo error: " + e.ToString());
+                }
+            }
+        }
+
+        public void SetUserGameInfo(int progressLevelID)
+        {
+            Log.Info($"[World] SetUserGameInfo, progressLevelID: {progressLevelID}");
+            var param = new
+            {
+                progressLevelID
+            };
+            WX.cloud.CallFunction(new CallFunctionParam()
+            {
+                name = "setUserGameInfo",
+                data = param,
+                success = (res) =>
+                {
+                    Log.Info("[World] call cloud function setUserGameInfo success: " + res.ToJson().ToString());
+                },
+                fail = (err) =>
+                {
+                    Log.Error("[World] call cloud function setUserGameInfo failed: " + err.ToJson().ToString());
+                }
+            });
         }
     }
 }
