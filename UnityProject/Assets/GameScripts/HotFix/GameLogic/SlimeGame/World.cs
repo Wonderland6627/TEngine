@@ -125,8 +125,7 @@ namespace GameLogic
             }
 
             isPlaying = false;
-            GameEvent.Send("OnGameOver", new GameOverParam() { winUnitType = winUnitType });
-            GameEvent.Get<IActorLogicEvent>().OnGameOver(new GameOverParam() { winUnitType = winUnitType });
+            GameEvent.Send(SlimeEvent.OnGameOver, new GameOverParam() { winUnitType = winUnitType });
         }
 
         void DebugUpdate()

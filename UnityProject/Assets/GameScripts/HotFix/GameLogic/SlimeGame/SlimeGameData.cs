@@ -107,7 +107,7 @@ namespace GameLogic
             }
             string json = UserInfo.ToJson();
             PlayerPrefs.SetString(User_Info_Key, json);
-            GameEvent.Get<IActorLogicEvent>().OnUserInfoUpdate(UserInfo);
+            GameEvent.Send(SlimeEvent.OnUserInfoUpdate, UserInfo);
         }
     }
 
