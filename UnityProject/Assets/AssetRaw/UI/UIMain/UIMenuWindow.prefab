@@ -67,7 +67,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 05a978f8bb0c95d4ea2191e490ba0e5e, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 16
     m_FontStyle: 0
     m_BestFit: 0
@@ -172,6 +172,7 @@ GameObject:
   - component: {fileID: 1987949693137085883}
   - component: {fileID: -3413617384355121940}
   - component: {fileID: -7887316023851409248}
+  - component: {fileID: 1775326711540885035}
   m_Layer: 5
   m_Name: UIMenuWindow
   m_TagString: Untagged
@@ -238,6 +239,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 55
+--- !u!114 &1775326711540885035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7885435439229744596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 915e2c1db42beae45a08fb27f609ef18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allTexts: []
 --- !u!1 &8195473803149261722
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,7 +319,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 05a978f8bb0c95d4ea2191e490ba0e5e, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
