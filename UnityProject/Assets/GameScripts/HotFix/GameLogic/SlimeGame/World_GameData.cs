@@ -272,7 +272,7 @@ namespace GameLogic
                     var userGameInfoDict = userGameInfoJson.ToObject<Dictionary<string, object>>();
                     if (userGameInfoDict == null || userGameInfoDict.Count == 0)
                     {
-                        Log.Error("[World] parse getUserGameInfo response failed, userGameInfo is empty");
+                        Log.Warning("[World] parse getUserGameInfo response success, but userGameInfo is empty, new user");
                         return;
                     }
                     Log.Info($"[World] parse getUserGameInfo response success: {userGameInfoDict.Count}, {userGameInfoJson}");
