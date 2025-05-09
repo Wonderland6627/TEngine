@@ -1,0 +1,32 @@
+[
+  {
+    "rewardId": 1,
+    "rewardName": "削弱敌军",
+    "rewardDesc": "随机使一个敌方城堡中史莱姆数量减少{effectValues}个单位",
+    "iconPath": "UI/Rewards/reduce_enemy",
+    "rewardType": 0,
+    "effectValues": [3, 5, 10],
+    "durations": [0, 0, 0],
+    "needAds": [false, false, true]
+  },
+  {
+    "rewardId": 2,
+    "rewardName": "增援友军",
+    "rewardDesc": "随机使一个己方城堡中史莱姆数量增加{effectValues}个单位",
+    "iconPath": "UI/Rewards/add_friendly",
+    "rewardType": 1,
+    "effectValues": [3, 5, 10],
+    "durations": [0, 0, 0],
+    "needAds": [false, false, true]
+  },
+  {
+    "rewardId": 3,
+    "rewardName": "加速复制",
+    "rewardDesc": "随机使一个己方城堡的史莱姆复制速度内提升{effectValues}% (持续{durations}秒)",
+    "iconPath": "UI/Rewards/speed_up_produce",
+    "rewardType": 2,
+    "effectValues": [30, 50, 100],
+    "durations": [5, 6, 10],
+    "needAds": [false, false, true]
+  }
+]

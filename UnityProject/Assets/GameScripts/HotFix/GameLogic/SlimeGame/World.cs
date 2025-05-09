@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using GameBase;
-using GameLogic;
 using TEngine;
 
 namespace GameLogic
@@ -16,9 +14,6 @@ namespace GameLogic
 
     public partial class World : BaseLogicSys<World>
     {
-        public LevelReader levelReader { get; private set; }
-        public UnitReader unitReader { get; private set; }
-
         public List<BaseCastle> castles = new List<BaseCastle>();
 
         public List<BaseRoad> roads = new List<BaseRoad>();
@@ -141,59 +136,6 @@ namespace GameLogic
                 log += $"[castle:{castle.gameObject.name}]";
             }
             Log.Info(log);
-        }
-    }
-
-    partial class World
-    {
-        private async UniTask LoadConfig()
-        {
-            levelReader = new LevelReader();
-            await levelReader.LoadLevelConfig("levels");
-            unitReader = new UnitReader();
-            await unitReader.LoadUnitConfig("units");
-        }
-
-        public List<LevelConfig> GetAllLevels()
-        {
-            return levelReader.configs;
-        }
-
-        public LevelConfig GetLevel(int levelId)
-        {
-            if (levelReader.configs == null ||
-                levelReader.configs.Count == 0)
-            {
-                return null;
-            }
-
-            return levelReader.configs.Find(level => level.levelId == levelId);
-        }
-
-        public LevelConfig GetCurrentLevel()
-        {
-            return GetLevel(playingLevelId);
-        }
-
-        public LevelConfig.Config GetCurrentLevelConfig()
-        {
-            var currentLevel = GetLevel(playingLevelId);
-            if (currentLevel == null)
-            {
-                return null;
-            }
-            return currentLevel.config;
-        }
-
-        public UnitConfig GetUnitConfig(UnitType unitType)
-        {
-            if (unitReader.configs == null ||
-                unitReader.configs.Count == 0)
-            {
-                return null;
-            }
-
-            return unitReader.configs.Find(unit => unit.unitType == (int)unitType);
         }
     }
 

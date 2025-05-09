@@ -9,6 +9,8 @@ namespace GameLogic
         public static string OnUserInfoUpdate = "OnUserInfoUpdate";
         
         public static string OnGameOver = "OnGameOver";
+
+        public static string OnRewardSelect = "OnRewardSelect";
     }
     
     public class GameOverParam
