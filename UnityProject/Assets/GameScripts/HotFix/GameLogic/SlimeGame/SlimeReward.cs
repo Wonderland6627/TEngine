@@ -14,6 +14,7 @@ namespace GameLogic
 
     public class RewardAction
     {
+        public int actionUID;
         public RewardConfig config;     // 奖励配置
         public RewardRarity rarity;     // 奖励稀有度
 
@@ -25,24 +26,24 @@ namespace GameLogic
             return desc;
         }
 
-        private float GetEffectValue()
+        public float GetEffectValue()
         {
             return config.effectValues[(int)rarity];
         }
 
-        private float GetDuration()
+        public float GetDuration()
         {
             return config.durations[(int)rarity];
         }
 
-        private bool NeedAds()
+        public bool NeedAds()
         {
             return config.needAds[(int)rarity];
         }
 
         public string toString()
         {
-            return $"[[RewardAction] desc: {GetDescription()}, rarity: {rarity}, rewardId: {config.rewardId}, rewardName: {config.rewardName}, rewardType: {config.rewardType}, needAds: {NeedAds()}]";
+            return $"[[RewardAction] actionUID: {actionUID} desc: {GetDescription()}, rarity: {rarity}, rewardId: {config.rewardId}, rewardName: {config.rewardName}, rewardType: {config.rewardType}, needAds: {NeedAds()}]";
         }
     }
 
@@ -95,17 +96,13 @@ namespace GameLogic
             {
                 actions.Add(new RewardAction
                 {
+                    actionUID = config.GetHashCode(),
                     config = config,
                     rarity = GetRandomRarity()
                 });
             }
 
             return actions;
-        }
-
-        public void Trigger(RewardAction action)
-        {
-            GameEvent.Send(SlimeEvent.OnRewardSelect, action);
         }
     }
 }

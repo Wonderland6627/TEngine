@@ -1,28 +1,62 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
+using UnityEngine.Events;
+using System.Collections.Generic;
 
 namespace GameLogic
 {
 	[Window(UILayer.UI, fullScreen: true)]
 	partial class UIAdsRewardWindow : UIWindow
 	{
+		private UnityAction closeAction;
+		private List<UIWidget> childCells = new();
+		
 		protected override void OnCreate()
 		{
 			base.OnCreate();
 
+			if (userDatas != null && userDatas.Length > 0)
+			{
+				if (userDatas[0] is UnityAction ca)
+				{
+					closeAction = ca;
+				}
+			}
+
+			RefreshRewardCells();
+
+			// EventTriggerListener.Get(m_tfTapArea.gameObject).OnClick = go =>
+			// {
+			// 	Close();
+			// };
+
+			EventTriggerListener.Get(m_btnRefresh.gameObject).OnClick = go =>
+			{
+				RefreshRewardCells();
+			};
+		}
+
+		private void RefreshRewardCells()
+		{
+			for (int i = 0; i < childCells.Count; i++)
+			{
+				childCells[i].Destroy();
+			}
 			var rewardActions = World.Instance.GetRewardActions();
 			for (int i = 0; i < rewardActions.Count; i++)
 			{
 				UIAdsRewardCell rewardCell = CreateWidgetByPrefab<UIAdsRewardCell>(m_itemRewardCell, m_rectRewardContent);
 				rewardCell.SetData(rewardActions[i]);
+				childCells.Add(rewardCell);
 			}
-
-			EventTriggerListener.Get(m_tfTapArea.gameObject).OnClick = go =>
-			{
-				Close();
-			};
 		}
+
+		protected override void OnDestroy()
+        {
+			closeAction?.Invoke();
+            base.OnDestroy();
+        }
 	}
 
 	partial class UIAdsRewardWindow

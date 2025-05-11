@@ -88,13 +88,13 @@ namespace GameLogic
 
     public enum RewardType: int
     {
-        ReduceEnemyCount = 0,          // 削弱敌军：随机一个敌方城堡中敌军数量-5
-        AddFriendlyCount = 1,          // 增援友军：随机一个己方城堡增加3个士兵
-        SpeedUpProduction = 2,         // 加速生产：随机一个己方城堡，在10秒内士兵生产速度提升50%
-        EnhanceAttackSpeed = 3,        // 士气提升：所有己方城堡的士兵攻击间隔减少20%，持续15秒
+        ReduceEnemyCount = 0,          // 削弱敌军：随机一个敌方城堡中敌军数量-n
+        AddFriendlyCount = 1,          // 增援友军：随机一个己方城堡增加n个士兵
+        SpeedUpProduction = 2,         // 加速生产：随机一个己方城堡，在t秒内士兵生产速度提升n%
+        EnhanceMoveSpeed = 3,          // 士气提升：所有己方城堡的士兵移动速度增加n%，持续t秒
         OccupyRandomCastle = 4,        // 奇袭战术：随机占领一个未被占领的城堡
-        InstantArmyBoost = 5,          // 军事援助：所有己方城堡立即生成5个士兵
-        EnemyArmyDisperse = 6,         // 敌军溃散：所有敌方城堡损失30%的士兵
-        ChainOccupation = 7,           // 连锁进攻：15秒内，己方占领新城堡后立即获得5个士兵
+        InstantArmyBoost = 5,          // 军事援助：所有己方城堡立即生成n个士兵
+        EnemyArmyDisperse = 6,         // 敌军溃散：所有敌方城堡损失n%的士兵
+        ChainOccupation = 7,           // 连锁进攻：t秒内，己方占领新城堡后立即获得n个士兵
     }
 }

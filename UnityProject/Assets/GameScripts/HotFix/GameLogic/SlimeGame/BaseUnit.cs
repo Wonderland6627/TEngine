@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GameLogic;
 using TEngine;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,7 +15,7 @@ public enum UnitType: int
 public partial class BaseUnit : UIWidget
 {
     public UnitType unitType;
-    
+
     public float moveDuration = 15f;
     public float arrivalThreshold = 0.1f;
     
@@ -47,7 +48,7 @@ public partial class BaseUnit : UIWidget
     {
         var uiRootRect = GameModule.UI.UIRootRect;
         float screenWidth = uiRootRect.rect.width;
-        float distancePerFrame = screenWidth / moveDuration * Time.deltaTime;
+        float distancePerFrame = screenWidth / moveDuration * Time.deltaTime * World.Instance.playerSlimeMoveSpeedCoe;
         Vector2 currentPos = transform.localPosition;
         currentPos += moveDir * distancePerFrame;
         transform.localPosition = currentPos;
@@ -60,7 +61,8 @@ public partial class BaseUnit : UIWidget
         moveDir = moveDir.normalized;
     }
 
-    private void CheckTriggered() {
+    private void CheckTriggered()
+    {
         if (target == null)
         {
             return;
@@ -76,7 +78,7 @@ public partial class BaseUnit : UIWidget
 
     private void OnTriggerTarget()
     {
-        target.OnOccupyByUnit(unitType);
+        target.OnTriggeredByUnit(unitType);
         Destroy();
     }
 }

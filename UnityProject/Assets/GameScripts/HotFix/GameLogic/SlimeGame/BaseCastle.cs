@@ -91,6 +91,9 @@ public partial class BaseCastle : UIWidget
     private void UpdateCountText()
     {
         m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
+#if UNITY_EDITOR
+        m_textCountTxt.text += occupiedUnitType == UnitType.Player? "P" : "E";
+#endif
     }
 
     private void SpawnUnit(object[] args)
@@ -105,10 +108,10 @@ public partial class BaseCastle : UIWidget
         }
 
         occupiedUnitCount++;
-        m_textCountTxt.text = $"{occupiedUnitCount}";
+        UpdateCountText();
     }
     
-    public void OnOccupyByUnit(UnitType unitType)
+    public void OnTriggeredByUnit(UnitType unitType)
     {
         if (occupiedUnitCount == 0)
         {
@@ -116,6 +119,19 @@ public partial class BaseCastle : UIWidget
             GameModule.Timer.RemoveTimer(attackTimer);
             attackTimer = -1;
             occupiedTime++;
+            if (unitType == UnitType.Player) //RewardType.ChainOccupation
+            {
+                if (World.Instance.playerGetMoreSlimeAfterOccupy)
+                {
+                    RewardAction action = World.Instance.activeRewardAction;
+                    if (action == null) return;
+                    int adddCount = (int)action.GetEffectValue();
+                    for (int i = 0; i < adddCount; i++)
+                    {
+                        SpawnUnit(null);
+                    }
+                }
+            }
         }
         // Debug.Log($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
 
@@ -131,6 +147,54 @@ public partial class BaseCastle : UIWidget
         }
         UpdateCountText();
         UpdateCastleImage();
+    }
+
+    public void OccupiedBy(UnitType unitType)
+    {
+        occupiedUnitCount = 0;
+        OnTriggeredByUnit(unitType);
+    }
+
+    // 增加占领单位的数量
+    public void AddOccupiedUnitCount(int count)
+    {
+        if (!isOccupied) return;
+        if (count == 0) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            SpawnUnit(null);
+        }
+    }
+
+    // 减少占领单位的数量
+    public void ReduceOccupiedUnitCount(int count)
+    {
+        if (!isOccupied) return;
+        if (count == 0) return;
+        
+        occupiedUnitCount -= count;
+        if (occupiedUnitCount <= 0) // 当减少为0时 设为空塔
+        {
+            occupiedUnitCount = 0;
+            GameModule.Timer.RemoveTimer(attackTimer);
+            attackTimer = -1;
+            occupiedTime = 0; //重置被占领次数
+        }
+        UpdateCountText();
+        UpdateCastleImage();
+    }
+
+    // 减少占领单位的数量 按比例
+    public void ReduceOccupiedUnitCount(float ratio)
+    {
+        float reduceCount = occupiedUnitCount * ratio;
+        ReduceOccupiedUnitCount((int)reduceCount);
+    }
+
+    private void TryRemoveRewardAction()
+    {
+        
     }
 
     private bool CanDrag()
@@ -216,7 +280,7 @@ public partial class BaseCastle : UIWidget
             World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
             remainingCount--;
             occupiedUnitCount--;
-            m_textCountTxt.text = $"{occupiedUnitCount}";
+            UpdateCountText();
         }
     }
 }

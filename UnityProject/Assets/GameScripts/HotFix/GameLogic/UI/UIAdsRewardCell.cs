@@ -19,12 +19,15 @@ namespace GameLogic
         public void SetData(RewardAction data)
         {
             rewardAction = data;
+            m_textRewardTxt.resizeTextForBestFit = true;
             m_textRewardTxt.text = data.GetDescription();
         }
 
         private void OnCellClick(GameObject go) 
         {
             Log.Info($"[UIAdsRewardCell] OnCellClick [{rewardAction.toString()}]");
+            World.Instance.TryTriggerReward(rewardAction);
+            GameModule.UI.CloseUI<UIAdsRewardWindow>();
         }
     }
 
