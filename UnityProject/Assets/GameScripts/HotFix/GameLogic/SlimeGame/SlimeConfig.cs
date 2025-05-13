@@ -88,13 +88,32 @@ namespace GameLogic
 
     public enum RewardType: int
     {
-        ReduceEnemyCount = 0,          // 削弱敌军：随机一个敌方城堡中敌军数量-n
-        AddFriendlyCount = 1,          // 增援友军：随机一个己方城堡增加n个士兵
-        SpeedUpProduction = 2,         // 加速生产：随机一个己方城堡，在t秒内士兵生产速度提升n%
-        EnhanceMoveSpeed = 3,          // 士气提升：所有己方城堡的士兵移动速度增加n%，持续t秒
-        OccupyRandomCastle = 4,        // 奇袭战术：随机占领一个未被占领的城堡
-        InstantArmyBoost = 5,          // 军事援助：所有己方城堡立即生成n个士兵
-        EnemyArmyDisperse = 6,         // 敌军溃散：所有敌方城堡损失n%的士兵
-        ChainOccupation = 7,           // 连锁进攻：t秒内，己方占领新城堡后立即获得n个士兵
+        // 单个城堡固定数量变化
+        AddSingleCastleSlime = 0,      // 指定城堡增加n个史莱姆
+        ReduceSingleCastleSlime = 1,   // 指定城堡减少n个史莱姆
+
+        // 单个城堡百分比变化
+        AddSingleCastleSlimePercent = 2,   // 指定城堡增加n%个史莱姆
+        ReduceSingleCastleSlimePercent = 3, // 指定城堡减少n%个史莱姆
+
+        // 所有城堡固定数量变化
+        AddAllCastleSlimes = 4,      // 所有友方城堡增加n个史莱姆
+        ReduceAllCastleSlimes = 5,      // 所有敌方城堡减少n个史莱姆
+
+        // 所有城堡百分比变化
+        AddAllCastleSlimesPercent = 6,      // 所有友方城堡增加n%个史莱姆
+        ReduceAllCastleSlimesPercent = 7,      // 所有敌方城堡减少n%个史莱姆
+        
+        // 速度修改类（持续时间）
+        IncreaseSlimeSpawnSpeed = 8,        // 增加生产速度n%，持续t秒
+        DecreaseSlimeEnemySpawnSpeed = 9,   // 降低敌方生产速度n%，持续t秒
+        IncreaseSlimeMoveSpeed = 10,         // 增加移动速度n%，持续t秒
+        DecreaseSlimeEnemyMoveSpeed = 11,    // 降低敌方移动速度n%，持续t秒
+
+        // 连锁效果
+        ChainOccupationBonus = 12,      // t秒内占领新城堡后获得n个史莱姆
+
+        // 特殊效果
+        OccupyRandomCastle = 13,        // 随机占领一个未被占领的城堡
     }
 }

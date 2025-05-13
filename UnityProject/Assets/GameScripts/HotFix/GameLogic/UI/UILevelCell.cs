@@ -22,7 +22,7 @@ namespace GameLogic
             this.config = config;
             m_textLevelTxt.text = config.levelId.ToString();
             int nextLevelId = World.Instance.GameData.ProgressLevelID + 1;
-            bool isLocked = !(config.levelId < nextLevelId);
+            bool isLocked = !(config.levelId <= nextLevelId);
             SetLockState(isLocked);
         }
 

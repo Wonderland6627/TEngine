@@ -13,6 +13,11 @@ public enum CastleType: int
     Tower = 1, //塔楼
 }
 
+/// <summary>
+/// 城堡状态：
+/// 1. 空塔：任何单位进来 占领数字-1；当数字为0 被单位占领
+/// 2. 被占领的塔：占领单位进来 占领数字+1；非占领单位进来 数字-1；当数字为0 被非占领单位占领
+/// </summary>
 public partial class BaseCastle : UIWidget
 {
     public Transform unitContainer;
@@ -28,7 +33,7 @@ public partial class BaseCastle : UIWidget
     public Vector2 startDragPos;
     public Vector2 dragDir;
     
-    private int spawnTimer = -1;
+    private float spawnDuration = 0f;
     private int attackTimer = -1;
 
     protected override void OnCreate()
@@ -38,7 +43,6 @@ public partial class BaseCastle : UIWidget
 
     protected override void OnDestroy()
     {
-        GameModule.Timer.RemoveTimer(spawnTimer);
         GameModule.Timer.RemoveTimer(attackTimer);
         base.OnDestroy();
     }
@@ -48,28 +52,53 @@ public partial class BaseCastle : UIWidget
         if (!isOccupiedOnStart)
         {
             occupiedUnitCount = -10;
-        } else 
+        } 
+        else 
         {
             occupiedTime = 1;
         }
 
         UpdateCountText();
         UpdateCastleImage();
-        
-        //todo: 拆出来 当占领单位变化的时候重置间隔
+
+        var trigger = EventTriggerListener.Get(gameObject);
+        trigger.OnDragBegin = OnBeginDrag;
+        trigger.OnDragEvent = OnDrag;
+        trigger.OnDragEnd = OnEndDrag;
+    }
+
+    private void SetEmptyCastle()
+    {
+        occupiedTime = 0;
+        GameModule.Timer.RemoveTimer(attackTimer);
+        UpdateCountText();
+        UpdateCastleImage();
+    }
+
+    protected override void OnUpdate()
+    {
+        base.OnUpdate();
+        SpawnUnit();
+    }
+
+    private void SpawnUnit()
+    {
         var curLevelConfig = World.Instance.GetCurrentLevelConfig();
         if (curLevelConfig == null) 
         {
             Log.Error($"[{GetType().Name}] no find current level config");
             return;
         }
-        float spawnInterval = occupiedUnitType == UnitType.Player ? curLevelConfig.playerSpawnInterval : curLevelConfig.enemy_1_SpawnInterval;
-        spawnTimer = GameModule.Timer.AddTimer(SpawnUnit, spawnInterval, true);
-
-        var trigger = EventTriggerListener.Get(gameObject);
-        trigger.OnDragBegin = OnBeginDrag;
-        trigger.OnDragEvent = OnDrag;
-        trigger.OnDragEnd = OnEndDrag;
+        float spawnInterval = occupiedUnitType == UnitType.Player
+            ? curLevelConfig.playerSpawnInterval
+            : curLevelConfig.enemy_1_SpawnInterval;
+        float spawnSpeedCoe = occupiedUnitType == UnitType.Player
+            ? World.Instance.playerSlimeSpawnSpeedCoe
+            : World.Instance.enemySlimeSpawnSpeedCoe;
+        spawnDuration += Time.deltaTime * spawnSpeedCoe;
+        if (spawnDuration < spawnInterval) return;
+        spawnDuration = 0f;
+        SpawnUnit(null);
     }
 
     private void UpdateCastleImage(bool animate = false)
@@ -92,8 +121,13 @@ public partial class BaseCastle : UIWidget
     {
         m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
 #if UNITY_EDITOR
-        m_textCountTxt.text += occupiedUnitType == UnitType.Player? "P" : "E";
+        m_textCountTxt.text += GetUnitTypeFlag();
 #endif
+    }
+
+    public string GetUnitTypeFlag()
+    {
+        return occupiedUnitType == UnitType.Player? "P" : "E";
     }
 
     private void SpawnUnit(object[] args)
@@ -149,10 +183,25 @@ public partial class BaseCastle : UIWidget
         UpdateCastleImage();
     }
 
-    public void OccupiedBy(UnitType unitType)
+    // 直接被占领
+    public void DirectOccupiedBy(UnitType unitType)
     {
         occupiedUnitCount = 0;
         OnTriggeredByUnit(unitType);
+    }
+    
+    // 增加占领单位的数量 按比例
+    public void AddOccupiedUnit(float ratio)
+    {
+        float addCount = occupiedUnitCount * ratio;
+        AddOccupiedUnitCount((int)addCount);
+    }
+
+    // 减少占领单位的数量 按比例
+    public void ReduceOccupiedUnit(float ratio)
+    {
+        float reduceCount = occupiedUnitCount * ratio;
+        ReduceOccupiedUnitCount((int)reduceCount);
     }
 
     // 增加占领单位的数量
@@ -183,13 +232,6 @@ public partial class BaseCastle : UIWidget
         }
         UpdateCountText();
         UpdateCastleImage();
-    }
-
-    // 减少占领单位的数量 按比例
-    public void ReduceOccupiedUnitCount(float ratio)
-    {
-        float reduceCount = occupiedUnitCount * ratio;
-        ReduceOccupiedUnitCount((int)reduceCount);
     }
 
     private void TryRemoveRewardAction()
@@ -247,7 +289,7 @@ public partial class BaseCastle : UIWidget
         }
 
         SendSlime(occupiedUnitCount, target);
-        Debug.Log($"[{GetType().Name}] [{gameObject.name}] attack [{target.gameObject.name}], send count: {occupiedUnitCount}");
+        Debug.Log($"[{GetType().Name}] [{gameObject.name}_{GetUnitTypeFlag()}] attack [{target.gameObject.name}_{target.GetUnitTypeFlag()}], send count: {occupiedUnitCount}");
     }
 
     private void SendSlime(int count, BaseCastle target, bool sendDirectly = true)

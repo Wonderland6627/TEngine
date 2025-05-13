@@ -69,6 +69,8 @@ namespace GameLogic
             playingLevelId = levelId;
             aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 5f, true);
             isPlaying = true;
+
+            Log.Info($"[World] StartGame, levelId: {levelId}");
         }
 
         public void EndGame()
@@ -86,20 +88,27 @@ namespace GameLogic
             }
             roads.Clear();
 
+            ResetRewardAction();
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
             GameModule.UI.ShowUIAsync<UILevelWindow>();
+
+            Log.Info($"[World] EndGame");
         }
 
         public void PauseGame()
         {
             isPlaying = false;
             GameModule.Base.PauseGame();
+
+            Log.Info($"[World] PauseGame");
         }
 
         public void ResumeGame()
         {
             GameModule.Base.ResumeGame();
             isPlaying = true;
+
+            Log.Info($"[World] ResumeGame");
         }
 
         private void CheckGameOver()
@@ -113,9 +122,9 @@ namespace GameLogic
             UnitType winUnitType = unitTypes[0];
             if (winUnitType == UnitType.Player)
             {
-                if (GameData.ProgressLevelID < playingLevelId)
+                if (GameData.ProgressLevelID <= playingLevelId)
                 {
-                    GameData.ProgressLevelID = playingLevelId;
+                    SetUserGameInfo(playingLevelId + 1);
                 }
             }
 

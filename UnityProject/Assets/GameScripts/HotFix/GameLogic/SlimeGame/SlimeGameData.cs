@@ -44,7 +44,7 @@ namespace GameLogic
         public int ProgressLevelID
         {
             get => _progressLevelID;
-            set 
+            private set 
             {
                 _progressLevelID = value;
                 PlayerPrefs.SetInt(Progress_Level_ID_Key, _progressLevelID);
@@ -108,6 +108,15 @@ namespace GameLogic
             string json = UserInfo.ToJson();
             PlayerPrefs.SetString(User_Info_Key, json);
             GameEvent.Send(SlimeEvent.OnUserInfoUpdate, UserInfo);
+        }
+
+        public void SetProgressLevelID(int levelID, bool save2Cloud = false)
+        {
+            ProgressLevelID = levelID;
+            if (save2Cloud)
+            {
+                World.Instance.SetUserGameInfo(ProgressLevelID);
+            }
         }
     }
 

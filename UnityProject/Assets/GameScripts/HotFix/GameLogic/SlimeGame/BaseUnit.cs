@@ -48,7 +48,10 @@ public partial class BaseUnit : UIWidget
     {
         var uiRootRect = GameModule.UI.UIRootRect;
         float screenWidth = uiRootRect.rect.width;
-        float distancePerFrame = screenWidth / moveDuration * Time.deltaTime * World.Instance.playerSlimeMoveSpeedCoe;
+        float speedCoe = unitType == UnitType.Player
+            ? World.Instance.playerSlimeMoveSpeedCoe
+           : World.Instance.enemySlimeMoveSpeedCoe;
+        float distancePerFrame = screenWidth / moveDuration * Time.deltaTime * speedCoe;
         Vector2 currentPos = transform.localPosition;
         currentPos += moveDir * distancePerFrame;
         transform.localPosition = currentPos;

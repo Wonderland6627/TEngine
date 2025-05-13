@@ -283,7 +283,7 @@ namespace GameLogic
                     if (userGameInfoDict.TryGetValue("progressLevelID", out var value))
                     {
                         int progressLevelID = Convert.ToInt32(value);
-                        GameData.ProgressLevelID = progressLevelID;
+                        SetUserGameInfo(progressLevelID);
                     }
                 }
                 catch (Exception e)

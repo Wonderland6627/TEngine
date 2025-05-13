@@ -20,7 +20,7 @@ namespace GameLogic
             GameEvent.AddEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
-                World.Instance.EndGame();
+                // World.Instance.EndGame();
 				Close();
 			};
             EventTriggerListener.Get(m_btnSettings).OnClick = go =>
@@ -36,13 +36,14 @@ namespace GameLogic
 
         protected override void OnDestroy()
         {
+            World.Instance.EndGame();
             GameEvent.RemoveEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             base.OnDestroy();
         }
 
         private void OnGameOver(GameOverParam param)
         {
-            Log.Info("[UIMainWindow] trigger GameOver: " + param.winUnitType);
+            Log.Info("[UIMainWindow] trigger GameOver, winner: " + param.winUnitType);
             World.Instance.PauseGame();
             GameModule.UI.ShowUIAsync<UIGameOverWindow>(param);
         }
@@ -53,7 +54,7 @@ namespace GameLogic
 #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                World.Instance.EndGame();
+                // World.Instance.EndGame();
                 Close();
             }
 #endif
