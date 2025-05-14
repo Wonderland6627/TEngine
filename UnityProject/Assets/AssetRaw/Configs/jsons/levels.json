@@ -132,8 +132,8 @@
         "occupiedSlimeType": 0,
         "occupiedUnitCount": 10,
         "position": {
-          "x": -200,
-          "y": -400
+          "x": -150,
+          "y": -300
         }
       },
       {
@@ -143,8 +143,8 @@
         "occupiedSlimeType": 0,
         "occupiedUnitCount": 8,
         "position": {
-          "x": -200,
-          "y": 400
+          "x": -150,
+          "y": 300
         }
       },
       {

@@ -21,6 +21,11 @@ namespace GameLogic
         {
             this.config = config;
             m_textLevelTxt.text = config.levelId.ToString();
+            UpdateLockState();
+        }
+
+        public void UpdateLockState()
+        {
             int currentMaxLevel = World.Instance.GameData.ProgressLevelID;
             bool isLocked = config.levelId > currentMaxLevel + 1;
             Log.Info($"[UILevelCell] cellid [{config.levelId}] currmaxid [{currentMaxLevel}] islocked [{isLocked}]");

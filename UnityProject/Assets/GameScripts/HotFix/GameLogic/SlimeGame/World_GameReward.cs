@@ -141,7 +141,7 @@ namespace GameLogic
                         }
                         for (int i = 0; i < enemyCastles.Count; i++)
                         {
-                            enemyCastles[i].AddOccupiedUnitCount((int)action.GetEffectValue());
+                            enemyCastles[i].ReduceOccupiedUnitCount((int)action.GetEffectValue());
                         }
                     } break;
                 case RewardType.AddAllCastleSlimesPercent:
