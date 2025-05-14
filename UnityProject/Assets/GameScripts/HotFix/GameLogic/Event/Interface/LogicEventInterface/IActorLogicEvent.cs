@@ -34,9 +34,5 @@ namespace GameLogic
         void OnMainPlayerCurrencyChange(CurrencyType type, uint oldVal, uint newVal);
         
         void OnMainPlayerExpChange(ulong oldVal, ulong newVal);
-
-        void OnGameOver(GameOverParam param);
-
-        void OnUserInfoUpdate(UserInfo userInfo);
     }
 }

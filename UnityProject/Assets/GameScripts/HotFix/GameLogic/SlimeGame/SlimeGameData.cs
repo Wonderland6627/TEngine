@@ -115,7 +115,9 @@ namespace GameLogic
             ProgressLevelID = levelID;
             if (save2Cloud)
             {
-                World.Instance.SetUserGameInfo(ProgressLevelID);
+                string nickName = UserInfo?.nickName ?? "";
+                string avatarUrl = UserInfo?.avatarUrl ?? "";
+                World.Instance.SetUserGameInfo(ProgressLevelID, nickName, avatarUrl);
             }
         }
     }
