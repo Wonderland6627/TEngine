@@ -124,7 +124,7 @@ namespace GameLogic
             {
                 if (GameData.ProgressLevelID <= playingLevelId)
                 {
-                    SetUserGameInfo(playingLevelId + 1);
+                    GameData.SetProgressLevelID(playingLevelId, true);
                 }
             }
 

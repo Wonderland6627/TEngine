@@ -78,7 +78,7 @@ namespace GameLogic
 
         public SlimeGameData()
         {
-            _progressLevelID = PlayerPrefs.GetInt(Progress_Level_ID_Key, 1);
+            _progressLevelID = PlayerPrefs.GetInt(Progress_Level_ID_Key, 0);
             _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
             _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
             LoadUserInfo();
