@@ -26,9 +26,9 @@ namespace GameLogic
 
         public void UpdateLockState()
         {
-            int currentMaxLevel = World.Instance.GameData.ProgressLevelID;
-            bool isLocked = config.levelId > currentMaxLevel + 1;
-            Log.Info($"[UILevelCell] cellid [{config.levelId}] currmaxid [{currentMaxLevel}] islocked [{isLocked}]");
+            int progressLevelID = World.Instance.GameData.ProgressLevelID;
+            bool isLocked = config.levelId > progressLevelID + 1;
+            Log.Info($"[UILevelCell] cellcfgid [{config.levelId}] progresslvid [{progressLevelID}] islocked [{isLocked}]");
             SetLockState(isLocked);
         }
 

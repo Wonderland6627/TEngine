@@ -6,6 +6,7 @@ using WeChatWASM;
 using System;
 using Newtonsoft.Json.Linq;
 using Cysharp.Threading.Tasks;
+using UnityEngine.UI;
 
 namespace GameLogic
 {
@@ -327,6 +328,13 @@ namespace GameLogic
             {
                 KVDataList = kvDataList.ToArray(),
             });
+
+            var msgData = new
+            {
+                type = "setUserRecord",
+                score = progressLevelID,
+            };
+            WX.GetOpenDataContext().PostMessage(msgData.ToJson());
         }
 
         public async UniTask<List<PlayerRankInfo>> GetUserRankList()
@@ -482,6 +490,30 @@ namespace GameLogic
                     return null;
                 }
             }
+        }
+
+        public void ShowFriendsRank(RawImage rawImage)
+        {
+            Log.Info("[World] ShowFriendsRank");
+            CanvasScaler scaler = UIModule.UIRootStatic.GetComponentInParent<CanvasScaler>();
+            Vector2 referenceResolution = scaler.referenceResolution;
+            if (scaler == null)
+            {
+                Log.Error($"[World] ShowFriendsRank Not found {nameof(CanvasScaler)} !");
+                return;
+            }
+
+            Vector3 imgPos = rawImage.transform.position;
+            WX.ShowOpenData(rawImage.texture,
+                (int)imgPos.x,
+                Screen.height - (int)imgPos.y,
+                (int)(Screen.width / referenceResolution.x * rawImage.rectTransform.rect.width),
+                (int)(Screen.width / referenceResolution.x * rawImage.rectTransform.rect.height));
+            var msgData = new
+            {
+                type = "showFriendsRank",
+            };
+            WX.GetOpenDataContext().PostMessage(msgData.ToJson());
         }
     }
 }

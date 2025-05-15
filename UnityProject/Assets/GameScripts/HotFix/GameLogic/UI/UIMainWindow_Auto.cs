@@ -20,7 +20,6 @@ namespace GameLogic
             GameEvent.AddEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
-                // World.Instance.EndGame();
 				Close();
 			};
             EventTriggerListener.Get(m_btnSettings).OnClick = go =>
@@ -54,7 +53,6 @@ namespace GameLogic
 #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                // World.Instance.EndGame();
                 Close();
             }
 #endif
