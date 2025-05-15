@@ -48,6 +48,7 @@ namespace GameLogic
 			EventTriggerListener.Get(m_tfTapArea.gameObject).OnClick = go =>
 			{
 				Close();
+				World.Instance.EndGame();
 			};
         }
 	}

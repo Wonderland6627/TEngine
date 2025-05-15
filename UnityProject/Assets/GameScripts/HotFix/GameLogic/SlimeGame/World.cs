@@ -90,6 +90,7 @@ namespace GameLogic
 
             ResetRewardAction();
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
+            GameModule.UI.CloseUI<UIMainWindow>();
             GameModule.UI.ShowUIAsync<UILevelWindow>();
 
             Log.Info($"[World] EndGame");
@@ -122,13 +123,13 @@ namespace GameLogic
             UnitType winUnitType = unitTypes[0];
             if (winUnitType == UnitType.Player)
             {
-                if (GameData.ProgressLevelID <= playingLevelId)
+                if (GameData.ProgressLevelID < playingLevelId)
                 {
                     GameData.SetProgressLevelID(playingLevelId, true);
                 }
             }
 
-            isPlaying = false;
+            PauseGame();
             GameEvent.Send(SlimeEvent.OnGameOver, new GameOverParam() { winUnitType = winUnitType });
         }
 
