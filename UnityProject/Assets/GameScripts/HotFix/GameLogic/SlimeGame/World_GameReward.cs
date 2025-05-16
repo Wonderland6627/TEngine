@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TEngine;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GameLogic
 {
@@ -16,6 +18,37 @@ namespace GameLogic
 
         public RewardAction activeRewardAction { get; private set; }
         private int actionRemoveTimer = -1;
+        
+        // 控制锦囊弹出时机的参数
+        private int occupiedCastleTimes = 0; //被敌人占领的城堡次数
+
+        // 当玩家的城堡被敌人占领时触发 现用于检查锦囊触发时机
+        public void OnOccupiedByEnemy()
+        {
+            List<UnitType> unitTypes = castles.Select(castle => castle.occupiedUnitType).Distinct().ToList();
+            if (unitTypes.Count == 1) return; // 游戏已经结束 不再弹出锦囊
+
+            occupiedCastleTimes++;
+            bool condition1 = occupiedCastleTimes % 2 == 1; // 被敌人占领的城堡次数为奇数
+            bool condition2 = castles.FindAll(c => c.isOccupied && c.occupiedUnitType == UnitType.Player).Count == 1; // 玩家只剩下一个城堡了
+            if (condition1 || condition2) //满足任意一个条件就能触发锦囊
+            {
+                ShowAdsRewardWindow();
+            }
+        }
+
+        private void ShowAdsRewardWindow()
+        {
+            if (!isPlaying) return;
+            if (GameModule.UI.HasWindow<UIAdsRewardWindow>()) return;
+
+            PauseGame();
+            UnityAction closeAction = () =>
+            {
+                ResumeGame();
+            };
+            GameModule.UI.ShowUIAsync<UIAdsRewardWindow>(closeAction);
+        }
 
         public List<RewardAction> GetRewardActions()
         {

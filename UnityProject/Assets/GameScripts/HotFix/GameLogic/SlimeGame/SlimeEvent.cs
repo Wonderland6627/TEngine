@@ -11,6 +11,8 @@ namespace GameLogic
         public static string OnGameOver = "OnGameOver";
 
         public static string OnRewardSelect = "OnRewardSelect";
+
+        public static string OnGetWXFont = "OnGetWXFont";
     }
     
     public class GameOverParam

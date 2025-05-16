@@ -88,7 +88,9 @@ namespace GameLogic
             }
             roads.Clear();
 
+            occupiedCastleTimes = 0;
             ResetRewardAction();
+            
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
             GameModule.UI.CloseUI<UIMainWindow>();
             GameModule.UI.ShowUIAsync<UILevelWindow>();

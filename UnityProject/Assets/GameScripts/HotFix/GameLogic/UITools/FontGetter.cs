@@ -14,39 +14,70 @@ namespace GameLogic
 
         public string logTitle;
         public static Font wxFont;
+        public static bool isLoading = false;
 
-        void Start()
+        private void Start()
         {
             logTitle = gameObject.name;
             allTexts = transform.GetComponentsInChildren<Text>(true);
+            
+#if !UNITY_EDITOR
             if (wxFont != null)
             {
                 ApplyFont();
                 return;
             }
+            
+            GameEvent.AddEventListener(SlimeEvent.OnGetWXFont, OnGetWXFont);
+            GameModule.UI.ShowLoading();
+            TryGetWXFont();
+#endif
+        }
 
+        private void OnGetWXFont()
+        {
+            ApplyFont();
+            GameEvent.RemoveEventListener(SlimeEvent.OnGetWXFont, OnGetWXFont);
+        }
+
+        private void TryGetWXFont()
+        {
+            if (isLoading)
+            {
+                Log.Warning($"[FontGetter - {logTitle}] isLoading font, return");
+                return;
+            }
+            isLoading = true;
             var fontName = "cartoon_font_1.ttf";
             var fallbackFontUrl = $"https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/Fonts/{fontName}";
             WX.GetWXFont(fallbackFontUrl, (font) =>
             {
+                GameModule.UI.ShowLoading(false);
+                isLoading = false;
                 if (font == null)
                 {
                     Log.Error($"[FontGetter - {logTitle}] GetWXFont failed");
                     return;
                 }
+                Log.Info($"[FontGetter - {logTitle}] GetWXFont success, font name: {font.name}");
                 wxFont = font;
-                ApplyFont();
+                GameEvent.Send(SlimeEvent.OnGetWXFont);
             });
         }
 
         void ApplyFont()
         {
+            if (wxFont == null) return;
+            if (gameObject == null) return;
+            if (allTexts == null || allTexts.Length == 0) return;
             for (int i = 0; i < allTexts.Length; i++)
             {
-                if (allTexts[i].font == wxFont) continue;
-                allTexts[i].font = wxFont;
+                Text text = allTexts[i];
+                if (text == null) continue;
+                if (text.font == wxFont) continue;
+                text.font = wxFont;
             }
-            Log.Info($"[FontGetter - {logTitle}] GetWXFont success, replace text font to {wxFont.name}");
+            Log.Info($"[FontGetter - {logTitle}] apply text font to {wxFont.name}");
         }
     }
 }

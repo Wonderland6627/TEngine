@@ -15,6 +15,10 @@ namespace TEngine
     {
         [SerializeField] private Transform m_InstanceRoot = null;
 
+        [SerializeField] private Transform m_InstanceTopRoot = null;
+
+        [SerializeField] private Transform m_InstanceLoading = null;
+
         [SerializeField] private bool m_dontDestroyUIRoot = true;
 
         [SerializeField] private bool m_enableErrorLog = true;
@@ -71,6 +75,15 @@ namespace TEngine
 
             m_InstanceRoot.gameObject.layer = LayerMask.NameToLayer("UI");
             UIRootStatic = m_InstanceRoot;
+
+            if (m_InstanceTopRoot != null)
+            {
+                m_InstanceTopRoot.gameObject.layer = m_InstanceRoot.gameObject.layer;
+            }
+            if (m_InstanceLoading != null)
+            {
+                m_InstanceLoading.gameObject.SetActive(false);
+            }
             
             switch (GameModule.Debugger.ActiveWindowType)
             {
@@ -108,6 +121,12 @@ namespace TEngine
             {
                 Destroy(m_InstanceRoot.parent.gameObject);
             }
+        }
+
+        public void ShowLoading(bool isShow = true)
+        {
+            if (m_InstanceLoading == null) return;
+            m_InstanceLoading.gameObject.SetActive(isShow);
         }
 
         #region 设置安全区域

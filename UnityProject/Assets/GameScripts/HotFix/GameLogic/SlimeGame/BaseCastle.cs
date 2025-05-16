@@ -58,7 +58,6 @@ public partial class BaseCastle : UIWidget
             occupiedTime = 1;
         }
 
-        UpdateCountText();
         UpdateCastleImage();
 
         var trigger = EventTriggerListener.Get(gameObject);
@@ -71,7 +70,6 @@ public partial class BaseCastle : UIWidget
     {
         occupiedTime = 0;
         GameModule.Timer.RemoveTimer(attackTimer);
-        UpdateCountText();
         UpdateCastleImage();
     }
 
@@ -103,6 +101,11 @@ public partial class BaseCastle : UIWidget
 
     private void UpdateCastleImage(bool animate = false)
     {
+        m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
+#if UNITY_EDITOR
+        m_textCountTxt.text += GetUnitTypeFlag();
+#endif
+
         m_imgPlayerImg.gameObject.SetActive(false);
         m_imgEnemy_1_Img.gameObject.SetActive(false);
         m_imgFreeImg.gameObject.SetActive(false);
@@ -115,14 +118,6 @@ public partial class BaseCastle : UIWidget
         bool isPlayer = occupiedUnitType == UnitType.Player;
         m_imgPlayerImg.gameObject.SetActive(isPlayer);
         m_imgEnemy_1_Img.gameObject.SetActive(!isPlayer);
-    }
-
-    private void UpdateCountText()
-    {
-        m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
-#if UNITY_EDITOR
-        m_textCountTxt.text += GetUnitTypeFlag();
-#endif
     }
 
     public string GetUnitTypeFlag()
@@ -142,29 +137,35 @@ public partial class BaseCastle : UIWidget
         }
 
         occupiedUnitCount++;
-        UpdateCountText();
+        UpdateCastleImage();
     }
     
     public void OnTriggeredByUnit(UnitType unitType)
     {
+        UnitType curUnitType = occupiedUnitType; // 被占领前的单位类型
+        int curOccupiedTime = occupiedTime; // 被占领前的占领次数
         if (occupiedUnitCount == 0)
         {
             occupiedUnitType = unitType;
             GameModule.Timer.RemoveTimer(attackTimer);
             attackTimer = -1;
             occupiedTime++;
-            if (unitType == UnitType.Player) //RewardType.ChainOccupation
+            if (unitType == UnitType.Player)
             {
                 if (World.Instance.playerGetMoreSlimeAfterOccupy)
                 {
                     RewardAction action = World.Instance.activeRewardAction;
                     if (action == null) return;
-                    int adddCount = (int)action.GetEffectValue();
-                    for (int i = 0; i < adddCount; i++)
+                    int addCount = (int)action.GetEffectValue();
+                    for (int i = 0; i < addCount; i++)
                     {
                         SpawnUnit(null);
                     }
                 }
+            }
+            if (curOccupiedTime > 0 && unitType == UnitType.Enemy_1) // 非空塔被敌方占领
+            {
+                World.Instance.OnOccupiedByEnemy();
             }
         }
         // Debug.Log($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
@@ -179,7 +180,6 @@ public partial class BaseCastle : UIWidget
             //被攻击或者获得增援
             occupiedUnitCount = unitType == occupiedUnitType ? occupiedUnitCount + 1 : occupiedUnitCount - 1;
         }
-        UpdateCountText();
         UpdateCastleImage();
     }
 
@@ -230,13 +230,7 @@ public partial class BaseCastle : UIWidget
             attackTimer = -1;
             occupiedTime = 0; //重置被占领次数
         }
-        UpdateCountText();
         UpdateCastleImage();
-    }
-
-    private void TryRemoveRewardAction()
-    {
-        
     }
 
     private bool CanDrag()
@@ -313,7 +307,8 @@ public partial class BaseCastle : UIWidget
 
         void Attack(params object[] args)
         {
-            if (remainingCount == 0) {
+            if (remainingCount == 0)
+            {
                 GameModule.Timer.RemoveTimer(attackTimer);
                 attackTimer = -1;
                 return;
@@ -322,7 +317,7 @@ public partial class BaseCastle : UIWidget
             World.Instance.CreateUnit(this, occupiedUnitType, target, unitContainer);
             remainingCount--;
             occupiedUnitCount--;
-            UpdateCountText();
+            UpdateCastleImage();
         }
     }
 }

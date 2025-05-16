@@ -24,6 +24,12 @@ namespace GameLogic
         {
             World.Instance.ShowFriendsRank(m_rimgRankTex);
         }
+
+        protected override void OnDestroy()
+        {
+            World.Instance.DestroyOpenDataRenderer();
+            base.OnDestroy();
+        }
     }
 
     [Window(UILayer.UI)]

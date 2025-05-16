@@ -28,6 +28,7 @@ namespace GameLogic
 		private async void GetRankList()
 		{
 			var rankInfos = await World.Instance.GetUserRankList();
+			if (gameObject == null) return;
 			for (int i = 0; i < rankInfos.Count; i++)
 			{
 				UIRankCell rankCell = CreateWidgetByPrefab<UIRankCell>(m_itemPlayerRankCell, m_rectRankContent);

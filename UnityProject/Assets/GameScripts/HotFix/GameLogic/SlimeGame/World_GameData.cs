@@ -495,6 +495,11 @@ namespace GameLogic
         public void ShowFriendsRank(RawImage rawImage)
         {
             Log.Info("[World] ShowFriendsRank");
+            if (rawImage == null)
+            {
+                Log.Error("[World] ShowFriendsRank rawImage is null!");
+                return;
+            }
             CanvasScaler scaler = UIModule.UIRootStatic.GetComponentInParent<CanvasScaler>();
             Vector2 referenceResolution = scaler.referenceResolution;
             if (scaler == null)
@@ -512,6 +517,15 @@ namespace GameLogic
             var msgData = new
             {
                 type = "showFriendsRank",
+            };
+            WX.GetOpenDataContext().PostMessage(msgData.ToJson());
+        }
+
+        public void DestroyOpenDataRenderer()
+        {
+            var msgData = new
+            {
+                type = "WXDestroy",
             };
             WX.GetOpenDataContext().PostMessage(msgData.ToJson());
         }
