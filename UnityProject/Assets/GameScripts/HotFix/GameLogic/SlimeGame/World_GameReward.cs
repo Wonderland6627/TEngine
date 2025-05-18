@@ -21,10 +21,12 @@ namespace GameLogic
         
         // 控制锦囊弹出时机的参数
         private int occupiedCastleTimes = 0; //被敌人占领的城堡次数
+        private int lastTriggerTime = 0; // 上一次触发锦囊的时间
 
         // 当玩家的城堡被敌人占领时触发 现用于检查锦囊触发时机
         public void OnOccupiedByEnemy()
         {
+            if (Time.time - lastTriggerTime < 20) return; // 20秒内只触发一次
             List<UnitType> unitTypes = castles.Select(castle => castle.occupiedUnitType).Distinct().ToList();
             if (unitTypes.Count == 1) return; // 游戏已经结束 不再弹出锦囊
 
@@ -33,6 +35,7 @@ namespace GameLogic
             bool condition2 = castles.FindAll(c => c.isOccupied && c.occupiedUnitType == UnitType.Player).Count == 1; // 玩家只剩下一个城堡了
             if (condition1 || condition2) //满足任意一个条件就能触发锦囊
             {
+                lastTriggerTime = (int)Time.time;
                 ShowAdsRewardWindow();
             }
         }

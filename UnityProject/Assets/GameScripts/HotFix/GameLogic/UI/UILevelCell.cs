@@ -21,7 +21,7 @@ namespace GameLogic
         {
             this.config = config;
             m_textLevelTxt.text = config.levelId.ToString();
-            UpdateLockState();
+            // UpdateLockState();
         }
 
         public void UpdateLockState()

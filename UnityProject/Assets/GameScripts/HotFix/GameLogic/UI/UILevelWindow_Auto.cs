@@ -13,7 +13,8 @@ namespace GameLogic
 		protected override void OnCreate()
 		{
 			base.OnCreate();
-
+			Log.Info($"[UILevelWindow] OnCreate");
+			
 			var levels = World.Instance.GetAllLevels();
 			for (int i = 0; i < levels.Count; i++) 
 			{
@@ -31,6 +32,7 @@ namespace GameLogic
         protected override void OnRefresh()
         {
             base.OnRefresh();
+			Log.Info($"[UILevelWindow] OnRefresh");
 			UpdateCells();
         }
 	

@@ -331,13 +331,16 @@ partial class BaseCastle
 
     private void OnDragArrow(Vector2 mousePos)
     {
-        Vector2 dragVector = mousePos - startDragPos;
-        float angle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
-        float length = dragVector.magnitude;
-        m_rectDragArrow.rotation = Quaternion.Euler(0, 0, angle);
-        float minLength = 50f;
-        length = Mathf.Clamp(length, minLength, length);
-        m_rectDragArrow.sizeDelta = new Vector2(length, m_rectDragArrow.sizeDelta.y);
+        Vector2 originPos = RectTransformUtility.WorldToScreenPoint(GameModule.UI.UICamera, transform.position);
+        Vector2 dir = mousePos - originPos;
+        Rect uiRootRect = UIModule.UIRootStatic.RectTransform().rect;
+        float resolution = uiRootRect.height / uiRootRect.width ;
+        float distance = Vector2.Distance(originPos, mousePos) / resolution * 1.35f;
+        m_rectDragArrow.sizeDelta = new Vector2(distance, m_rectDragArrow.sizeDelta.y);
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        m_rectDragArrow.localRotation = Quaternion.Euler(0, 0, angle);
+
+        // Log.Info($"originPos = {originPos}, mousePos = {mousePos}, dir = {dir}, angle = {angle}, distance = {distance}, sizeDelta = {m_rectDragArrow.sizeDelta}, resolution = {resolution}");
     }
 
     private void HideDragArrow()

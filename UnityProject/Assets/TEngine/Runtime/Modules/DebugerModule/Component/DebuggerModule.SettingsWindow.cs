@@ -104,7 +104,7 @@ namespace TEngine
                     GUILayout.BeginHorizontal();
                     {
                         float width = _mDebuggerModule.WindowRect.width;
-                        GUILayout.Label("Width:", GUILayout.Width(60f));
+                        GUILayout.Label($"Width:{width}", GUILayout.Width(60f));
                         if (GUILayout.RepeatButton("-", GUILayout.Width(30f)))
                         {
                             width--;
@@ -125,7 +125,7 @@ namespace TEngine
                     GUILayout.BeginHorizontal();
                     {
                         float height = _mDebuggerModule.WindowRect.height;
-                        GUILayout.Label("Height:", GUILayout.Width(60f));
+                        GUILayout.Label($"Height:{height}", GUILayout.Width(60f));
                         if (GUILayout.RepeatButton("-", GUILayout.Width(30f)))
                         {
                             height--;

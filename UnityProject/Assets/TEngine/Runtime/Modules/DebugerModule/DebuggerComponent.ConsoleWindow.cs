@@ -26,7 +26,7 @@ namespace TEngine
             private bool _lastFatalFilter = true;
 
             [SerializeField]
-            private bool m_LockScroll = true;
+            private bool m_LockScroll = false;
 
             [SerializeField]
             private int m_MaxLine = 100;
@@ -133,7 +133,7 @@ namespace TEngine
                 }
 
                 Application.logMessageReceived += OnLogMessageReceived;
-                m_LockScroll = _lastLockScroll = _settingModule.GetBool("Debugger.Console.LockScroll", true);
+                m_LockScroll = _lastLockScroll = _settingModule.GetBool("Debugger.Console.LockScroll", false);
                 m_InfoFilter = _lastInfoFilter = _settingModule.GetBool("Debugger.Console.InfoFilter", true);
                 m_WarningFilter = _lastWarningFilter = _settingModule.GetBool("Debugger.Console.WarningFilter", true);
                 m_ErrorFilter = _lastErrorFilter = _settingModule.GetBool("Debugger.Console.ErrorFilter", true);
@@ -269,7 +269,7 @@ namespace TEngine
 
                 GUILayout.BeginVertical("box");
                 {
-                    _stackScrollPosition = GUILayout.BeginScrollView(_stackScrollPosition, GUILayout.Height(100f));
+                    _stackScrollPosition = GUILayout.BeginScrollView(_stackScrollPosition, GUILayout.Height(300f));
                     {
                         if (_selectedNode != null)
                         {
