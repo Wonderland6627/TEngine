@@ -56,11 +56,11 @@ namespace GameLogic
 		private RectTransform m_rectContent;
 		protected override void ScriptGenerator()
 		{
-			m_btnBack = FindChildComponent<Button>("bg/m_btnBack");
-			m_itemLevelCell = FindChild("bg/m_itemLevelCell").gameObject;
-			m_tfLevelContainer = FindChild("bg/m_tfLevelContainer");
-			m_scrollRectLevelScroll = FindChildComponent<ScrollRect>("bg/m_tfLevelContainer/m_scrollRectLevelScroll");
-			m_rectContent = FindChildComponent<RectTransform>("bg/m_tfLevelContainer/m_scrollRectLevelScroll/Viewport/m_rectContent");
+			m_btnBack = FindChildComponent<Button>("Content/m_btnBack");
+			m_itemLevelCell = FindChild("Content/m_itemLevelCell").gameObject;
+			m_tfLevelContainer = FindChild("Content/m_tfLevelContainer");
+			m_scrollRectLevelScroll = FindChildComponent<ScrollRect>("Content/m_tfLevelContainer/m_scrollRectLevelScroll");
+			m_rectContent = FindChildComponent<RectTransform>("Content/m_tfLevelContainer/m_scrollRectLevelScroll/Viewport/m_rectContent");
 		}
 		#endregion
 	}
