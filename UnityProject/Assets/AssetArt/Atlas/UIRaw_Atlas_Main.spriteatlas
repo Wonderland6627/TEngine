@@ -69,26 +69,35 @@ SpriteAtlas:
     secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
+    - {fileID: 21300000, guid: 06a68d74ff8584145a6e9e54faf1d242, type: 3}
     - {fileID: 21300000, guid: 3179e775beb2f514cbf286fa2c46ffb2, type: 3}
     - {fileID: 21300000, guid: 6fac8ca1c5e66204a95d76c19a780146, type: 3}
     - {fileID: 21300000, guid: 684d1b27fc1200646b11689f1ef2fe40, type: 3}
     - {fileID: 21300000, guid: 1bbdb3a9d33001840891be134e10823f, type: 3}
     - {fileID: 21300000, guid: 06eb75819378b554fae51fb1b55e625a, type: 3}
+    - {fileID: 21300000, guid: 1ed6841058f1e8b42ab3204bce7f9d18, type: 3}
+    - {fileID: 21300000, guid: 1d66ea02b530b934c95959072d2de9ad, type: 3}
     - {fileID: 21300000, guid: 1360a2ebeffe05247892f894ee93ee18, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
+  - {fileID: 21300000, guid: 1ed6841058f1e8b42ab3204bce7f9d18, type: 3}
   - {fileID: 21300000, guid: 06eb75819378b554fae51fb1b55e625a, type: 3}
   - {fileID: 21300000, guid: 6fac8ca1c5e66204a95d76c19a780146, type: 3}
+  - {fileID: 21300000, guid: 1d66ea02b530b934c95959072d2de9ad, type: 3}
+  - {fileID: 21300000, guid: 06a68d74ff8584145a6e9e54faf1d242, type: 3}
   - {fileID: 21300000, guid: 3179e775beb2f514cbf286fa2c46ffb2, type: 3}
   - {fileID: 21300000, guid: 684d1b27fc1200646b11689f1ef2fe40, type: 3}
   - {fileID: 21300000, guid: 1bbdb3a9d33001840891be134e10823f, type: 3}
   - {fileID: 21300000, guid: 1360a2ebeffe05247892f894ee93ee18, type: 3}
   m_PackedSpriteNamesToIndex:
+  - icon_back
   - btn_yellow
   - bg_menu
+  - icon_settings
+  - bg_battle
   - bg_main
   - btn_green
   - btn_red

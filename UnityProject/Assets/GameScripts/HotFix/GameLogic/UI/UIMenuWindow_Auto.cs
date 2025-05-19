@@ -11,7 +11,7 @@ namespace GameLogic
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_textVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()}: {World.Instance.GameData.UserInfo.nickName}";
+            m_textVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}";
             EventTriggerListener.Get(m_btnStartGame).OnClick = OnStartGameClick;
             EventTriggerListener.Get(m_btnRank).OnClick = OnRankClick;
             EventTriggerListener.Get(m_btnSettings).OnClick = OnSettingsClick;
@@ -26,8 +26,8 @@ namespace GameLogic
 
         private void OnUserInfoUpdate(UserInfo userInfo)
         {
-            Log.Info($"[UIMenuWindow] trigger OnUserInfoUpdate: {GameModule.Resource.GetPackageVersion()}: {World.Instance.GameData.UserInfo.nickName}");
-            m_textVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()}: {World.Instance.GameData.UserInfo.nickName}";
+            Log.Info($"[UIMenuWindow] trigger OnUserInfoUpdate: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}");
+            m_textVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}";
         }
 
         private void OnStartGameClick(GameObject go)
