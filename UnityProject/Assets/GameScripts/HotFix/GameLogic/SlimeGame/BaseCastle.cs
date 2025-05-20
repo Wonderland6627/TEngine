@@ -168,7 +168,7 @@ public partial class BaseCastle : UIWidget
                 World.Instance.OnOccupiedByEnemy();
             }
         }
-        // Debug.Log($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
+        // Log.Info($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
 
         if (!isOccupied)
         {
@@ -268,7 +268,7 @@ public partial class BaseCastle : UIWidget
         HideDragArrow();
         if (!World.Instance.FindCastle(this, dragDir, out BaseCastle target))
         {
-            Debug.Log($"[{GetType().Name}] no find target castle");
+            Log.Info($"[{GetType().Name}] no find target castle");
             return;
         }
         MoveTo(target);
@@ -278,12 +278,12 @@ public partial class BaseCastle : UIWidget
     {
         if (occupiedUnitCount <= 0)
         {
-            Debug.Log($"[{GetType().Name}] unit not enough");
+            Log.Info($"[{GetType().Name}] unit not enough");
             return;
         }
 
         SendSlime(occupiedUnitCount, target);
-        Debug.Log($"[{GetType().Name}] [{gameObject.name}_{GetUnitTypeFlag()}] attack [{target.gameObject.name}_{target.GetUnitTypeFlag()}], send count: {occupiedUnitCount}");
+        Log.Info($"[{GetType().Name}] [{gameObject.name}_{GetUnitTypeFlag()}] attack [{target.gameObject.name}_{target.GetUnitTypeFlag()}], send count: {occupiedUnitCount}");
     }
 
     private void SendSlime(int count, BaseCastle target, bool sendDirectly = true)

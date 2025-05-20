@@ -131,7 +131,7 @@ namespace GameLogic
                 }
             }
 
-            PauseGame();
+            isPlaying = false;
             GameEvent.Send(SlimeEvent.OnGameOver, new GameOverParam() { winUnitType = winUnitType });
         }
 
