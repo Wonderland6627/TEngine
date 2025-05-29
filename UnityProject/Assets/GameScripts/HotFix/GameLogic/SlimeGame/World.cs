@@ -69,6 +69,8 @@ namespace GameLogic
             playingLevelId = levelId;
             aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 5f, true);
             isPlaying = true;
+            GameModule.UI.ShowUIAsync<UIMainWindow>();
+            TryStartGameGuide();
 
             Log.Info($"[World] StartGame, levelId: {levelId}");
         }

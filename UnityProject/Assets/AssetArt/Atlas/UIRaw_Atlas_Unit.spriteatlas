@@ -69,9 +69,9 @@ SpriteAtlas:
     secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
-    - {fileID: 21300000, guid: 91b54ad5ec43a944d923198ece1f3978, type: 3}
-    - {fileID: 21300000, guid: dc43eb02e7e0aae46943affb81536446, type: 3}
-    - {fileID: 21300000, guid: e396086991b48b644a7da28a58bb9f36, type: 3}
+    - {fileID: 21300000, guid: 112ddf06106b8934287f9eef079ddd99, type: 3}
+    - {fileID: 21300000, guid: d9fe29297b30b314581c0312b450a172, type: 3}
+    - {fileID: 21300000, guid: f09c815303e14c247a970605d833baa4, type: 3}
     - {fileID: 21300000, guid: 8dda1c908c1d5e242831924d235f07bb, type: 3}
     - {fileID: 21300000, guid: f2a1831df0b1de947b83efe4827ec66b, type: 3}
     bindAsDefault: 1
@@ -80,15 +80,15 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 8dda1c908c1d5e242831924d235f07bb, type: 3}
-  - {fileID: 21300000, guid: dc43eb02e7e0aae46943affb81536446, type: 3}
-  - {fileID: 21300000, guid: 91b54ad5ec43a944d923198ece1f3978, type: 3}
-  - {fileID: 21300000, guid: e396086991b48b644a7da28a58bb9f36, type: 3}
+  - {fileID: 21300000, guid: f09c815303e14c247a970605d833baa4, type: 3}
+  - {fileID: 21300000, guid: 112ddf06106b8934287f9eef079ddd99, type: 3}
+  - {fileID: 21300000, guid: d9fe29297b30b314581c0312b450a172, type: 3}
   - {fileID: 21300000, guid: f2a1831df0b1de947b83efe4827ec66b, type: 3}
   m_PackedSpriteNamesToIndex:
   - Unit_Blue
-  - Castle_Free
-  - Castle_Blue
   - Castle_Red
+  - Castle_Blue
+  - Castle_Free
   - Unit_Red
   m_RenderDataMap: {}
   m_Tag: UIRaw_Atlas_Unit

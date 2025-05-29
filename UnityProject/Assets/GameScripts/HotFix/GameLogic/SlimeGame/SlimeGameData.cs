@@ -20,6 +20,7 @@ namespace GameLogic
     {
         private const string User_Info_Key = "slime_user_info";
         private const string Progress_Level_ID_Key = "slime_progress_level_id";
+        private const string Guide_Finish_Key = "slime_guide_finish";
         private const string Enable_Sound_Key = "slime_enable_sound";
         private const string Enable_Vibration_Key = "slime_enable_vibration";
 
@@ -50,6 +51,18 @@ namespace GameLogic
                 PlayerPrefs.SetInt(Progress_Level_ID_Key, _progressLevelID);
                 Log.Info($"[SlimeGameData] set progress level id: [{_progressLevelID}]");
             }
+        }
+
+        private bool _guideFinish = false;
+        public bool GuideFinish
+        {
+            get => _guideFinish;
+            set 
+            {
+                _guideFinish = value;
+                PlayerPrefs.SetInt(Guide_Finish_Key, _guideFinish? 1 : 0);
+                Log.Info($"[SlimeGameData] set guide finish: [{_guideFinish}]");  
+            } 
         }
 
         private bool _enableSound = true;

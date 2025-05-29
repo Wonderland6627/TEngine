@@ -42,7 +42,6 @@ namespace GameLogic
         {
             int levelId = config.levelId;
             World.Instance.StartGame(levelId);
-            GameModule.UI.ShowUIAsync<UIMainWindow>();
             Log.Debug($"[UILevelCell] OnCellClick [{levelId}]");
         }
     }

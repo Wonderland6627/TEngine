@@ -132,7 +132,7 @@ namespace GameLogic
                 
                 float distance = Vector2.Distance(start, end);
                 roadRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, distance);
-                roadRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 40);
+                roadRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, roadRect.rect.height);
 
                 float angle = Mathf.Atan2(end.y - start.y, end.x - start.x) * Mathf.Rad2Deg;
                 roadRect.rotation = Quaternion.Euler(0, 0, angle);
