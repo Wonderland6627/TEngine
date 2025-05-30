@@ -253,8 +253,16 @@ namespace GameLogic
                 return;
             }
             List<BaseCastle> aiCastles = castles.FindAll(castle => castle.occupiedUnitType != UnitType.Player);
+            int aiCounts = aiCastles.Count;
+            int playerCounts = castles.Count - aiCounts;
+            bool isAIMore = aiCounts > playerCounts;
             for (int i = 0; i < aiCastles.Count; i++)
             {
+                if (isAIMore)
+                {
+                    bool ignoreMove = Random.Range(0, 100f) < 25f; //25%的概率忽略本次攻占
+                    continue;
+                }
                 BaseCastle aiCastle = aiCastles[i];
                 if (aiCastle == null)
                 {
