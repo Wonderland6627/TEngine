@@ -76,6 +76,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 1dd4b47f0d2b5fb48a881ec69c418852, type: 3}
     - {fileID: 21300000, guid: be15af46ad578dd42aa25bd471dac258, type: 3}
     - {fileID: 21300000, guid: 684d1b27fc1200646b11689f1ef2fe40, type: 3}
+    - {fileID: 21300000, guid: 391584432233c4e0a864435a50a098c5, type: 3}
     - {fileID: 21300000, guid: 221db54c6537e4c20bbbd4071f86e4fd, type: 3}
     - {fileID: 21300000, guid: 1bbdb3a9d33001840891be134e10823f, type: 3}
     - {fileID: 21300000, guid: 06eb75819378b554fae51fb1b55e625a, type: 3}
@@ -85,6 +86,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 5dc674e4b18024748aa2a43b533424f1, type: 3}
     - {fileID: 21300000, guid: ce99b70f71c63cf40bac229acdb430bc, type: 3}
     - {fileID: 21300000, guid: 1360a2ebeffe05247892f894ee93ee18, type: 3}
+    - {fileID: 21300000, guid: 9f3c50c022da640648ee29ee9ee7adf8, type: 3}
     - {fileID: 21300000, guid: eb3db5b0868bc4f348e3d3a1dfbf32a8, type: 3}
     - {fileID: 21300000, guid: 4e9baab14e03b4b1c9219bb1a838f001, type: 3}
     - {fileID: 21300000, guid: 228b09b7fa1c5455eab8432a85fac4ee, type: 3}
@@ -100,9 +102,11 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: eb3db5b0868bc4f348e3d3a1dfbf32a8, type: 3}
+  - {fileID: 21300000, guid: 9f3c50c022da640648ee29ee9ee7adf8, type: 3}
   - {fileID: 21300000, guid: 06eb75819378b554fae51fb1b55e625a, type: 3}
   - {fileID: 21300000, guid: 6fac8ca1c5e66204a95d76c19a780146, type: 3}
   - {fileID: 21300000, guid: 4e9baab14e03b4b1c9219bb1a838f001, type: 3}
+  - {fileID: 21300000, guid: 391584432233c4e0a864435a50a098c5, type: 3}
   - {fileID: 21300000, guid: 6d4c98934f50e497c9e0f48aa21676ec, type: 3}
   - {fileID: 21300000, guid: 03a52e934f88f4a699b498a51573c186, type: 3}
   - {fileID: 21300000, guid: 286ee824c2147d34f954b48cfc69f846, type: 3}
@@ -126,9 +130,11 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1dd4b47f0d2b5fb48a881ec69c418852, type: 3}
   m_PackedSpriteNamesToIndex:
   - popup_bg
+  - inbox_list_bg
   - btn_yellow
   - bg_menu
   - popup_btn_close
+  - btn_icon_ad
   - ranking_icon_trophy
   - ribbon_bg_yellow
   - btn_bg

@@ -21,6 +21,7 @@ namespace GameLogic
             rewardAction = data;
             m_textRewardTxt.resizeTextForBestFit = true;
             m_textRewardTxt.text = data.GetDescription();
+            m_imgAds.gameObject.SetActive(data.NeedAds());
         }
 
         private void OnCellClick(GameObject go) 
@@ -33,12 +34,14 @@ namespace GameLogic
 
     partial class UIAdsRewardCell
     {
-        #region 脚本工具生成的代码
-        private Text m_textRewardTxt;
-        protected override void ScriptGenerator()
-        {
-            m_textRewardTxt = FindChildComponent<Text>("m_textRewardTxt");
-        }
-        #endregion
+		#region 脚本工具生成的代码
+		private Text m_textRewardTxt;
+		private Image m_imgAds;
+		protected override void ScriptGenerator()
+		{
+			m_textRewardTxt = FindChildComponent<Text>("m_textRewardTxt");
+			m_imgAds = FindChildComponent<Image>("m_imgAds");
+		}
+		#endregion
     }
 }
