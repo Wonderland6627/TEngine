@@ -15,14 +15,15 @@ namespace GameLogic
 			base.OnCreate();
 
 			GetRankList();
-            EventTriggerListener.Get(m_tfTapArea.gameObject).OnClick = go =>
-            {
-            	Close();
-            };
 			EventTriggerListener.Get(m_btnFriendsRank.gameObject).OnClick = go =>
             {
             	UIFriendsRankPanel friendsRankPanel = CreateWidgetByPrefab<UIFriendsRankPanel>(m_itemFriendsRankPanel, gameObject.transform);
             };
+
+			EventTriggerListener.Get(m_btnBack).OnClick = go =>
+			{
+				Close();
+			};
         }
 
 		private async void GetRankList()
@@ -41,22 +42,26 @@ namespace GameLogic
 	partial class UIRankWindow
 	{
 		#region 脚本工具生成的代码
-		private Transform m_tfTapArea;
-		private Button m_btnFriendsRank;
+		private Image m_imgBG;
+		private Button m_btnBack;
+		private Image m_imgRankListContent;
+		private Image m_imgRankTitleBG;
+		private Text m_textRankTitle;
 		private GameObject m_itemPlayerRankCell;
-		private ScrollRect m_scrollRectRankScroll;
-		private RectTransform m_rectRankContent;
-		private GameObject m_itemMainPlayerRankCell;
+		private Button m_btnFriendsRank;
 		private GameObject m_itemFriendsRankPanel;
+		private RectTransform m_rectRankContent;
 		protected override void ScriptGenerator()
 		{
-			m_tfTapArea = FindChild("bg/m_tfTapArea");
-			m_btnFriendsRank = FindChildComponent<Button>("bg/m_btnFriendsRank");
-			m_itemPlayerRankCell = FindChild("bg/m_itemPlayerRankCell").gameObject;
-			m_scrollRectRankScroll = FindChildComponent<ScrollRect>("bg/m_scrollRectRankScroll");
-			m_rectRankContent = FindChildComponent<RectTransform>("bg/m_scrollRectRankScroll/Viewport/m_rectRankContent");
-			m_itemMainPlayerRankCell = FindChild("bg/m_itemMainPlayerRankCell").gameObject;
-			m_itemFriendsRankPanel = FindChild("bg/m_itemFriendsRankPanel").gameObject;
+			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
+			m_btnBack = FindChildComponent<Button>("Content/m_btnBack");
+			m_imgRankListContent = FindChildComponent<Image>("Content/m_imgRankListContent");
+			m_imgRankTitleBG = FindChildComponent<Image>("Content/m_imgRankListContent/m_imgRankTitleBG");
+			m_textRankTitle = FindChildComponent<Text>("Content/m_imgRankListContent/m_imgRankTitleBG/m_textRankTitle");
+			m_itemPlayerRankCell = FindChild("Content/m_imgRankListContent/m_itemPlayerRankCell").gameObject;
+			m_btnFriendsRank = FindChildComponent<Button>("Content/m_imgRankListContent/m_btnFriendsRank");
+			m_itemFriendsRankPanel = FindChild("Content/m_imgRankListContent/m_itemFriendsRankPanel").gameObject;
+			m_rectRankContent = FindChildComponent<RectTransform>("Content/m_imgRankListContent/Scroll View/Viewport/m_rectRankContent");
 		}
 		#endregion
 	}

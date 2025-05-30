@@ -30,16 +30,16 @@ namespace GameLogic
 
     partial class UIRankCell
     {
-        #region 脚本工具生成的代码
-        private Text m_textPlayerRank;
-        private Text m_textPlayerName;
-        private Text m_textPlayerLevel;
-        protected override void ScriptGenerator()
-        {
-            m_textPlayerRank = FindChildComponent<Text>("m_textPlayerRank");
-            m_textPlayerName = FindChildComponent<Text>("m_textPlayerName");
-            m_textPlayerLevel = FindChildComponent<Text>("m_textPlayerLevel");
-        }
-        #endregion
+		#region 脚本工具生成的代码
+		private Text m_textPlayerRank;
+		private Text m_textPlayerName;
+		private Text m_textPlayerLevel;
+		protected override void ScriptGenerator()
+		{
+			m_textPlayerRank = FindChildComponent<Text>("m_textPlayerRank");
+			m_textPlayerName = FindChildComponent<Text>("m_textPlayerName");
+			m_textPlayerLevel = FindChildComponent<Text>("trophy/m_textPlayerLevel");
+		}
+		#endregion
     }
 }
