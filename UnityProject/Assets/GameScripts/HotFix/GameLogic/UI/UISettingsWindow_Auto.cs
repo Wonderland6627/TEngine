@@ -34,7 +34,11 @@ namespace GameLogic
 				World.Instance.GameData.EnableVibration = value;
 			});
 
-			EventTriggerListener.Get(m_btnBack).OnClick = go =>
+			EventTriggerListener.Get(m_imgClose.gameObject).OnClick = go =>
+			{
+				Close();
+			};
+			EventTriggerListener.Get(m_btnSave.gameObject).OnClick = go =>
 			{
 				Close();
 			};
@@ -50,16 +54,22 @@ namespace GameLogic
 	partial class UISettingsWindow
 	{
 		#region 脚本工具生成的代码
+		private Image m_imgBG;
+		private Image m_imgPopupBG;
+		private Image m_imgClose;
+		private Text m_textTitle;
 		private Toggle m_togSound;
 		private Toggle m_togVibration;
-		private Button m_btnConfirm;
-		private Button m_btnBack;
+		private Button m_btnSave;
 		protected override void ScriptGenerator()
 		{
-			m_togSound = FindChildComponent<Toggle>("bg/m_togSound");
-			m_togVibration = FindChildComponent<Toggle>("bg/m_togVibration");
-			m_btnConfirm = FindChildComponent<Button>("bg/m_btnConfirm");
-			m_btnBack = FindChildComponent<Button>("bg/m_btnBack");
+			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
+			m_imgPopupBG = FindChildComponent<Image>("Content/m_imgPopupBG");
+			m_imgClose = FindChildComponent<Image>("Content/m_imgPopupBG/m_imgClose");
+			m_textTitle = FindChildComponent<Text>("Content/m_imgPopupBG/m_textTitle");
+			m_togSound = FindChildComponent<Toggle>("Content/m_imgPopupBG/layout/m_togSound");
+			m_togVibration = FindChildComponent<Toggle>("Content/m_imgPopupBG/layout/m_togVibration");
+			m_btnSave = FindChildComponent<Button>("Content/m_imgPopupBG/layout/m_btnSave");
 		}
 		#endregion
 	}
