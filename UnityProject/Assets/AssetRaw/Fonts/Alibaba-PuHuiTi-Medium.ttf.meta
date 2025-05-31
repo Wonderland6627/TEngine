@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 49522ca452b29e048b330cc5d580f11b
+guid: caaf1ba86386957488b9ef0583d995df
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - HYZhongHei
+  - Alibaba PuHuiTi
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
