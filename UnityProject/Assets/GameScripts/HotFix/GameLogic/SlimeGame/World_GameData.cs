@@ -481,6 +481,11 @@ namespace GameLogic
                         if (!rankInfo.IsValid()) continue;
                         rankList.Add(rankInfo);
                     }
+                    rankList.Sort((a, b) => b.progressLevelID.CompareTo(a.progressLevelID));
+                    for (int i = 0; i < rankList.Count; i++)
+                    {
+                        rankList[i].playerRank = i + 1;
+                    }
                     Log.Info($"[World] parse getUserRankList response success, valid rank info count: {rankList.Count}");
                     return rankList;
                 }

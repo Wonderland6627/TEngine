@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
+using System.Text.RegularExpressions;
 
 namespace GameLogic
 {
@@ -16,6 +17,11 @@ namespace GameLogic
         {
             return !string.IsNullOrEmpty(openid) && !string.IsNullOrEmpty(nickName) && !string.IsNullOrEmpty(avatarURL);
         }
+
+        public bool IsSelf()
+        {
+            return openid == World.Instance.GameData.UserInfo.openId;
+        }
     }
 
     partial class UIRankCell : UIWidget
@@ -23,8 +29,21 @@ namespace GameLogic
         public void SetData(PlayerRankInfo data)
         {
             m_textPlayerRank.text = data.playerRank.ToString();
-            m_textPlayerName.text = data.nickName;
             m_textPlayerLevel.text = data.progressLevelID.ToString();
+
+            string nickName = data.nickName;
+            Regex rex = new Regex(@"^[\u4E00-\u9FA5A-Za-z0-9]+$");
+            var result = rex.Match(nickName);
+            if (!result.Success)
+            {
+                nickName = "Player";
+                Log.Warning($"[UIRankCell] nickName is unable to show, nickName = {data.nickName}");
+            }
+            if (data.IsSelf())
+            {
+                nickName += " (我)";
+            }
+            m_textPlayerName.text = nickName;
         }
     }
 

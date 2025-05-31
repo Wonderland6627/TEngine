@@ -28,9 +28,9 @@ namespace GameLogic
 				return;
 			}
 
-			m_textResult.text = m_Param.IsWin() ? "Victory" : "Defeat";
+			m_textResult.text = m_Param.IsWin() ? "胜 利" : "失 败";
 
-			EventTriggerListener.Get(m_tfTapArea.gameObject).OnClick = go =>
+			EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
 				Close();
 				World.Instance.EndGame();
@@ -41,14 +41,22 @@ namespace GameLogic
 	partial class UIGameOverWindow
 	{
 		#region 脚本工具生成的代码
-		private Transform m_tfTapArea;
+		private Image m_imgBG;
+		private Image m_imgGameResultContent;
+		private Image m_imgGameResultTitleBG;
+		private Text m_textGameResultTitle;
+		private Image m_imgGameResultBG;
 		private Text m_textResult;
-		private Text m_textTips;
+		private Button m_btnBack;
 		protected override void ScriptGenerator()
 		{
-			m_tfTapArea = FindChild("bg/m_tfTapArea");
-			m_textResult = FindChildComponent<Text>("bg/m_textResult");
-			m_textTips = FindChildComponent<Text>("bg/m_textTips");
+			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
+			m_imgGameResultContent = FindChildComponent<Image>("Content/m_imgGameResultContent");
+			m_imgGameResultTitleBG = FindChildComponent<Image>("Content/m_imgGameResultContent/m_imgGameResultTitleBG");
+			m_textGameResultTitle = FindChildComponent<Text>("Content/m_imgGameResultContent/m_imgGameResultTitleBG/m_textGameResultTitle");
+			m_imgGameResultBG = FindChildComponent<Image>("Content/m_imgGameResultContent/m_imgGameResultBG");
+			m_textResult = FindChildComponent<Text>("Content/m_imgGameResultContent/m_imgGameResultBG/m_textResult");
+			m_btnBack = FindChildComponent<Button>("Content/m_imgGameResultContent/m_btnBack");
 		}
 		#endregion
 	}
