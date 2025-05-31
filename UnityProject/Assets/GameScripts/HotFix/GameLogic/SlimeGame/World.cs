@@ -3,6 +3,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using TEngine;
+using WeChatWASM;
 
 namespace GameLogic
 {
@@ -137,6 +138,19 @@ namespace GameLogic
             GameEvent.Send(SlimeEvent.OnGameOver, new GameOverParam() { winUnitType = winUnitType });
         }
 
+        public void Vibrate(bool isShort = true)
+        {
+            if (!GameData.EnableVibration) return;
+            if (isShort)
+            {
+                // WX.VibrateShort(null);
+            }
+            else
+            {
+                // WX.VibrateLong(null);
+            }
+        }
+
         void DebugUpdate()
         {
             return;
@@ -261,7 +275,10 @@ namespace GameLogic
                 if (isAIMore)
                 {
                     bool ignoreMove = Random.Range(0, 100f) < 25f; //25%的概率忽略本次攻占
-                    continue;
+                    if (ignoreMove)
+                    {
+                        continue;
+                    }
                 }
                 BaseCastle aiCastle = aiCastles[i];
                 if (aiCastle == null)

@@ -28,6 +28,7 @@ namespace GameLogic
 			m_togSound.onValueChanged.AddListener(value =>
 			{
 				World.Instance.GameData.EnableSound = value;
+				GameModule.Audio.MusicVolume = value ? 0.5f : 0;
 			});
 			m_togVibration.onValueChanged.AddListener(value =>
 			{

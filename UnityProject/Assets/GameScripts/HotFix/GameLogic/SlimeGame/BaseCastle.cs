@@ -167,6 +167,8 @@ public partial class BaseCastle : UIWidget
             {
                 World.Instance.OnOccupiedByEnemy();
             }
+            m_rectDragArrow.gameObject.SetActive(false);
+            World.Instance.Vibrate();
         }
         // Log.Info($"[{GetType().Name}] occupied by {unitType}, count = {occupiedUnitCount}");
 

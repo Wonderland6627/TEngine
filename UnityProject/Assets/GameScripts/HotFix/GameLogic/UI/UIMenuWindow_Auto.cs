@@ -16,6 +16,8 @@ namespace GameLogic
             EventTriggerListener.Get(m_btnRank).OnClick = OnRankClick;
             EventTriggerListener.Get(m_btnSettings).OnClick = OnSettingsClick;
             GameEvent.AddEventListener<UserInfo>(SlimeEvent.OnUserInfoUpdate, OnUserInfoUpdate);
+
+            GameModule.Audio.Play(TEngine.AudioType.Music, "BGM", true, 0.5f, true);
         }
 
         protected override void OnDestroy()

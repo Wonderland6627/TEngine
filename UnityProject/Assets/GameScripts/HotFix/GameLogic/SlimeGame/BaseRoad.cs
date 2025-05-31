@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
 using System.Collections.Generic;
-using System;
 using GameLogic;
 
 public partial class BaseRoad : UIWidget
@@ -11,6 +10,12 @@ public partial class BaseRoad : UIWidget
 
     private List<BaseUnit> m_Units = new List<BaseUnit>();
     public List<BaseUnit> Units => m_Units;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        m_imgRoad.pixelsPerUnitMultiplier = UnityEngine.Random.Range(2, 3.3f);
+    }
 
     protected override void OnUpdate()
     {
@@ -69,13 +74,11 @@ public partial class BaseRoad : UIWidget
 
 partial class BaseRoad
 {
-    #region 脚本工具生成的代码
-    protected override void ScriptGenerator()
-    {
-    }
-    #endregion
-
-    #region 事件
-    #endregion
-
+	#region 脚本工具生成的代码
+	private Image m_imgRoad;
+	protected override void ScriptGenerator()
+	{
+		m_imgRoad = FindChildComponent<Image>("m_imgRoad");
+	}
+	#endregion
 }
