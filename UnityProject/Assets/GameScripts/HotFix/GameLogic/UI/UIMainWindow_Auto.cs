@@ -31,6 +31,10 @@ namespace GameLogic
                 };
                 GameModule.UI.ShowUIAsync<UISettingsWindow>(closeAction);
 			};
+            EventTriggerListener.Get(m_btnRule).OnClick = go =>
+            {
+                GameModule.UI.ShowUIAsync<UIRuleTipsWindow>(false);
+            };
         }
 
         protected override void OnDestroy()
@@ -159,6 +163,7 @@ namespace GameLogic
 		private Transform m_tfUnitContainer;
 		private Button m_btnBack;
 		private Button m_btnSettings;
+		private Button m_btnRule;
 		protected override void ScriptGenerator()
 		{
 			m_img_bg = FindChildComponent<Image>("Content/m_img_bg");
@@ -167,6 +172,7 @@ namespace GameLogic
 			m_tfUnitContainer = FindChild("Content/m_tfUnitContainer");
 			m_btnBack = FindChildComponent<Button>("Content/m_btnBack");
 			m_btnSettings = FindChildComponent<Button>("Content/m_btnSettings");
+			m_btnRule = FindChildComponent<Button>("Content/m_btnRule");
 		}
 		#endregion
     }

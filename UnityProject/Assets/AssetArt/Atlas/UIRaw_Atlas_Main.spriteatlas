@@ -83,6 +83,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 96274b6f4982041558dfdc5471747076, type: 3}
     - {fileID: 21300000, guid: 5dc674e4b18024748aa2a43b533424f1, type: 3}
     - {fileID: 21300000, guid: ce99b70f71c63cf40bac229acdb430bc, type: 3}
+    - {fileID: 21300000, guid: 6be115246fe9b40b8b37ad9f4e2be66a, type: 3}
     - {fileID: 21300000, guid: 1360a2ebeffe05247892f894ee93ee18, type: 3}
     - {fileID: 21300000, guid: 9f3c50c022da640648ee29ee9ee7adf8, type: 3}
     - {fileID: 21300000, guid: eb3db5b0868bc4f348e3d3a1dfbf32a8, type: 3}
@@ -91,6 +92,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 6d4c98934f50e497c9e0f48aa21676ec, type: 3}
     - {fileID: 21300000, guid: 1c2eec4f264c34c92b06e3c5ad8dc5ed, type: 3}
     - {fileID: 21300000, guid: 03a52e934f88f4a699b498a51573c186, type: 3}
+    - {fileID: 21300000, guid: f1f6097e1845c4c74b0badf93519bd9b, type: 3}
     - {fileID: 21300000, guid: f143e6b7f1ee14c9c8385475d718d2e6, type: 3}
     - {fileID: 21300000, guid: b78e1c94f1bcb42a7996ce616745e100, type: 3}
     - {fileID: 21300000, guid: 89bfafeec14b047a4ac5510b8751485d, type: 3}
@@ -107,6 +109,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 391584432233c4e0a864435a50a098c5, type: 3}
   - {fileID: 21300000, guid: 6d4c98934f50e497c9e0f48aa21676ec, type: 3}
   - {fileID: 21300000, guid: 03a52e934f88f4a699b498a51573c186, type: 3}
+  - {fileID: 21300000, guid: 6be115246fe9b40b8b37ad9f4e2be66a, type: 3}
   - {fileID: 21300000, guid: 06a68d74ff8584145a6e9e54faf1d242, type: 3}
   - {fileID: 21300000, guid: b78e1c94f1bcb42a7996ce616745e100, type: 3}
   - {fileID: 21300000, guid: 5dc674e4b18024748aa2a43b533424f1, type: 3}
@@ -119,6 +122,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1360a2ebeffe05247892f894ee93ee18, type: 3}
   - {fileID: 21300000, guid: 83c4252c97d8e4daeba99d69cfa5cb32, type: 3}
   - {fileID: 21300000, guid: 221db54c6537e4c20bbbd4071f86e4fd, type: 3}
+  - {fileID: 21300000, guid: f1f6097e1845c4c74b0badf93519bd9b, type: 3}
   - {fileID: 21300000, guid: 89bfafeec14b047a4ac5510b8751485d, type: 3}
   - {fileID: 21300000, guid: ce99b70f71c63cf40bac229acdb430bc, type: 3}
   - {fileID: 21300000, guid: 1c2eec4f264c34c92b06e3c5ad8dc5ed, type: 3}
@@ -133,6 +137,7 @@ SpriteAtlas:
   - btn_icon_ad
   - ranking_icon_trophy
   - ribbon_bg_yellow
+  - common_info_btn
   - bg_battle
   - top_btn_icon_back
   - common_bg_g
@@ -145,6 +150,7 @@ SpriteAtlas:
   - img_title
   - character_detail_arrow_next
   - btn_icon_setting
+  - stage_menu_lock
   - top_btn_left
   - common_bg_y
   - ranking_list_default
