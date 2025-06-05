@@ -53,8 +53,8 @@ namespace GameLogic
 
 	partial class UIMenuWindow
 	{
-        #region 脚本工具生成的代码
-		private Image m_img_bg;
+		#region 脚本工具生成的代码
+		private Image m_imgBG;
 		private Image m_img_title;
 		private Text m_textVersion;
 		private Button m_btnStartGame;
@@ -62,7 +62,7 @@ namespace GameLogic
 		private Button m_btnSettings;
 		protected override void ScriptGenerator()
 		{
-			m_img_bg = FindChildComponent<Image>("Content/m_img_bg");
+			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
 			m_img_title = FindChildComponent<Image>("Content/m_img_title");
 			m_textVersion = FindChildComponent<Text>("Content/m_textVersion");
 			m_btnStartGame = FindChildComponent<Button>("Content/m_btnStartGame");

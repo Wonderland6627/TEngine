@@ -7,7 +7,7 @@ namespace GameLogic
 	[Window(UILayer.UI, fullScreen: false)]
 	partial class UIRuleTipsWindow : UIWindow
 	{
-		private bool m_NeedPause = false;
+		private bool m_IsGuideMode = false;
 
         protected override void OnCreate()
         {
@@ -15,9 +15,9 @@ namespace GameLogic
 
 			if (userDatas != null && userDatas.Length > 0)
 			{
-				if (userDatas[0] is bool needPause)
+				if (userDatas[0] is bool isGuideMode)
 				{
-					m_NeedPause = needPause;
+					m_IsGuideMode = isGuideMode;
 				}
 			}
 
@@ -26,7 +26,7 @@ namespace GameLogic
 				Close();
 			};
 
-			if (m_NeedPause)
+			if (m_IsGuideMode)
 			{
 				World.Instance.PauseGame();
 			}
@@ -34,9 +34,13 @@ namespace GameLogic
 
         protected override void OnDestroy()
         {
-			if (m_NeedPause)
+			if (m_IsGuideMode)
 			{
             	World.Instance.ResumeGame();
+			}
+			else
+			{
+				World.Instance.GameData.GuideFinish = true;
 			}
             base.OnDestroy();
         }

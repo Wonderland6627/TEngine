@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UIRaw_Atlas_Reward
+  serializedVersion: 2
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 0
+      compressionQuality: 0
+      maxTextureSize: 0
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: iPhone
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: 49
+      m_TextureCompression: 1
+      m_CompressionQuality: 100
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 1
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    - serializedVersion: 3
+      m_BuildTarget: Android
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: 50
+      m_TextureCompression: 1
+      m_CompressionQuality: 100
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 1
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    - serializedVersion: 3
+      m_BuildTarget: WebGL
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: 50
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 1
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 2
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: 7dfd1cc2b84b24ff4a7ac0d3412df080, type: 3}
+    - {fileID: 21300000, guid: 86f26d1801a474506a9d618fc1d0f246, type: 3}
+    - {fileID: 21300000, guid: 7f09d3082a97a42e5a902edd5a6e37a4, type: 3}
+    - {fileID: 21300000, guid: 06f2a7cfcd32242219ed1317bd660d83, type: 3}
+    - {fileID: 21300000, guid: 738e8fb3e96094fd2b305fe307e2ea96, type: 3}
+    - {fileID: 21300000, guid: 7fd6e0462dd244573a18576c320addbc, type: 3}
+    - {fileID: 21300000, guid: 180dd459b1f2e41e7b1c59cbb67e45bb, type: 3}
+    - {fileID: 21300000, guid: 169d45648e00348038299fc345aa6b4f, type: 3}
+    - {fileID: 21300000, guid: e999f11042cd241a38ff7e27c7803480, type: 3}
+    - {fileID: 21300000, guid: 2e57f9725042d4e3aa9ec75259c6c3c0, type: 3}
+    - {fileID: 21300000, guid: f648d5966dcd5414382abab8a4f71b00, type: 3}
+    - {fileID: 21300000, guid: c28d54c4733dc4fc7bedc4189f66bfbc, type: 3}
+    - {fileID: 21300000, guid: 9f43c6911bfdb489fad5cd24622b5182, type: 3}
+    - {fileID: 21300000, guid: b7d7e36f0c41c4316a6ea75d0a9321a6, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: e999f11042cd241a38ff7e27c7803480, type: 3}
+  - {fileID: 21300000, guid: 9f43c6911bfdb489fad5cd24622b5182, type: 3}
+  - {fileID: 21300000, guid: 2e57f9725042d4e3aa9ec75259c6c3c0, type: 3}
+  - {fileID: 21300000, guid: 7dfd1cc2b84b24ff4a7ac0d3412df080, type: 3}
+  - {fileID: 21300000, guid: 738e8fb3e96094fd2b305fe307e2ea96, type: 3}
+  - {fileID: 21300000, guid: 169d45648e00348038299fc345aa6b4f, type: 3}
+  - {fileID: 21300000, guid: c28d54c4733dc4fc7bedc4189f66bfbc, type: 3}
+  - {fileID: 21300000, guid: 7fd6e0462dd244573a18576c320addbc, type: 3}
+  - {fileID: 21300000, guid: f648d5966dcd5414382abab8a4f71b00, type: 3}
+  - {fileID: 21300000, guid: 7f09d3082a97a42e5a902edd5a6e37a4, type: 3}
+  - {fileID: 21300000, guid: 86f26d1801a474506a9d618fc1d0f246, type: 3}
+  - {fileID: 21300000, guid: 180dd459b1f2e41e7b1c59cbb67e45bb, type: 3}
+  - {fileID: 21300000, guid: b7d7e36f0c41c4316a6ea75d0a9321a6, type: 3}
+  - {fileID: 21300000, guid: 06f2a7cfcd32242219ed1317bd660d83, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - 4_reduce_slime_percent
+  - 8_reduce_all_slime_percent
+  - 5_add_all_slime
+  - 10_decrease_spawn_speed
+  - 14_occupy_a_castle
+  - 3_add_slime_percent
+  - 7_add_all_slime_percent
+  - 1_add_slime
+  - 6_reduce_all_slime
+  - 12_decrease_move_speed
+  - 11_increase_move_speed
+  - 2_reduce_slime
+  - 9_increase_spawn_speed
+  - 13_chain_occupy
+  m_RenderDataMap: {}
+  m_Tag: UIRaw_Atlas_Reward
+  m_IsVariant: 0
+  m_IsPlaceholder: 0
