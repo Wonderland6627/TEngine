@@ -43,6 +43,13 @@ namespace GameLogic
 			{
 				Close();
 			};
+
+			EventTriggerListener.Get(m_textTitle.gameObject).OnClick = go =>
+			{
+				World.Instance.ToggleDebugWindow();
+			};
+			
+			m_textVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}";
 		}
 
         protected override void OnDestroy()
@@ -62,6 +69,7 @@ namespace GameLogic
 		private Toggle m_togSound;
 		private Toggle m_togVibration;
 		private Button m_btnSave;
+		private Text m_textVersion;
 		protected override void ScriptGenerator()
 		{
 			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
@@ -71,6 +79,7 @@ namespace GameLogic
 			m_togSound = FindChildComponent<Toggle>("Content/m_imgPopupBG/layout/m_togSound");
 			m_togVibration = FindChildComponent<Toggle>("Content/m_imgPopupBG/layout/m_togVibration");
 			m_btnSave = FindChildComponent<Button>("Content/m_imgPopupBG/layout/m_btnSave");
+			m_textVersion = FindChildComponent<Text>("Content/m_imgPopupBG/m_textVersion");
 		}
 		#endregion
 	}

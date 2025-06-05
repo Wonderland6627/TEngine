@@ -27,6 +27,7 @@ namespace GameLogic
 
         public async void AsyncInit()
         {
+            GameData.GuideFinish = false;
             await LoadConfig();
 
             bool hasOpenID = !string.IsNullOrEmpty(GameData.UserInfo.openId);
@@ -149,6 +150,15 @@ namespace GameLogic
             {
                 // WX.VibrateLong(null);
             }
+        }
+
+        private int toggleCount = 0;
+        public void ToggleDebugWindow()
+        {
+            toggleCount++;
+            if (toggleCount < 5) return;
+            toggleCount = 0;
+            GameModule.Debugger.ActiveWindow = !GameModule.Debugger.ActiveWindow;
         }
 
         void DebugUpdate()

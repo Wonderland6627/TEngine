@@ -30,6 +30,11 @@ namespace GameLogic
 			{
 				// World.Instance.PauseGame();
 			}
+
+			EventTriggerListener.Get(m_textTitle.gameObject).OnClick = go =>
+			{
+				World.Instance.ToggleDebugWindow();
+			};
         }
 
         protected override void OnDestroy()
