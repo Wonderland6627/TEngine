@@ -423,7 +423,21 @@ namespace GameLogic
                                 ""openId"": ""ox0H160OiHbng6giS50wOp6YZ7R4""
                             },
                             ""avatarUrl"": ""https://thirdwx.qlogo.cn/mmopen/vi_32/mDvEsaANsJxdrRAQgeYhTMoGdnNJKVMVqqJcJYf1SvIEwaicSiaYiaicrScGpmGMIe9jwJZIjAVz1lCg319qI1Weg5Y96IrcggZb35iagib5SnUfg/132"",
-                            ""nickName"": ""Indey""
+                            ""nickName"": ""你好，世界！Hello, World! 👋
+这是一个测试文本，包含中文、英文、数字12345、标点符号！@#$%^&*()_+，以及特殊符号：★☆♥♦♣♠♤♥♦♣♠♧♨️
+还有日文：こんにちは、世界！
+韩文：안녕하세요, 세계!
+法文：Bonjour, le monde!
+德文：Hallo, Welt!
+俄文：Привет, мир!
+阿拉伯文：مرحبا بالعالم
+希腊文：Χαίρετε, κόσμε!
+希伯来文：שלום, עולם
+日文假名：あいうえお、かきくけこ
+希腊字母：αβγδεζηθικλμνξοπρστυφχψω
+数学符号：∑ ∫ ∏ √ ∞ ± ÷ ×
+表情符号：😀 😃 😄 😁 😆 😅 😂 😊 😇
+特殊符号：★☆♥♦♣♠♤♥♦♣♠♧♨️""
                         },
                         ""createdAt"": ""2025-05-06T13:18:42.514Z"",
                         ""updatedAt"": ""2025-05-14T09:50:20.234Z""

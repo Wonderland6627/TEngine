@@ -144,11 +144,21 @@ namespace GameLogic
             if (!GameData.EnableVibration) return;
             if (isShort)
             {
-                // WX.VibrateShort(null);
+                WX.VibrateShort(new VibrateShortOption() 
+                { 
+                    success = _ => { },
+                    fail = _ => { },
+                    complete = _ => { Log.Info("[World] VibrateShort success"); },
+                });
             }
             else
             {
-                // WX.VibrateLong(null);
+                WX.VibrateLong(new VibrateLongOption() 
+                { 
+                    success = _ => { },
+                    fail = _ => { },
+                    complete = _ => { Log.Info("[World] VibrateLong success"); },
+                });
             }
         }
 

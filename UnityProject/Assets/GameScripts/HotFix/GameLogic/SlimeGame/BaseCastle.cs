@@ -116,9 +116,10 @@ public partial class BaseCastle : UIWidget
     private void UpdateCastleImage(bool animate = false)
     {
         m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
-#if UNITY_EDITOR
-        m_textCountTxt.text += $"{GetUnitTypeFlag()} {currentSpawnSpeedCoe}";
-#endif
+        if (GameModule.Debugger.ActiveWindow)
+        {
+            m_textCountTxt.text += $"{GetUnitTypeFlag()} {currentSpawnSpeedCoe}";
+        }
 
         m_imgPlayerImg.gameObject.SetActive(false);
         m_imgEnemy_1_Img.gameObject.SetActive(false);

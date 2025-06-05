@@ -63,7 +63,7 @@ namespace GameLogic
 			bool isLocked = previewLevelId > progressLevelID + 1;
 			m_btnStart.interactable = !isLocked;
 			EventTriggerListener.Get(m_btnStart).enabled = !isLocked;
-			m_imgLevelPreviewMask.gameObject.SetActive(isLocked);
+			m_imgLevelPreview.color = isLocked? Color.black : Color.white;
 			m_imgLevelLock.gameObject.SetActive(isLocked);
 			m_textLevel.text = $"第 {previewLevelId} 关" + (isLocked ? " 未解锁" : "");
 			
@@ -83,7 +83,6 @@ namespace GameLogic
 		private Image m_imgLevelPreviewContent;
 		private Image m_imgLevelPreviewBG;
 		private Image m_imgLevelPreview;
-		private Image m_imgLevelPreviewMask;
 		private Image m_imgLevelLock;
 		private Image m_imgLevelTitleBG;
 		private Text m_textLevelTitle;
@@ -101,7 +100,6 @@ namespace GameLogic
 			m_imgLevelPreviewContent = FindChildComponent<Image>("Content/m_imgLevelPreviewContent");
 			m_imgLevelPreviewBG = FindChildComponent<Image>("Content/m_imgLevelPreviewContent/m_imgLevelPreviewBG");
 			m_imgLevelPreview = FindChildComponent<Image>("Content/m_imgLevelPreviewContent/m_imgLevelPreview");
-			m_imgLevelPreviewMask = FindChildComponent<Image>("Content/m_imgLevelPreviewContent/m_imgLevelPreview/m_imgLevelPreviewMask");
 			m_imgLevelLock = FindChildComponent<Image>("Content/m_imgLevelPreviewContent/m_imgLevelLock");
 			m_imgLevelTitleBG = FindChildComponent<Image>("Content/m_imgLevelPreviewContent/m_imgLevelTitleBG");
 			m_textLevelTitle = FindChildComponent<Text>("Content/m_imgLevelPreviewContent/m_imgLevelTitleBG/m_textLevelTitle");
