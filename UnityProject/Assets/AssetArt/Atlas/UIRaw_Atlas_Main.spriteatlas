@@ -88,6 +88,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 6d4c98934f50e497c9e0f48aa21676ec, type: 3}
     - {fileID: 21300000, guid: 1c2eec4f264c34c92b06e3c5ad8dc5ed, type: 3}
     - {fileID: 21300000, guid: 03a52e934f88f4a699b498a51573c186, type: 3}
+    - {fileID: 21300000, guid: 70866dab1e96e4e42b38a4725770f18b, type: 3}
     - {fileID: 21300000, guid: f1f6097e1845c4c74b0badf93519bd9b, type: 3}
     - {fileID: 21300000, guid: f143e6b7f1ee14c9c8385475d718d2e6, type: 3}
     - {fileID: 21300000, guid: b78e1c94f1bcb42a7996ce616745e100, type: 3}
@@ -110,6 +111,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f143e6b7f1ee14c9c8385475d718d2e6, type: 3}
   - {fileID: 21300000, guid: 228b09b7fa1c5455eab8432a85fac4ee, type: 3}
   - {fileID: 21300000, guid: 482701d7fe23a4094b9fa72ba3be7ccd, type: 3}
+  - {fileID: 21300000, guid: 70866dab1e96e4e42b38a4725770f18b, type: 3}
   - {fileID: 21300000, guid: 1360a2ebeffe05247892f894ee93ee18, type: 3}
   - {fileID: 21300000, guid: 83c4252c97d8e4daeba99d69cfa5cb32, type: 3}
   - {fileID: 21300000, guid: 221db54c6537e4c20bbbd4071f86e4fd, type: 3}
@@ -134,6 +136,7 @@ SpriteAtlas:
   - title_bg_green
   - popup_title_line
   - check_green
+  - roulette_arrow
   - img_title
   - character_detail_arrow_next
   - btn_icon_setting
