@@ -26,14 +26,11 @@ namespace GameLogic
 
 			RefreshRewardCells();
 
-			// EventTriggerListener.Get(m_tfTapArea.gameObject).OnClick = go =>
-			// {
-			// 	Close();
-			// };
-
 			EventTriggerListener.Get(m_btnRefresh.gameObject).OnClick = go =>
 			{
 				RefreshRewardCells();
+				m_btnRefresh.interactable = false;
+				EventTriggerListener.Get(m_btnRefresh.gameObject).enabled = false;
 			};
 		}
 

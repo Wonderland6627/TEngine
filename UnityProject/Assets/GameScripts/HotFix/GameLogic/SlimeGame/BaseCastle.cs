@@ -34,6 +34,7 @@ public partial class BaseCastle : UIWidget
     public Vector2 dragDir;
     
     private float spawnDuration = 0f;
+    private float currentSpawnSpeedCoe = 1f;
     private int attackTimer = -1;
 
     protected override void OnCreate()
@@ -93,17 +94,30 @@ public partial class BaseCastle : UIWidget
         float spawnSpeedCoe = occupiedUnitType == UnitType.Player
             ? World.Instance.playerSlimeSpawnSpeedCoe
             : World.Instance.enemySlimeSpawnSpeedCoe;
-        spawnDuration += Time.deltaTime * spawnSpeedCoe;
+        currentSpawnSpeedCoe = spawnSpeedCoe * GetCastleSpawnSpeedCoeByCount();
+        spawnDuration += Time.deltaTime * currentSpawnSpeedCoe;
         if (spawnDuration < spawnInterval) return;
         spawnDuration = 0f;
         SpawnUnit(null);
+    }
+
+    private float GetCastleSpawnSpeedCoeByCount()
+    {
+        float coe = 1f;
+        // 例：当城堡内数量数量大于10 小于100时 coe在1-1.75之间线性增加
+        if (occupiedUnitCount > 20)
+        {
+            float t = Mathf.Clamp01((occupiedUnitCount - 20f) / 80f);
+            coe = Mathf.Lerp(1f, 1.75f, t);
+        }
+        return coe;
     }
 
     private void UpdateCastleImage(bool animate = false)
     {
         m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
 #if UNITY_EDITOR
-        m_textCountTxt.text += GetUnitTypeFlag();
+        m_textCountTxt.text += $"{GetUnitTypeFlag()} {currentSpawnSpeedCoe}";
 #endif
 
         m_imgPlayerImg.gameObject.SetActive(false);
@@ -274,11 +288,15 @@ public partial class BaseCastle : UIWidget
             return;
         }
         MoveTo(target);
+        if (!World.Instance.GameData.GuideFinish) // 成功滑动派兵则为完成新手引导
+        {
+            World.Instance.GameData.GuideFinish = true;
+        }
     }
 
     public void MoveTo(BaseCastle target)
     {
-        if (occupiedUnitCount <= 0)
+        if (occupiedUnitCount <= 1)
         {
             Log.Info($"[{GetType().Name}] unit not enough");
             return;
@@ -309,7 +327,7 @@ public partial class BaseCastle : UIWidget
 
         void Attack(params object[] args)
         {
-            if (remainingCount == 0)
+            if (remainingCount == 1)
             {
                 GameModule.Timer.RemoveTimer(attackTimer);
                 attackTimer = -1;

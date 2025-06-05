@@ -12,6 +12,8 @@ namespace GameLogic
             if (GameData.GuideFinish) return;
             if (playingLevelId > 1) return;
 
+            GameModule.UI.ShowUIAsync<UIRuleTipsWindow>(true);
+
             Log.Info("[World] TryStartGameGuide");
         }
 

@@ -28,7 +28,7 @@ namespace GameLogic
 
 			if (m_IsGuideMode)
 			{
-				World.Instance.PauseGame();
+				// World.Instance.PauseGame();
 			}
         }
 
@@ -36,11 +36,7 @@ namespace GameLogic
         {
 			if (m_IsGuideMode)
 			{
-            	World.Instance.ResumeGame();
-			}
-			else
-			{
-				World.Instance.GameData.GuideFinish = true;
+            	// World.Instance.ResumeGame();
 			}
             base.OnDestroy();
         }

@@ -262,10 +262,9 @@ namespace GameLogic
     {
         void ExecuteAI(object[] args)
         {
-            if (castles == null || castles.Count == 0)
-            {
-                return;
-            }
+            if (playingLevelId == 1 && !GameData.GuideFinish) return; //第一关且新手引导未完成 不执行AI
+            if (castles == null || castles.Count == 0) return;
+
             List<BaseCastle> aiCastles = castles.FindAll(castle => castle.occupiedUnitType != UnitType.Player);
             int aiCounts = aiCastles.Count;
             int playerCounts = castles.Count - aiCounts;
