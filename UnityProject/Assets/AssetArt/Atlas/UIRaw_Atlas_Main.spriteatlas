@@ -128,7 +128,7 @@ SpriteAtlas:
   - popup_btn_close
   - btn_icon_ad
   - ranking_icon_trophy
-  - ribbon_bg_yellow
+  - ribbon_bg_gray
   - common_info_btn
   - bg_battle
   - top_btn_icon_back

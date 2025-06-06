@@ -28,7 +28,15 @@ namespace GameLogic
 				return;
 			}
 
-			m_textResult.text = m_Param.IsWin() ? "胜 利" : "失 败";
+			bool isWin = m_Param.IsWin();
+
+			Color winColor = new Color32(0, 200, 255, 255);
+			Color defeatColor = new Color32(255, 175, 0, 255);
+
+			m_textResult.text = isWin ? "胜 利" : "失 败";
+			m_imgGameResultBG.color = isWin ? winColor : defeatColor;
+			Animator gameResultAnim = m_imgGameResultBG.GetComponent<Animator>();
+			gameResultAnim.enabled = !isWin;
 
 			EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
@@ -45,6 +53,7 @@ namespace GameLogic
 		private Image m_imgGameResultContent;
 		private Image m_imgGameResultTitleBG;
 		private Text m_textGameResultTitle;
+		private Image m_imgGameResultBGRoot;
 		private Image m_imgGameResultBG;
 		private Text m_textResult;
 		private Button m_btnBack;
@@ -54,8 +63,9 @@ namespace GameLogic
 			m_imgGameResultContent = FindChildComponent<Image>("Content/m_imgGameResultContent");
 			m_imgGameResultTitleBG = FindChildComponent<Image>("Content/m_imgGameResultContent/m_imgGameResultTitleBG");
 			m_textGameResultTitle = FindChildComponent<Text>("Content/m_imgGameResultContent/m_imgGameResultTitleBG/m_textGameResultTitle");
-			m_imgGameResultBG = FindChildComponent<Image>("Content/m_imgGameResultContent/m_imgGameResultBG");
-			m_textResult = FindChildComponent<Text>("Content/m_imgGameResultContent/m_imgGameResultBG/m_textResult");
+			m_imgGameResultBGRoot = FindChildComponent<Image>("Content/m_imgGameResultContent/m_imgGameResultBGRoot");
+			m_imgGameResultBG = FindChildComponent<Image>("Content/m_imgGameResultContent/m_imgGameResultBGRoot/m_imgGameResultBG");
+			m_textResult = FindChildComponent<Text>("Content/m_imgGameResultContent/m_imgGameResultBGRoot/m_imgGameResultBG/m_textResult");
 			m_btnBack = FindChildComponent<Button>("Content/m_imgGameResultContent/m_btnBack");
 		}
 		#endregion
