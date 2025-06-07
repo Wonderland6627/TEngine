@@ -31,7 +31,7 @@ namespace GameLogic
 			bool isWin = m_Param.IsWin();
 
 			Color winColor = new Color32(0, 200, 255, 255);
-			Color defeatColor = new Color32(255, 175, 0, 255);
+			Color defeatColor = new Color32(175, 175, 175, 255);
 
 			m_textResult.text = isWin ? "胜 利" : "失 败";
 			m_imgGameResultBG.color = isWin ? winColor : defeatColor;

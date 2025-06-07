@@ -293,7 +293,7 @@ namespace GameLogic
             {
                 if (isAIMore)
                 {
-                    bool ignoreMove = Random.Range(0, 100f) < 25f; //25%的概率忽略本次攻占
+                    bool ignoreMove = GetRandomFlag(25f); //25%的概率忽略本次攻占
                     if (ignoreMove)
                     {
                         continue;
@@ -304,7 +304,8 @@ namespace GameLogic
                 {
                     continue;
                 }
-                if (aiCastle.occupiedUnitCount < 5)
+                int attackStartCount = GetRandomValue(5, 15);
+                if (aiCastle.occupiedUnitCount < attackStartCount)
                 {
                     continue;
                 }
@@ -334,6 +335,16 @@ namespace GameLogic
                     aiCastle.MoveTo(playerCastle);
                 }
             }
+        }
+
+        private bool GetRandomFlag(float chance = 50f)
+        {
+            return Random.Range(0, 100f) < chance;
+        }
+
+        private int GetRandomValue(int min, int max)
+        {
+            return Random.Range(min, max);
         }
     }
 }

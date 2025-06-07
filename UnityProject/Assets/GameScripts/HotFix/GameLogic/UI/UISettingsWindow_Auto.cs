@@ -14,6 +14,7 @@ namespace GameLogic
 		{
 			base.OnCreate();
 
+			m_textTitle.raycastTarget = true;
 			if (userDatas != null && userDatas.Length > 0)
 			{
 				if (userDatas[0] is UnityAction ca)
