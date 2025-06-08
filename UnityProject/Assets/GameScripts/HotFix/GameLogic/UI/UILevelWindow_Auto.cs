@@ -15,8 +15,14 @@ namespace GameLogic
 			base.OnCreate();
 			Log.Info($"[UILevelWindow] OnCreate");
 			
-			int progressLevelID = World.Instance.GameData.ProgressLevelID;
-			RefreshLevelPreview(progressLevelID + 1);
+			int progressLevelID = World.Instance.GameData.ProgressLevelID; //当前最高通关关卡
+			int previewLevelId = progressLevelID + 1; //下一关关卡
+			var lvlConfigs = World.Instance.GetAllLevels();
+			if (lvlConfigs.Count <= previewLevelId)
+			{
+				previewLevelId = lvlConfigs.Count;
+			}
+			RefreshLevelPreview(previewLevelId);
 
 			EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{

@@ -10,11 +10,16 @@ namespace GameLogic
     {
         public List<T> configs { get; protected set; }
 
-        public async UniTask LoadConfig(string jsonPath)
+        public async UniTask LoadLocalConfig(string jsonPath)
         {
             var res = await GameModule.Resource.LoadAssetAsync<TextAsset>(jsonPath);
             var json = res.text;
             configs = Utility.Json.ToObject<List<T>>(json);
+        }
+
+        public void SetConfigs(List<T> configs)
+        {
+            this.configs = configs;
         }
     }
 

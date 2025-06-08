@@ -28,18 +28,20 @@ namespace GameLogic
         public async void AsyncInit()
         {
             GameData.GuideFinish = false;
-            await LoadConfig();
 
             bool hasOpenID = !string.IsNullOrEmpty(GameData.UserInfo.openId);
             bool hasBasicInfo = !string.IsNullOrEmpty(GameData.UserInfo.nickName);
 #if UNITY_EDITOR
             InitEditor();
+            await LoadConfig();
 #else
-            InitWX((success) =>
+            InitWX(async (success) =>
             {
                 if (success)
                 {
                     Log.Info($"[World] Init WX SDK success, hasOpenID: {hasOpenID}, hasBasicInfo: {hasBasicInfo}");
+                    await LoadConfig();
+                    await LoadRemoteLevelsConfig(); //加载远端关卡配置 如果有 则使用远端覆盖本地
                     if (!hasOpenID)
                     {
                         WXLogin();
