@@ -35,6 +35,7 @@ namespace GameLogic
             {
                 GameModule.UI.ShowUIAsync<UIRuleTipsWindow>(false);
             };
+            World.Instance.ReportGameStart();
         }
 
         protected override void OnDestroy()

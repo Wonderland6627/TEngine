@@ -164,6 +164,16 @@ namespace GameLogic
             }
         }
 
+        public void ReportGameStart()
+        {
+            WX.ReportGameStart();
+        }
+
+        public void ReportScene(ReportSceneOption option)
+        {
+            WX.ReportScene(option);
+        }
+
         private int toggleCount = 0;
         public void ToggleDebugWindow()
         {
