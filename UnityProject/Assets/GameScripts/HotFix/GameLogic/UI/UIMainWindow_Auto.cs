@@ -4,14 +4,20 @@ using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
 using UnityEngine.Events;
+using DG.Tweening;
+using System.Collections;
 
 namespace GameLogic
 {
     [Window(UILayer.UI, fullScreen: true)]
     partial class UIMainWindow : UIWindow
     {
+        private int curLevelID = 0;
         private List<BaseCastle> m_Castles = new List<BaseCastle>();
         private List<BaseRoad> m_Roads = new List<BaseRoad>();
+
+        private bool m_HasKnownTutorial = false;
+        private Tweener m_TutorialTweener;
         
         protected override void OnCreate()
         {
@@ -40,6 +46,8 @@ namespace GameLogic
 
         protected override void OnDestroy()
         {
+            m_TutorialTweener?.Kill();
+            m_TutorialTweener = null;
             GameEvent.RemoveEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             base.OnDestroy();
         }
@@ -72,6 +80,7 @@ namespace GameLogic
                 return;
             }
 
+            curLevelID = levelID;
             await CreateCastles(level.castles);
             await CreateRoads(level.roads);
         }
@@ -153,6 +162,39 @@ namespace GameLogic
         {
             return m_Castles.Find(castle => castle.ID == castleID);
         }
+
+        private UITutorialTips m_TutorialTips;
+        public void ShowTutorialTips()
+        {
+            if (curLevelID != 1) return;
+            if (m_Castles.Count == 0) return;
+            if (m_Castles.Count < 2) return;
+
+            m_HasKnownTutorial = false;
+            m_TutorialTips = CreateWidgetByPrefab<UITutorialTips>(m_itemTutorialTips, transform);
+            m_TutorialTips.gameObject.SetActive(true);
+            m_TutorialTips.DoScale();
+            DoTutorial(m_Castles[0].rectTransform, m_Castles[1].rectTransform);
+        }
+
+        private void DoTutorial(RectTransform start, RectTransform target)
+        {
+            Utility.Unity.StartCoroutine(DoTutorialCoroutine(start, target));
+        }
+
+        private IEnumerator DoTutorialCoroutine(RectTransform start, RectTransform target)
+        {
+            var seconds = new WaitForSeconds(0.5f);
+            while (!m_HasKnownTutorial)
+            {
+                m_TutorialTips.transform.localPosition = start.localPosition;
+                yield return seconds;
+                m_TutorialTweener = m_TutorialTips.transform.DOLocalMove(target.localPosition, 1.25f)
+                    .SetEase(Ease.Linear);
+                yield return m_TutorialTweener.WaitForCompletion();
+                yield return seconds;
+            }
+        }
     }
 
     partial class UIMainWindow
@@ -165,6 +207,7 @@ namespace GameLogic
 		private Button m_btnBack;
 		private Button m_btnSettings;
 		private Button m_btnRule;
+		private GameObject m_itemTutorialTips;
 		protected override void ScriptGenerator()
 		{
 			m_img_bg = FindChildComponent<Image>("Content/m_img_bg");
@@ -174,6 +217,7 @@ namespace GameLogic
 			m_btnBack = FindChildComponent<Button>("Content/m_btnBack");
 			m_btnSettings = FindChildComponent<Button>("Content/m_btnSettings");
 			m_btnRule = FindChildComponent<Button>("Content/m_btnRule");
+			m_itemTutorialTips = FindChild("Content/m_itemTutorialTips").gameObject;
 		}
 		#endregion
     }

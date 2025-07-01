@@ -41,7 +41,8 @@ namespace GameLogic
                 {
                     Log.Info($"[World] Init WX SDK success, hasOpenID: {hasOpenID}, hasBasicInfo: {hasBasicInfo}");
                     await LoadConfig();
-                    await LoadRemoteLevelsConfig(); //加载远端关卡配置 如果有 则使用远端覆盖本地
+                    bool remoteLvlsCfgGetSuccess = await LoadRemoteLevelsConfig(); //加载远端关卡配置 如果有 则使用远端覆盖本地
+                    Log.Info($"[World] LoadRemoteLevelsConfig success: {remoteLvlsCfgGetSuccess}");
                     if (!hasOpenID)
                     {
                         WXLogin();

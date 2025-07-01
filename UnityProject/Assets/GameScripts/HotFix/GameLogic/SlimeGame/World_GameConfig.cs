@@ -25,7 +25,7 @@ namespace GameLogic
             await rewardReader.LoadLocalConfig("rewards");
         }
 
-        private async UniTask LoadRemoteLevelsConfig()
+        private async UniTask<bool> LoadRemoteLevelsConfig()
         {
             GameModule.UI.ShowLoading();
             try
@@ -52,13 +52,13 @@ namespace GameLogic
                 if (!resultJson.TryGetValue("data", out var dataJson) || dataJson == null)
                 {
                     Log.Error("[World] call cloud function getLevelsConfig result data is null");
-                    return;
+                    return false;
                 }
                 var firstData = dataJson.First;
                 if (firstData == null || firstData["configs"] == null)
                 {
                     Log.Error("[World] call cloud function getLevelsConfig result first data is null");
-                    return;
+                    return false;
                 }
 
                 var levelsJson = firstData["configs"].ToString();
@@ -66,14 +66,16 @@ namespace GameLogic
                 if (levelsArray == null || levelsArray.Length == 0)
                 {
                     Log.Error("[World] call cloud function getLevelsConfig result levels is null");
-                    return;
+                    return false;
                 }
                 Log.Info("[World] call cloud function getLevelsConfig result data: " + levelsArray.Length);
                 levelReader.SetConfigs(levelsArray.ToList());
+                return true;
             }
             catch (Exception e)
             {
                 Log.Error("[World] GetUserRankList error: " + e.ToString());
+                return false;
             }
         }
 
