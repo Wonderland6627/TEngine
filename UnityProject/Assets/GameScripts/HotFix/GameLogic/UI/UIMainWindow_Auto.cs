@@ -18,12 +18,17 @@ namespace GameLogic
 
         private bool m_HasKnownTutorial = false;
         private Tweener m_TutorialTweener;
+        private Coroutine m_TutorialCoroutine;
         
         protected override void OnCreate()
         {
             base.OnCreate();
             LoadLevel(World.Instance.playingLevelId);
             GameEvent.AddEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
+            if (curLevelID == 1)
+            {
+                GameEvent.AddEventListener(SlimeEvent.OnKnownTutorial, StopTutorialTips);
+            }
             EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
 				World.Instance.EndGame();
@@ -48,6 +53,10 @@ namespace GameLogic
         {
             m_TutorialTweener?.Kill();
             m_TutorialTweener = null;
+            if (curLevelID == 1)
+            {
+                GameEvent.RemoveEventListener(SlimeEvent.OnKnownTutorial, StopTutorialTips);
+            }
             GameEvent.RemoveEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             base.OnDestroy();
         }
@@ -177,9 +186,17 @@ namespace GameLogic
             DoTutorial(m_Castles[0].rectTransform, m_Castles[1].rectTransform);
         }
 
+        public void StopTutorialTips()
+        {
+            m_HasKnownTutorial = true;
+            m_TutorialTips?.StopScale();
+            m_TutorialTips?.gameObject.SetActive(false);
+            Utility.Unity.StopCoroutine(m_TutorialCoroutine);
+        }
+
         private void DoTutorial(RectTransform start, RectTransform target)
         {
-            Utility.Unity.StartCoroutine(DoTutorialCoroutine(start, target));
+            m_TutorialCoroutine = Utility.Unity.StartCoroutine(DoTutorialCoroutine(start, target));
         }
 
         private IEnumerator DoTutorialCoroutine(RectTransform start, RectTransform target)

@@ -295,6 +295,10 @@ namespace GameLogic
     {
         void ExecuteAI(object[] args)
         {
+            void LogIgnoreReason(string reason)
+            {
+                Log.Info($"[World] ExecuteAI attack ignore reason: {reason}");
+            }
             if (playingLevelId == 1 && !GameData.GuideFinish) return; //第一关且新手引导未完成 不执行AI
             if (castles == null || castles.Count == 0) return;
 
@@ -309,6 +313,7 @@ namespace GameLogic
                     bool ignoreMove = GetRandomFlag(25f); //25%的概率忽略本次攻占
                     if (ignoreMove)
                     {
+                        LogIgnoreReason("25% chance to ignore this occupation");
                         continue;
                     }
                 }

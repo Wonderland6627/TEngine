@@ -9,12 +9,19 @@ namespace GameLogic
 {
     partial class UITutorialTips : UIWidget
     {
+        private Tweener m_tween;
+
         public void DoScale()
         {
-            m_imgHand.transform.DOKill();
             m_imgHand.transform.localScale = Vector3.one;
-            m_imgHand.transform.DOScale(0.8f, 0.5f).SetEase(Ease.InOutQuad)
+            m_tween = m_imgHand.transform.DOScale(0.8f, 0.5f).SetEase(Ease.InOutQuad)
                 .SetLoops(-1, LoopType.Yoyo);
+        }
+
+        public void StopScale()
+        {
+            m_tween?.Kill();
+            m_tween = null;
         }
     }
 

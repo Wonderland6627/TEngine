@@ -289,6 +289,11 @@ public partial class BaseCastle : UIWidget
             return;
         }
         MoveTo(target);
+
+        if (World.Instance.playingLevelId == 1)
+        {
+            GameEvent.Send(SlimeEvent.OnKnownTutorial);
+        }
         if (!World.Instance.GameData.GuideFinish) // 成功滑动派兵则为完成新手引导
         {
             World.Instance.GameData.GuideFinish = true;
