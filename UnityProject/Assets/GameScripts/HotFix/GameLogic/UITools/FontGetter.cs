@@ -16,10 +16,18 @@ namespace GameLogic
         public static Font wxFont;
         public static bool isLoading = false;
 
+        public static Font defaultFont;
+
         private void Start()
         {
             logTitle = gameObject.name;
             allTexts = transform.GetComponentsInChildren<Text>(true);
+
+            async void LoadDefaultFont()
+            {
+                defaultFont = await GameModule.Resource.LoadAssetAsync<Font>("Assets/AssetRaw/Fonts/Alibaba-PuHuiTi-Medium.ttf");
+            }
+            LoadDefaultFont();
             
 #if !UNITY_EDITOR
             if (wxFont != null)

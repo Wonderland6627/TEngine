@@ -28,18 +28,19 @@ namespace GameLogic
     {
         public void SetData(PlayerRankInfo data)
         {
+            m_textPlayerName.font = FontGetter.defaultFont;
             m_textPlayerRank.text = data.playerRank.ToString();
             m_textPlayerLevel.text = data.progressLevelID.ToString();
 
             string nickName = data.nickName;
-            string pattern =@"[^\p{L}\p{N}\p{P}\p{S}\p{Z}]";
-            Regex rex = new Regex(pattern);
-            nickName = rex.Replace(nickName, "");
-            if (nickName.Length == 0)
-            {
-                nickName = "Player";
-                Log.Warning($"[UIRankCell] nickName is unable to show, nickName = {data.nickName}");
-            }
+            // string pattern =@"[^\p{L}\p{N}\p{P}\p{S}\p{Z}]";
+            // Regex rex = new Regex(pattern);
+            // nickName = rex.Replace(nickName, "");
+            // if (nickName.Length == 0)
+            // {
+            //     nickName = "Player";
+            //     Log.Warning($"[UIRankCell] nickName is unable to show, nickName = {data.nickName}");
+            // }
             if (data.IsSelf())
             {
                 nickName += " (我)";
