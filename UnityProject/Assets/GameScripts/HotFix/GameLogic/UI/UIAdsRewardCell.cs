@@ -30,7 +30,6 @@ namespace GameLogic
         {
             Log.Info($"[UIAdsRewardCell] OnCellClick [{rewardAction.toString()}]");
             World.Instance.TryTriggerReward(rewardAction);
-            GameModule.UI.CloseUI<UIAdsRewardWindow>();
         }
     }
 

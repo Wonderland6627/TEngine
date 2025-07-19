@@ -52,6 +52,7 @@ namespace GameLogic
                         GetSetting();
                     }
                     GetUserGameInfo();
+                    InitAds();
                 }
                 else
                 {

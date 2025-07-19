@@ -51,10 +51,13 @@ namespace GameLogic
 			};
 			
 			m_textVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}";
+			
+			World.Instance.ShowBannerAd();
 		}
 
         protected override void OnDestroy()
         {
+	        World.Instance.HideBannerAd();
 			closeAction?.Invoke();
             base.OnDestroy();
         }

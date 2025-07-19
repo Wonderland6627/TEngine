@@ -23,6 +23,8 @@ namespace GameLogic
         private int occupiedCastleTimes = 0; //被敌人占领的城堡次数
         private int lastTriggerTime = 0; // 上一次触发锦囊的时间
 
+        private RewardAction adsRewardAction = null;
+
         // 当玩家的城堡被敌人占领时触发 现用于检查锦囊触发时机
         public void OnOccupiedByEnemy()
         {
@@ -66,11 +68,23 @@ namespace GameLogic
                 return;
             }
 
-            if (action.NeedAds())
+            adsRewardAction = action;
+            if (!action.NeedAds())
             {
-                //todo: show ads
+                OnRewardedVideoAdClosed(true);
+                return;
             }
 
+            World.Instance.ShowRewardedVideoAd();
+        }
+
+        public void OnRewardedVideoAdClosed(bool trigger)
+        {
+            GameModule.UI.CloseUI<UIAdsRewardWindow>();
+            if (!trigger) return;
+            if (adsRewardAction == null) return;
+
+            RewardAction action = adsRewardAction;
             GameEvent.Send(SlimeEvent.OnRewardSelect, action);
             OnRewardTriggered(action);
 
@@ -93,6 +107,7 @@ namespace GameLogic
                 GameModule.Timer.RemoveTimer(actionRemoveTimer);
                 actionRemoveTimer = -1;
             }
+            adsRewardAction = null;
             activeRewardAction = null;
             playerSlimeMoveSpeedCoe = 1f;
             enemySlimeMoveSpeedCoe = 1f;
