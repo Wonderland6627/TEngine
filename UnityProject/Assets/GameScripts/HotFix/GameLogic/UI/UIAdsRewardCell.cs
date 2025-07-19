@@ -22,14 +22,14 @@ namespace GameLogic
             m_textRewardTxt.resizeTextForBestFit = true;
             m_textRewardTxt.text = data.GetDescription();
             m_imgReward.sprite = GameModule.Resource.LoadAsset<Sprite>(data.config.iconPath);
-            m_imgAds.gameObject.SetActive(false);
-            // m_imgAds.gameObject.SetActive(data.NeedAds());
+            m_imgAds.gameObject.SetActive(data.NeedAds());
         }
 
         private void OnCellClick(GameObject go) 
         {
             Log.Info($"[UIAdsRewardCell] OnCellClick [{rewardAction.toString()}]");
             World.Instance.TryTriggerReward(rewardAction);
+            GameModule.UI.CloseUI<UIAdsRewardWindow>();
         }
     }
 

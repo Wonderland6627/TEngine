@@ -27,7 +27,7 @@ namespace GameLogic
                 style = new CustomStyle()
                 {
                     left = 0,
-                    top = (int)(windowInfo.windowHeight - 100),
+                    top = (int)(windowInfo.windowHeight - 150),
                     width = (int)windowInfo.windowWidth,
                 },
             });
@@ -81,6 +81,7 @@ namespace GameLogic
                 return;
             }
             _bannerAd.Show();
+            Log.Info("[Ads] show bannerad");
         }
 
         public void HideBannerAd()
@@ -95,6 +96,7 @@ namespace GameLogic
                 return;
             }
             _bannerAd.Hide();
+            Log.Info("[Ads] hide bannerad");
         }
         
         public void ShowRewardedVideoAd()
@@ -108,6 +110,7 @@ namespace GameLogic
                 return;
             }
             _rewardedVideoAd.Show();
+            Log.Info("[Ads] show rewardedVideoAd");
         }
     }
 }

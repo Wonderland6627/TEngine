@@ -35,10 +35,16 @@ namespace GameLogic
 			{
 				World.Instance.ToggleDebugWindow();
 			};
+
+			if (World.Instance.GameData.GuideFinish)
+			{
+				World.Instance.ShowBannerAd();
+			}
         }
 
         protected override void OnDestroy()
         {
+			World.Instance.HideBannerAd();
 			if (m_IsGuideMode)
 			{
             	// World.Instance.ResumeGame();

@@ -50,7 +50,7 @@ namespace GameLogic
             PauseGame();
             UnityAction closeAction = () =>
             {
-                ResumeGame();
+                // ResumeGame();
             };
             GameModule.UI.ShowUIAsync<UIAdsRewardWindow>(closeAction);
         }
@@ -80,7 +80,12 @@ namespace GameLogic
 
         public void OnRewardedVideoAdClosed(bool trigger)
         {
-            GameModule.UI.CloseUI<UIAdsRewardWindow>();
+            UnityAction closeAction = () =>
+            {
+                ResumeGame();
+            };
+            GameModule.UI.ShowUIAsync<UITriggerRewardWindow>(adsRewardAction, closeAction);
+
             if (!trigger) return;
             if (adsRewardAction == null) return;
 
