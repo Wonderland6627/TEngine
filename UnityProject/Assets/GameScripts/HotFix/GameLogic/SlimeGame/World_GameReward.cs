@@ -69,7 +69,7 @@ namespace GameLogic
             }
 
             adsRewardAction = action;
-            if (!action.NeedAds())
+            if (!action.NeedAds() || Application.isEditor)
             {
                 OnRewardedVideoAdClosed(true);
                 return;
@@ -84,7 +84,8 @@ namespace GameLogic
             {
                 ResumeGame();
             };
-            GameModule.UI.ShowUIAsync<UITriggerRewardWindow>(adsRewardAction, closeAction);
+            RewardAction param = trigger ? adsRewardAction : null;
+            GameModule.UI.ShowUIAsync<UITriggerRewardWindow>(param, closeAction);
 
             if (!trigger) return;
             if (adsRewardAction == null) return;
