@@ -15,7 +15,7 @@ MonoBehaviour:
   ProjectConf:
     projectName: "\u53F2\u83B1\u59C6\u5DE5\u5382"
     Appid: wxf55f604f65c8f87b
-    CDN: https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/v0.1.7.0/
+    CDN: https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/v0.1.7.1/
     assetLoadType: 0
     compressDataPackage: 0
     VideoUrl: 
