@@ -9,6 +9,15 @@
       },
       "hash": "7f0f673f13b3601dc90b45125ffa88c06eff1a55"
     },
+    "com.boxqkrtm.ide.cursor": {
+      "version": "https://github.com/boxqkrtm/com.unity.ide.cursor.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.9"
+      },
+      "hash": "38fecf55e4fd94ccfe58a92ed8ad1a529ba1694e"
+    },
     "com.code-philosophy.hybridclr": {
       "version": "https://gitee.com/focus-creative-games/hybridclr_unity.git",
       "depth": 0,
@@ -83,15 +92,6 @@
         "com.unity.ext.nunit": "1.0.6"
       },
       "url": "https://packages.unity.cn"
-    },
-    "com.unity.ide.trae": {
-      "version": "https://github.com/codeMonkeyWang/com.unity.ide.trae.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.test-framework": "1.1.9"
-      },
-      "hash": "d625a9d4f0eb920217c16229aa0d6282c7d282d4"
     },
     "com.unity.ide.visualstudio": {
       "version": "2.0.22",
