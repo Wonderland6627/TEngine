@@ -28,6 +28,12 @@ namespace GameLogic
         // 当玩家的城堡被敌人占领时触发 现用于检查锦囊触发时机
         public void OnOccupiedByEnemy()
         {
+            if (Application.isEditor) 
+            {
+                ShowAdsRewardWindow();
+                return;
+            }
+            
             if (Time.time - lastTriggerTime < 20) return; // 20秒内只触发一次
             List<UnitType> unitTypes = castles.Select(castle => castle.occupiedUnitType).Distinct().ToList();
             if (unitTypes.Count == 1) return; // 游戏已经结束 不再弹出锦囊
@@ -60,6 +66,7 @@ namespace GameLogic
             return slimeReward.GetRewardActions(rewardReader.configs);
         }
 
+        // 尝试触发锦囊或播放广告
         public void TryTriggerReward(RewardAction action)
         {
             if (action == null)
@@ -71,14 +78,15 @@ namespace GameLogic
             adsRewardAction = action;
             if (!action.NeedAds() || Application.isEditor)
             {
-                OnRewardedVideoAdClosed(true);
+                TriggerReward(true);
                 return;
             }
 
-            World.Instance.ShowRewardedVideoAd();
+            ShowAds(AdsType.Reward, action);
         }
-
-        public void OnRewardedVideoAdClosed(bool trigger)
+        
+        // 显示触发结果
+        public void TriggerReward(bool trigger)
         {
             UnityAction closeAction = () =>
             {

@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 using WeChatWASM;
 using TEngine;
-using System;
 
 namespace GameLogic
 {
@@ -16,6 +14,9 @@ namespace GameLogic
 
         private WXRewardedVideoAd _rewardedVideoAd;
         public WXRewardedVideoAd RewardedVideoAd => _rewardedVideoAd;
+        
+        // 当前广告事件参数，如果为null则表示没有广告在播放
+        private AdsEventParam _currentAdsEventParam = null;
         
         public void InitAds()
         {
@@ -65,8 +66,35 @@ namespace GameLogic
             }
 
             Log.Info($"[Ads] rewardedVideoAd close: {rsp.isEnded}, {rsp.callbackId}, {rsp.errMsg}");
-            bool triggerReward = rsp.isEnded;
-            OnRewardedVideoAdClosed(triggerReward);
+            
+            // 检查是否有广告事件参数
+            if (_currentAdsEventParam == null)
+            {
+                Log.Error("[Ads] No current ads event param found");
+                return;
+            }
+
+            _currentAdsEventParam.isCompleted = rsp.isEnded;
+            
+            GameEvent.Send(SlimeEvent.OnAdsResultReceived, _currentAdsEventParam);
+            Log.Info($"[Ads] send ads result event: {_currentAdsEventParam.adsType}, {_currentAdsEventParam.isCompleted}, {_currentAdsEventParam.userData}");
+            
+            ClearAdsState();
+        }
+        
+        public void ShowAds(AdsType adsType, object userData = null)
+        {
+            _currentAdsEventParam = new AdsEventParam
+            {
+                adsType = adsType,
+                userData = userData
+            };
+            ShowRewardedVideoAd();
+        }
+
+        private void ClearAdsState()
+        {
+            _currentAdsEventParam = null;
         }
         
         public void ShowBannerAd()

@@ -98,6 +98,7 @@ namespace GameLogic
 
             occupiedCastleTimes = 0;
             ResetRewardAction();
+            ClearAdsState();
             
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
             GameModule.UI.CloseUI<UIMainWindow>();

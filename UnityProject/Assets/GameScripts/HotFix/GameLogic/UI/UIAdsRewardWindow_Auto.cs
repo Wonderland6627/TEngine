@@ -25,13 +25,41 @@ namespace GameLogic
 			}
 
 			RefreshRewardCells();
+			GetIfRefreshRewardsWithAds();
+
+			GameEvent.AddEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResultReceived);
 
 			EventTriggerListener.Get(m_btnRefresh.gameObject).OnClick = go =>
 			{
-				RefreshRewardCells();
-				m_btnRefresh.interactable = false;
-				EventTriggerListener.Get(m_btnRefresh.gameObject).enabled = false;
+				TryRefreshRewardWithAds();
 			};
+		}
+
+		private void TryRefreshRewardWithAds()
+		{
+			bool needAds = GetIfRefreshRewardsWithAds();
+			if (!needAds)
+			{
+				RefreshRewardCells();
+				return;
+			}
+
+			World.Instance.ShowAds(AdsType.RefreshRewardsList);
+		}
+		
+		private void OnAdsResultReceived(AdsEventParam param)
+		{
+			if (param == null || !param.isCompleted)
+			{
+				Log.Info("[UIAdsRewardWindow] ads result is null or not completed");
+				return;
+			}
+
+			if (param.adsType == AdsType.RefreshRewardsList)
+			{
+				RefreshRewardCells();
+				Log.Info("[UIAdsRewardWindow] refresh rewards list with ads");
+			}
 		}
 
 		private void RefreshRewardCells()
@@ -49,8 +77,19 @@ namespace GameLogic
 			}
 		}
 
+		private bool GetIfRefreshRewardsWithAds()
+		{
+			bool needAds = false;
+			needAds = !Application.isEditor;
+			m_imgAds.gameObject.SetActive(needAds);
+
+			return needAds;
+		}
+
 		protected override void OnDestroy()
         {
+			GameEvent.RemoveEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResultReceived);
+			
 			closeAction?.Invoke();
             base.OnDestroy();
         }
@@ -66,6 +105,7 @@ namespace GameLogic
 		private GameObject m_itemRewardCell;
 		private RectTransform m_rectRewardContent;
 		private Button m_btnRefresh;
+		private Image m_imgAds;
 		protected override void ScriptGenerator()
 		{
 			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
@@ -75,6 +115,7 @@ namespace GameLogic
 			m_itemRewardCell = FindChild("Content/m_imgRewardContent/m_itemRewardCell").gameObject;
 			m_rectRewardContent = FindChildComponent<RectTransform>("Content/m_imgRewardContent/m_rectRewardContent");
 			m_btnRefresh = FindChildComponent<Button>("Content/m_btnRefresh");
+			m_imgAds = FindChildComponent<Image>("Content/m_imgAds");
 		}
 		#endregion
 	}
