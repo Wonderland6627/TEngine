@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
-using System.Collections.Generic;
 
 namespace GameLogic
 {
@@ -15,14 +14,8 @@ namespace GameLogic
 			base.OnCreate();
 			Log.Info($"[UILevelWindow] OnCreate");
 			
-			int progressLevelID = World.Instance.GameData.ProgressLevelID; //当前最高通关关卡
-			int previewLevelId = progressLevelID + 1; //下一关关卡
-			var lvlConfigs = World.Instance.GetAllLevels();
-			if (lvlConfigs.Count <= previewLevelId)
-			{
-				previewLevelId = lvlConfigs.Count;
-			}
-			RefreshLevelPreview(previewLevelId);
+			int nextLevelId = GetNextLevelId();
+			RefreshLevelPreview(nextLevelId);
 
 			EventTriggerListener.Get(m_btnBack).OnClick = go =>
 			{
@@ -55,6 +48,15 @@ namespace GameLogic
 			};
 		}
 
+        protected override void OnSetVisible(bool visible)
+        {
+            base.OnSetVisible(visible);
+			if (visible)
+			{
+				RefreshLevelPreview(GetNextLevelId());
+			}
+        }
+
 		private void OnLevelNextClick(bool isNext)
 		{
 			int previewLevelId = isNext ? selectLevelId + 1 : selectLevelId - 1;
@@ -77,6 +79,18 @@ namespace GameLogic
 			m_imgLevelNext.gameObject.SetActive(previewLevelId < World.Instance.GetAllLevels().Count);
 
 			Log.Info($"[UILevelWindow] refresh level preview [{previewLevelId}] progresslvid [{progressLevelID}] islocked [{isLocked}]");
+		}
+		
+		private int GetNextLevelId()
+		{
+			int progressLevelID = World.Instance.GameData.ProgressLevelID; //当前最高通关关卡
+			int previewLevelId = progressLevelID + 1; //下一关关卡
+			var lvlConfigs = World.Instance.GetAllLevels();
+			if (lvlConfigs.Count <= previewLevelId)
+			{
+				previewLevelId = lvlConfigs.Count;
+			}
+			return previewLevelId;
 		}
 	}
 	

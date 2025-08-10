@@ -102,7 +102,7 @@ namespace GameLogic
             
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
             GameModule.UI.CloseUI<UIMainWindow>();
-            GameModule.UI.ShowUIAsync<UILevelWindow>();
+            // GameModule.UI.ShowUIAsync<UILevelWindow>();
 
             Log.Info($"[World] EndGame");
         }
