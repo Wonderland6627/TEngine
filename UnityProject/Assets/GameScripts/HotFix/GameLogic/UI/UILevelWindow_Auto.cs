@@ -8,6 +8,7 @@ namespace GameLogic
 	partial class UILevelWindow : UIWindow
 	{
 		private int selectLevelId = -1;
+		private int cachedLevelId = -1;
 
 		protected override void OnCreate()
 		{
@@ -44,6 +45,7 @@ namespace GameLogic
 				}
 
 				World.Instance.StartGame(selectLevelId);
+				cachedLevelId = GetNextLevelId();
             	Log.Info($"[UILevelWindow] on click start game [{selectLevelId}]");
 			};
 		}
@@ -53,7 +55,10 @@ namespace GameLogic
             base.OnSetVisible(visible);
 			if (visible)
 			{
-				RefreshLevelPreview(GetNextLevelId());
+				int nextLevelId = GetNextLevelId();
+				Log.Info($"[UILevelWindow] OnSetVisible nextLevelId [{nextLevelId}] cachedLevelId [{cachedLevelId}]");
+				if (nextLevelId == cachedLevelId) return;
+				RefreshLevelPreview(nextLevelId);
 			}
         }
 

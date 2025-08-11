@@ -52,6 +52,7 @@ namespace GameLogic
 
         protected override void OnDestroy()
         {
+            StopTutorialTips();
             m_TutorialTweener?.Kill();
             m_TutorialTweener = null;
             if (curLevelID == 1)
@@ -71,7 +72,7 @@ namespace GameLogic
                 return;
             }
 
-            if (param.adsType == AdsType.RefreshRewardsList)
+            if (param.adsType == AdsType.Reward)
             {
                 Log.Info($"[UIMainWindow] trigger ads result, isCompleted: {param.isCompleted}, adsType: {param.adsType}");
                 World.Instance.TriggerReward(param.isCompleted);
@@ -221,6 +222,7 @@ namespace GameLogic
             var seconds = new WaitForSeconds(0.5f);
             while (!m_HasKnownTutorial)
             {
+                if (m_TutorialTips == null) yield break;
                 m_TutorialTips.transform.localPosition = start.localPosition;
                 yield return seconds;
                 m_TutorialTweener = m_TutorialTips.transform.DOLocalMove(target.localPosition, 1.25f)
