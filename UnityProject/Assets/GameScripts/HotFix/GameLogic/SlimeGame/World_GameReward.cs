@@ -25,8 +25,10 @@ namespace GameLogic
 
         private RewardAction adsRewardAction = null;
 
+        private const int adsRewardWindowTriggerInterval = 20; // 锦囊弹出间隔时间
+
         // 当玩家的城堡被敌人占领时触发 现用于检查锦囊触发时机
-        public void OnOccupiedByEnemy()
+        public void TryShowAdsRewardWindow()
         {
             if (Application.isEditor) 
             {
@@ -34,7 +36,7 @@ namespace GameLogic
                 return;
             }
             
-            if (Time.time - lastTriggerTime < 20) return; // 20秒内只触发一次
+            if (Time.time - lastTriggerTime < adsRewardWindowTriggerInterval) return; // adsRewardWindowTriggerInterval秒内只触发一次
             List<UnitType> unitTypes = castles.Select(castle => castle.occupiedUnitType).Distinct().ToList();
             if (unitTypes.Count == 1) return; // 游戏已经结束 不再弹出锦囊
 

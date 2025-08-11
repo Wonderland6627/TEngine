@@ -180,7 +180,7 @@ public partial class BaseCastle : UIWidget
             }
             if (curOccupiedTime > 0 && unitType == UnitType.Enemy_1) // 非空塔被敌方占领
             {
-                World.Instance.OnOccupiedByEnemy();
+                OnOccupiedByUnit(unitType);
             }
             m_rectDragArrow.gameObject.SetActive(false);
             World.Instance.Vibrate();
@@ -198,6 +198,14 @@ public partial class BaseCastle : UIWidget
             occupiedUnitCount = unitType == occupiedUnitType ? occupiedUnitCount + 1 : occupiedUnitCount - 1;
         }
         UpdateCastleImage();
+    }
+
+    private void OnOccupiedByUnit(UnitType unitType)
+    {
+        if (unitType != UnitType.Player)
+        {
+            World.Instance.TryShowAdsRewardWindow();
+        }
     }
 
     // 直接被占领
