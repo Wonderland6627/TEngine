@@ -100,6 +100,7 @@ namespace GameLogic
         public void ShowBannerAd()
         {
 #if UNITY_EDITOR
+            Log.Info("[Ads] show bannerad in editor");
             return;
 #endif
 
@@ -115,6 +116,7 @@ namespace GameLogic
         public void HideBannerAd()
         {
 #if UNITY_EDITOR
+            Log.Info("[Ads] hide bannerad in editor");
             return;
 #endif
 
@@ -127,9 +129,10 @@ namespace GameLogic
             Log.Info("[Ads] hide bannerad");
         }
         
-        public void ShowRewardedVideoAd()
+        private void ShowRewardedVideoAd()
         {
 #if UNITY_EDITOR
+            Log.Info($"[Ads] show rewardedVideoAd in editor, with userData: {_currentAdsEventParam != null}");
             return;
 #endif
             if (_rewardedVideoAd == null)
@@ -138,7 +141,7 @@ namespace GameLogic
                 return;
             }
             _rewardedVideoAd.Show();
-            Log.Info("[Ads] show rewardedVideoAd");
+            Log.Info($"[Ads] show rewardedVideoAd, with userData: {_currentAdsEventParam != null}");
         }
     }
 }

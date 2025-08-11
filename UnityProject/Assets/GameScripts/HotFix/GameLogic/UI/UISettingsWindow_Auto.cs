@@ -15,6 +15,7 @@ namespace GameLogic
 			base.OnCreate();
 
 			m_textTitle.raycastTarget = true;
+			m_textVersion.raycastTarget = true;
 			if (userDatas != null && userDatas.Length > 0)
 			{
 				if (userDatas[0] is UnityAction ca)
@@ -48,6 +49,11 @@ namespace GameLogic
 			EventTriggerListener.Get(m_textTitle.gameObject).OnClick = go =>
 			{
 				World.Instance.ToggleDebugWindow();
+			};
+
+			EventTriggerListener.Get(m_textVersion.gameObject).OnClick = go =>
+			{
+				World.Instance.ToggleShowAds();
 			};
 			
 			m_textVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}";

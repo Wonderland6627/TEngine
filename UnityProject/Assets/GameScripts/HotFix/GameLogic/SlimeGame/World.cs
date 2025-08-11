@@ -177,13 +177,22 @@ namespace GameLogic
             WX.ReportScene(option);
         }
 
-        private int toggleCount = 0;
+        private int toggleDebugWindowCount = 0;
         public void ToggleDebugWindow()
         {
-            toggleCount++;
-            if (toggleCount < 5) return;
-            toggleCount = 0;
+            toggleDebugWindowCount++;
+            if (toggleDebugWindowCount < 5) return;
+            toggleDebugWindowCount = 0;
             GameModule.Debugger.ActiveWindow = !GameModule.Debugger.ActiveWindow;
+        }
+
+        private int toggleShowAdsCount = 0;
+        public void ToggleShowAds()
+        {
+            toggleShowAdsCount++;
+            if (toggleShowAdsCount < 5) return;
+            toggleShowAdsCount = 0;
+            ShowRewardedVideoAd();
         }
 
         void DebugUpdate()
