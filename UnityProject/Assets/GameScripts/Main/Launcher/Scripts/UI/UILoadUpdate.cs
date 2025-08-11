@@ -8,25 +8,30 @@ namespace GameMain
     [Window(UILayer.UI, fromResources: true, location: "AssetLoad/UILoadUpdate", fullScreen: true)]
     public class UILoadUpdate : UIWindow
     {
+		#region 脚本工具生成的代码
+		private Image m_imgBackGround;
+		private Text m_textDesc;
+		private Button m_btnClear;
+		private Text m_textAppid;
+		private Text m_textResid;
         private Scrollbar m_scrollbarProgress;
-
-        #region 脚本工具生成的代码
-        private Image m_imgBackGround;
-        private Text m_textDesc;
-        private Button m_btnClear;
-        private Text m_textAppid;
-        private Text m_textResid;
-        protected override void ScriptGenerator()
-        {
-            m_imgBackGround = FindChildComponent<Image>("m_imgBackGround");
-            m_textDesc = FindChildComponent<Text>("m_textDesc");
-            m_btnClear = FindChildComponent<Button>("TopNode/m_btnClear");
-            m_textAppid = FindChildComponent<Text>("TopNode/m_textAppid");
-            m_textResid = FindChildComponent<Text>("TopNode/m_textResid");
+		private Button m_btnGM1;
+		private Button m_btnGM2;
+		protected override void ScriptGenerator()
+		{
+			m_imgBackGround = FindChildComponent<Image>("m_imgBackGround");
+			m_textDesc = FindChildComponent<Text>("m_textDesc");
+			m_btnClear = FindChildComponent<Button>("TopNode/m_btnClear");
+			m_textAppid = FindChildComponent<Text>("TopNode/m_textAppid");
+			m_textResid = FindChildComponent<Text>("TopNode/m_textResid");
             m_scrollbarProgress = FindChildComponent<Scrollbar>("m_scrollbarProgress");
-            m_btnClear.onClick.AddListener(OnClickClearBtn);
-        }
-        #endregion
+			m_btnGM1 = FindChildComponent<Button>("m_btnGM1");
+			m_btnGM2 = FindChildComponent<Button>("m_btnGM2");
+			m_btnClear.onClick.AddListener(OnClickClearBtn);
+			m_btnGM1.onClick.AddListener(OnClickGM1Btn);
+			m_btnGM2.onClick.AddListener(OnClickGM2Btn);
+		}
+		#endregion
 
         protected override void OnCreate()
         {
@@ -65,6 +70,32 @@ namespace GameMain
                     GameModule.Resource.ClearSandbox();
                     Application.Quit();
                 }, () => { OnContinue(null); });
+        }
+
+        private int gm1ClickCount = 0;
+        private int gm2ClickCount = 0;
+
+        private void OnClickGM1Btn()
+        {
+            gm1ClickCount++;
+            CheckGMVisibleState();
+        }
+
+        private void OnClickGM2Btn()
+        {
+            gm2ClickCount++;
+            CheckGMVisibleState();
+        }
+
+        private void CheckGMVisibleState()
+        {
+            int visibleCount = 6;
+            if (gm1ClickCount + gm2ClickCount >= visibleCount)
+            {
+                GameModule.Debugger.ActiveWindow = !GameModule.Debugger.ActiveWindow;
+                gm1ClickCount = 0;
+                gm2ClickCount = 0;
+            }
         }
 
         #endregion
