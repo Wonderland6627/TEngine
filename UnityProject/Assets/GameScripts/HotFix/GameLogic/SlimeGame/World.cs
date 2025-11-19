@@ -25,7 +25,7 @@ namespace GameLogic
 
         private int aiPlayerExeTimer = -1;
 
-        public async void AsyncInit()
+        public async UniTaskVoid AsyncInit()
         {
             GameData.GuideFinish = false;
 

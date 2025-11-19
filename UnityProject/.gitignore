@@ -10,6 +10,7 @@
 /EditorBuild/
 /[Aa]ssets/StreamingAssets
 /[Aa]ssets/StreamingAssets.meta
+/[Uu]serSettings/
 /BuildBundleInfo/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
@@ -102,6 +103,10 @@ WXExport/
 
 #CDN Backup
 CDN_Backup/MiniGame/
+CDN_Backup/DatabaseExport/
+
+#TextToolDatas
+TextToolDatas/
 
 #VSCode
 .vscode/
