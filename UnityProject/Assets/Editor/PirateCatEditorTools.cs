@@ -23,6 +23,9 @@ public static class PirateCatEditorTools
     // 备份目录
     private const string BackupBasePath = "CDN_Backup/MiniGame";
     
+    // 云函数目录
+    private const string CloudFunctionsSourcePath = "cloudfunctions";
+    
     /// <summary>
     /// 步骤1: 更新版本号（更新所有相关配置文件）
     /// </summary>
@@ -111,14 +114,14 @@ public static class PirateCatEditorTools
     }
     
     /// <summary>
-    /// 步骤3.5: 更新 project.config.json 文件，添加 cloudfunctionRoot 配置
+    /// 步骤4: 更新 project.config.json 文件，添加 cloudfunctionRoot 配置，并复制 cloudfunctions 文件夹
     /// </summary>
     /// <returns>是否成功</returns>
     public static bool UpdateProjectConfigJson()
     {
         try
         {
-            Debug.Log("[PirateCatEditorTools] Step 3.5: Update project.config.json");
+            Debug.Log("[PirateCatEditorTools] Step 4: Update project.config.json and copy cloudfunctions");
             
             string exportPath = GetMiniGameExportPath();
             string projectConfigPath = Path.Combine(exportPath, "minigame", "project.config.json");
@@ -157,6 +160,10 @@ public static class PirateCatEditorTools
             // 写入文件
             File.WriteAllText(projectConfigPath, formattedJson);
             Debug.Log($"[PirateCatEditorTools] project.config.json updated successfully at {projectConfigPath}");
+            
+            // 更新成功后，复制 cloudfunctions 文件夹到 minigame 目录
+            CopyCloudFunctionsToMinigame(exportPath);
+            
             return true;
         }
         catch (System.Exception e)
@@ -167,7 +174,55 @@ public static class PirateCatEditorTools
     }
     
     /// <summary>
-    /// 步骤4: 复制文件到 Backup 目录
+    /// 复制 cloudfunctions 文件夹到 minigame 目录
+    /// </summary>
+    /// <param name="exportPath">导出路径（WXExport）</param>
+    private static void CopyCloudFunctionsToMinigame(string exportPath)
+    {
+        try
+        {
+            // 源路径：项目根目录下的 cloudfunctions 文件夹
+            string cloudFunctionsSource = Path.Combine(Application.dataPath, "..", CloudFunctionsSourcePath);
+            cloudFunctionsSource = Path.GetFullPath(cloudFunctionsSource);
+            
+            // 目标路径：WXExport/minigame/cloudfunctions
+            string cloudFunctionsDest = Path.Combine(exportPath, "minigame", "cloudfunctions");
+            
+            // 检查源文件夹是否存在
+            if (!Directory.Exists(cloudFunctionsSource))
+            {
+                Debug.LogWarning($"[PirateCatEditorTools] CloudFunctions source folder not found at {cloudFunctionsSource}, skipping copy");
+                return;
+            }
+            
+            // 检查 minigame 目录是否存在
+            string minigamePath = Path.Combine(exportPath, "minigame");
+            if (!Directory.Exists(minigamePath))
+            {
+                Debug.LogWarning($"[PirateCatEditorTools] Minigame folder not found at {minigamePath}, skipping cloudfunctions copy");
+                return;
+            }
+            
+            // 如果目标文件夹已存在，先删除
+            if (Directory.Exists(cloudFunctionsDest))
+            {
+                Directory.Delete(cloudFunctionsDest, true);
+                Debug.Log($"[PirateCatEditorTools] Deleted existing cloudfunctions folder at {cloudFunctionsDest}");
+            }
+            
+            // 复制文件夹
+            FileUtil.CopyFileOrDirectory(cloudFunctionsSource, cloudFunctionsDest);
+            Debug.Log($"[PirateCatEditorTools] Copied cloudfunctions from {cloudFunctionsSource} to {cloudFunctionsDest}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[PirateCatEditorTools] Failed to copy cloudfunctions folder: {e.Message}\n{e.StackTrace}");
+            // 不抛出异常，只记录错误，因为这不是关键步骤
+        }
+    }
+    
+    /// <summary>
+    /// 步骤5: 复制文件到 Backup 目录
     /// </summary>
     /// <param name="version">版本号</param>
     /// <param name="hasResourceChanged">是否修改了资源</param>
@@ -176,10 +231,7 @@ public static class PirateCatEditorTools
     {
         try
         {
-            Debug.Log($"[PirateCatEditorTools] Step 4: Copy files to backup directory");
-            
-            // 在复制文件之前，先更新 project.config.json
-            UpdateProjectConfigJson();
+            Debug.Log($"[PirateCatEditorTools] Step 5: Copy files to backup directory");
             
             CopyToBackup(version, hasResourceChanged);
             

@@ -125,37 +125,43 @@ public class PirateCatGameVersionWindow : EditorWindow
         
         EditorGUILayout.Space(15);
         
-        // ========== 步骤3.5: 更新 project.config.json ==========
-        EditorGUILayout.LabelField("步骤3.5: 更新 project.config.json", EditorStyles.boldLabel);
+        // ========== 步骤4: 更新 project.config.json 和复制 cloudfunctions ==========
+        EditorGUILayout.LabelField("步骤4: 更新 project.config.json 和复制 cloudfunctions", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
-        if (GUILayout.Button("更新 project.config.json", GUILayout.Height(30)))
+        if (GUILayout.Button("更新配置并复制云函数", GUILayout.Height(30)))
         {
             if (PirateCatEditorTools.UpdateProjectConfigJson())
             {
-                EditorUtility.DisplayDialog("成功", "project.config.json 已更新，已添加 cloudfunctionRoot 配置", "确定");
+                EditorUtility.DisplayDialog("成功", 
+                    "操作完成！\n\n" +
+                    "✓ project.config.json 已更新，已添加 cloudfunctionRoot 配置\n" +
+                    "✓ cloudfunctions 文件夹已复制到 WXExport/minigame/ 目录", 
+                    "确定");
             }
             else
             {
-                EditorUtility.DisplayDialog("提示", "更新失败或文件不存在，请确保已完成微信小游戏转换", "确定");
+                EditorUtility.DisplayDialog("提示", "更新失败或文件不存在，请确保已完成微信小游戏转换（步骤3）", "确定");
             }
         }
         
         EditorGUILayout.Space(3);
-        GUIStyle helpStyle25 = new GUIStyle(GUI.skin.label)
+        GUIStyle helpStyle4 = new GUIStyle(GUI.skin.label)
         {
             fontSize = 10,
             wordWrap = true,
             normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
         };
-        EditorGUILayout.LabelField("提示: 在完成微信转换后，点击此按钮更新 project.config.json，添加 cloudfunctionRoot 配置", helpStyle25);
+        EditorGUILayout.LabelField("提示: 在完成微信转换后（步骤3），点击此按钮：", helpStyle4);
+        EditorGUILayout.LabelField("  • 更新 project.config.json，添加 cloudfunctionRoot 配置", helpStyle4);
+        EditorGUILayout.LabelField("  • 将项目根目录下的 cloudfunctions 文件夹复制到 WXExport/minigame/ 目录", helpStyle4);
         
         EditorGUILayout.EndVertical();
         
         EditorGUILayout.Space(15);
         
-        // ========== 步骤4: 复制到备份目录 ==========
-        EditorGUILayout.LabelField("步骤4: 复制到备份目录", EditorStyles.boldLabel);
+        // ========== 步骤5: 复制到备份目录 ==========
+        EditorGUILayout.LabelField("步骤5: 复制到备份目录", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
         EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(version));
@@ -172,14 +178,13 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUI.EndDisabledGroup();
         
         EditorGUILayout.Space(3);
-        GUIStyle helpStyle3 = new GUIStyle(GUI.skin.label)
+        GUIStyle helpStyle5 = new GUIStyle(GUI.skin.label)
         {
             fontSize = 10,
             wordWrap = true,
             normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
         };
-        EditorGUILayout.LabelField("提示: 文件将从 WXExport/webgl/ 复制到 CDN_Backup/MiniGame/{版本号}/", helpStyle3);
-        EditorGUILayout.LabelField("注意: 复制前会自动更新 project.config.json，添加 cloudfunctionRoot 配置", helpStyle3);
+        EditorGUILayout.LabelField("提示: 文件将从 WXExport/webgl/ 复制到 CDN_Backup/MiniGame/{版本号}/", helpStyle5);
         
         EditorGUILayout.EndVertical();
         
