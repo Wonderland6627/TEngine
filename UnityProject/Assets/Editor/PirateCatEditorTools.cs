@@ -5,6 +5,7 @@ using UnityEngine;
 using YooAsset;
 using YooAsset.Editor;
 using TEngine.Editor;
+using Newtonsoft.Json.Linq;
 
 /// <summary>
 /// 打包工具核心逻辑
@@ -110,6 +111,62 @@ public static class PirateCatEditorTools
     }
     
     /// <summary>
+    /// 步骤3.5: 更新 project.config.json 文件，添加 cloudfunctionRoot 配置
+    /// </summary>
+    /// <returns>是否成功</returns>
+    public static bool UpdateProjectConfigJson()
+    {
+        try
+        {
+            Debug.Log("[PirateCatEditorTools] Step 3.5: Update project.config.json");
+            
+            string exportPath = GetMiniGameExportPath();
+            string projectConfigPath = Path.Combine(exportPath, "minigame", "project.config.json");
+            
+            // 检查文件是否存在
+            if (!File.Exists(projectConfigPath))
+            {
+                Debug.LogWarning($"[PirateCatEditorTools] project.config.json not found at {projectConfigPath}, skipping update");
+                return false;
+            }
+            
+            // 读取 JSON 文件
+            string jsonContent = File.ReadAllText(projectConfigPath);
+            
+            // 使用 Newtonsoft.Json 解析 JSON
+            JObject jsonObj = JObject.Parse(jsonContent);
+            
+            // 检查是否已经存在 cloudfunctionRoot
+            bool alreadyExists = jsonObj["cloudfunctionRoot"] != null;
+            
+            // 设置或更新 cloudfunctionRoot 配置
+            jsonObj["cloudfunctionRoot"] = "cloudfunctions/";
+            
+            if (alreadyExists)
+            {
+                Debug.Log("[PirateCatEditorTools] Updated existing cloudfunctionRoot in project.config.json");
+            }
+            else
+            {
+                Debug.Log("[PirateCatEditorTools] Added cloudfunctionRoot to project.config.json");
+            }
+            
+            // 格式化 JSON（保持缩进）
+            string formattedJson = jsonObj.ToString(Newtonsoft.Json.Formatting.Indented);
+            
+            // 写入文件
+            File.WriteAllText(projectConfigPath, formattedJson);
+            Debug.Log($"[PirateCatEditorTools] project.config.json updated successfully at {projectConfigPath}");
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[PirateCatEditorTools] Failed to update project.config.json: {e.Message}\n{e.StackTrace}");
+            return false;
+        }
+    }
+    
+    /// <summary>
     /// 步骤4: 复制文件到 Backup 目录
     /// </summary>
     /// <param name="version">版本号</param>
@@ -120,6 +177,9 @@ public static class PirateCatEditorTools
         try
         {
             Debug.Log($"[PirateCatEditorTools] Step 4: Copy files to backup directory");
+            
+            // 在复制文件之前，先更新 project.config.json
+            UpdateProjectConfigJson();
             
             CopyToBackup(version, hasResourceChanged);
             

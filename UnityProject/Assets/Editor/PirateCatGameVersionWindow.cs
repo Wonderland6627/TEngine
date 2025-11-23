@@ -125,6 +125,35 @@ public class PirateCatGameVersionWindow : EditorWindow
         
         EditorGUILayout.Space(15);
         
+        // ========== 步骤3.5: 更新 project.config.json ==========
+        EditorGUILayout.LabelField("步骤3.5: 更新 project.config.json", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        
+        if (GUILayout.Button("更新 project.config.json", GUILayout.Height(30)))
+        {
+            if (PirateCatEditorTools.UpdateProjectConfigJson())
+            {
+                EditorUtility.DisplayDialog("成功", "project.config.json 已更新，已添加 cloudfunctionRoot 配置", "确定");
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("提示", "更新失败或文件不存在，请确保已完成微信小游戏转换", "确定");
+            }
+        }
+        
+        EditorGUILayout.Space(3);
+        GUIStyle helpStyle25 = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 10,
+            wordWrap = true,
+            normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
+        };
+        EditorGUILayout.LabelField("提示: 在完成微信转换后，点击此按钮更新 project.config.json，添加 cloudfunctionRoot 配置", helpStyle25);
+        
+        EditorGUILayout.EndVertical();
+        
+        EditorGUILayout.Space(15);
+        
         // ========== 步骤4: 复制到备份目录 ==========
         EditorGUILayout.LabelField("步骤4: 复制到备份目录", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -150,6 +179,7 @@ public class PirateCatGameVersionWindow : EditorWindow
             normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
         };
         EditorGUILayout.LabelField("提示: 文件将从 WXExport/webgl/ 复制到 CDN_Backup/MiniGame/{版本号}/", helpStyle3);
+        EditorGUILayout.LabelField("注意: 复制前会自动更新 project.config.json，添加 cloudfunctionRoot 配置", helpStyle3);
         
         EditorGUILayout.EndVertical();
         
