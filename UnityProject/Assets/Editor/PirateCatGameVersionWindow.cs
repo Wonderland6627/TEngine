@@ -77,27 +77,26 @@ public class PirateCatGameVersionWindow : EditorWindow
         
         EditorGUILayout.Space(5);
         EditorGUI.BeginDisabledGroup(!hasResourceChanged || string.IsNullOrEmpty(version));
-        if (GUILayout.Button("构建 AssetBundle", GUILayout.Height(30)))
+        if (GUILayout.Button("打开 AssetBundle Builder", GUILayout.Height(30)))
         {
-            if (EditorUtility.DisplayDialog("确认构建", 
-                $"确定要构建 AssetBundle 吗？\n版本号: {version}", 
-                "确定", "取消"))
-            {
-                PirateCatEditorTools.BuildBundle(version);
-            }
+            PirateCatEditorTools.BuildBundle(version);
         }
         EditorGUI.EndDisabledGroup();
         
+        EditorGUILayout.Space(3);
+        GUIStyle helpStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 10,
+            wordWrap = true,
+            normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
+        };
         if (!hasResourceChanged)
         {
-            EditorGUILayout.Space(3);
-            GUIStyle helpStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 10,
-                wordWrap = true,
-                normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
-            };
             EditorGUILayout.LabelField("提示: 如果只修改了代码，可以跳过此步骤", helpStyle);
+        }
+        else
+        {
+            EditorGUILayout.LabelField("提示: 点击按钮将打开 AssetBundle Builder 窗口，请在窗口中完成构建", helpStyle);
         }
         
         EditorGUILayout.EndVertical();
@@ -110,12 +109,7 @@ public class PirateCatGameVersionWindow : EditorWindow
         
         if (GUILayout.Button("调用微信转换工具", GUILayout.Height(30)))
         {
-            if (EditorUtility.DisplayDialog("确认导出", 
-                "将调用微信小游戏转换工具面板。\n\n请在弹出的窗口中完成转换操作。", 
-                "确定", "取消"))
-            {
-                PirateCatEditorTools.CallWeChatTransformTool();
-            }
+            PirateCatEditorTools.CallWeChatTransformTool();
         }
         
         EditorGUILayout.Space(3);

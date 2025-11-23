@@ -62,26 +62,25 @@ public static class PirateCatEditorTools
     }
     
     /// <summary>
-    /// 步骤2: 构建 AssetBundle
+    /// 步骤2: 打开 AssetBundle Builder 窗口
     /// </summary>
-    /// <param name="version">版本号</param>
-    /// <returns>是否成功</returns>
+    /// <returns>是否成功打开</returns>
     public static bool BuildBundle(string version)
     {
         try
         {
-            Debug.Log($"[PirateCatEditorTools] Step 2: Build AssetBundle with version {version}");
+            Debug.Log($"[PirateCatEditorTools] Step 2: Open AssetBundle Builder window");
             
-            BuildAssetBundle(version);
+            // 打开 YooAsset 的 AssetBundle Builder 窗口
+            YooAsset.Editor.AssetBundleBuilderWindow.OpenWindow();
             
-            Debug.Log($"[PirateCatEditorTools] AssetBundle build completed successfully");
-            EditorUtility.DisplayDialog("成功", "AssetBundle 构建完成！", "确定");
+            Debug.Log($"[PirateCatEditorTools] AssetBundle Builder window opened successfully");
             return true;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[PirateCatEditorTools] Failed to build AssetBundle: {e.Message}\n{e.StackTrace}");
-            EditorUtility.DisplayDialog("错误", $"构建 AssetBundle 失败：{e.Message}", "确定");
+            Debug.LogError($"[PirateCatEditorTools] Failed to open AssetBundle Builder window: {e.Message}\n{e.StackTrace}");
+            EditorUtility.DisplayDialog("错误", $"打开 AssetBundle Builder 窗口失败：{e.Message}", "确定");
             return false;
         }
     }
@@ -249,43 +248,6 @@ public static class PirateCatEditorTools
         {
             Debug.LogWarning("[PirateCatEditorTools] CDN value was not updated, pattern may not match");
         }
-    }
-    
-    /// <summary>
-    /// 构建 AssetBundle
-    /// </summary>
-    public static void BuildAssetBundle(string version)
-    {
-        Debug.Log($"[PirateCatEditorTools] Start building AssetBundle with version {version}");
-        
-        BuildTarget target = BuildTarget.WebGL;
-        
-        // 使用 YooAsset 的构建 API
-        IBuildPipeline pipeline = new ScriptableBuildPipeline();
-        ScriptableBuildParameters buildParameters = new ScriptableBuildParameters();
-        
-        buildParameters.BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot();
-        buildParameters.BuildinFileRoot = AssetBundleBuilderHelper.GetStreamingAssetsRoot();
-        buildParameters.BuildPipeline = EBuildPipeline.ScriptableBuildPipeline.ToString();
-        buildParameters.BuildTarget = target;
-        buildParameters.BuildMode = EBuildMode.IncrementalBuild;
-        buildParameters.PackageName = "DefaultPackage";
-        buildParameters.PackageVersion = version;
-        buildParameters.VerifyBuildingResult = true;
-        buildParameters.FileNameStyle = EFileNameStyle.BundleName_HashName;
-        buildParameters.BuildinFileCopyOption = EBuildinFileCopyOption.ClearAndCopyAll;
-        buildParameters.BuildinFileCopyParams = string.Empty;
-        buildParameters.CompressOption = ECompressOption.LZ4;
-        buildParameters.EnableSharePackRule = true;
-        
-        var buildResult = pipeline.Run(buildParameters, true);
-        if (!buildResult.Success)
-        {
-            throw new System.Exception($"AssetBundle build failed: {buildResult.ErrorInfo}");
-        }
-        
-        Debug.Log($"[PirateCatEditorTools] AssetBundle build succeeded: {buildResult.OutputPackageDirectory}");
-        AssetDatabase.Refresh();
     }
     
     /// <summary>
