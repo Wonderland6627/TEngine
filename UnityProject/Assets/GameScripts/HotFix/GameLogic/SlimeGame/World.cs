@@ -43,13 +43,15 @@ namespace GameLogic
                     await LoadConfig();
                     bool remoteLvlsCfgGetSuccess = await LoadRemoteLevelsConfig(); //加载远端关卡配置 如果有 则使用远端覆盖本地
                     Log.Info($"[World] LoadRemoteLevelsConfig success: {remoteLvlsCfgGetSuccess}");
+                    // 云开发环境下无需调用WX.Login，直接调用云函数即可获取openid
                     if (!hasOpenID)
                     {
-                        WXLogin();
+                        GetOpenID();
                     }
+                    // 2021年后新版本必须通过用户主动触发获取用户信息，直接创建授权按钮
                     if (!hasBasicInfo)
                     {
-                        GetSetting();
+                        RequestUserInfo();
                     }
                     GetUserGameInfo();
                     InitAds();

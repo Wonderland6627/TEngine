@@ -43,39 +43,16 @@ namespace GameLogic
             });
         }
 
-        public void GetSetting()
+        /// <summary>
+        /// 请求用户信息（2021年后新版本必须通过用户主动触发获取）
+        /// 直接创建用户信息按钮，无需先检查授权状态
+        /// </summary>
+        public void RequestUserInfo()
         {
-            Log.Info("[World] WX.GetSetting");
-            WX.GetSetting(new GetSettingOption()
-            {
-                // {"authSetting":{"scope.address":true,"scope.invoice":true,"scope.invoiceTitle":true},"subscriptionsSetting":{"mainSwitch":false,"itemSettings":{}},"miniprogramAuthSetting":{},"errMsg":"getSetting:ok"}
-                success = (res) =>
-                {
-                    Log.Info($"[World] WX.GetSetting success: {res.ToJson()}");
-                    if (res.authSetting.TryGetValue("scope.userInfo", out var hasUserInfo))
-                    {
-                        if (hasUserInfo)
-                        {
-                            // 用户已授权，直接获取用户信息
-                            GetUserInfo("by auth setting has user info");
-                        }
-                        else
-                        {
-                            // 用户未授权，创建用户信息按钮
-                            CreateUserInfoButton();
-                        }
-                    }
-                    else
-                    {
-                        // 未获取到授权信息，创建用户信息按钮
-                        CreateUserInfoButton();
-                    }
-                },
-                fail = (err) =>
-                {
-                    Log.Error($"[World] WX.GetSetting fail: {err.ToJson()}");
-                }
-            });
+            Log.Info("[World] RequestUserInfo - Create user info button");
+            // 2021年后，wx.getUserInfo已废弃，必须通过用户主动触发（如点击按钮）获取用户信息
+            // 因此直接创建用户信息按钮，无需先检查授权状态
+            CreateUserInfoButton();
         }
 
         private void GetUserInfo(string log)
@@ -116,35 +93,14 @@ namespace GameLogic
             });
         }
 
-        private void WXLogin()
-        {
-            Log.Info("[World] WX.WXLogin");
-            WX.Login(new LoginOption()
-            {
-                // {"code":"0b1KH20w3mbkG43mRW1w3Z5cZz4KH20o","errMsg":"login:ok"}
-                success = (res) =>
-                {
-                    Log.Info("[World] WX.Login success: " + res.ToJson());
-                    GetOpenID(res.code);
-                },
-                fail = (err) =>
-                {
-                    Log.Error("[World] WX.Login fail: " + err.ToJson());
-                }
-            });
-        }
-
-        private void GetOpenID(string code)
+        private void GetOpenID()
         {
             Log.Info("[World] GetOpenID");
-            var param = new
-            {
-                code
-            };
+            // 云开发环境下无需传入code，云函数会自动从context获取openid
             WX.cloud.CallFunction(new CallFunctionParam()
             {
                 name = "getCode2Session",
-                data = param,
+                // data参数省略，云函数通过getWXContext()自动获取openid
 /*
 {
     "result": {
