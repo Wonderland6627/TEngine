@@ -99,7 +99,7 @@ namespace GameLogic
             // 云开发环境下无需传入code，云函数会自动从context获取openid
             WX.cloud.CallFunction(new CallFunctionParam()
             {
-                name = "getCode2Session",
+                name = "getUserWXContext",
                 // data参数省略，云函数通过getWXContext()自动获取openid
 /*
 {
@@ -122,7 +122,7 @@ namespace GameLogic
 */
                 success = (res) =>
                 {
-                    Log.Info("[World] call cloud function getCode2Session success: " + res.ToJson().ToString());
+                    Log.Info("[World] call cloud function getUserWXContext success: " + res.ToJson().ToString());
                     var resultDict = res.result.ToObject<Dictionary<string, object>>();
                     var currentUserInfo = GameData.UserInfo;
                     currentUserInfo.openId = resultDict["openid"].ToString();
@@ -130,7 +130,7 @@ namespace GameLogic
                 },
                 fail = (err) =>
                 {
-                    Log.Error("[World] call cloud function getCode2Session failed: " + err.ToJson().ToString());
+                    Log.Error("[World] call cloud function getUserWXContext failed: " + err.ToJson().ToString());
                 }
             });
         }
