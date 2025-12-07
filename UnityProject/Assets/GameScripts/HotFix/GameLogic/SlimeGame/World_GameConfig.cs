@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using TEngine;
-using WeChatWASM;
+using GameLogic.Network;
 
 namespace GameLogic
 {
@@ -30,51 +29,35 @@ namespace GameLogic
             GameModule.UI.ShowLoading();
             try
             {
-                var tcs = new UniTaskCompletionSource<CallFunctionResult>();
-                WX.cloud.CallFunction(new CallFunctionParam()
-                {
-                    name = "getLevelsConfig",
-                    success = (res) =>
-                    {
-                        Log.Info("[World] call cloud function getLevelsConfig success: " + res.ToJson().ToString());
-                        tcs.TrySetResult(res);
-                    },
-                    fail = (err) =>
-                    {
-                        Log.Error("[World] call cloud function getLevelsConfig failed: " + err.ToJson().ToString());
-                        tcs.TrySetException(new Exception(err.ToJson().ToString()));
-                    }
-                });
-                var res = await tcs.Task;
+                var response = await NetManager.Call<List<LevelsConfigData>>("getLevelsConfigV2");
                 GameModule.UI.ShowLoading(false);
-                Log.Info("[World] call cloud function getLevelsConfig result");
-                JObject resultJson = JObject.Parse(res.result);
-                if (!resultJson.TryGetValue("data", out var dataJson) || dataJson == null)
+                
+                if (response.IsSuccess && response.data != null && response.data.Count > 0)
                 {
-                    Log.Error("[World] call cloud function getLevelsConfig result data is null");
+                    var firstData = response.data[0];
+                    if (firstData?.configs?.levels != null)
+                    {
+                        var levelsArray = firstData.configs.levels.ToObject<LevelConfig[]>();
+                        if (levelsArray != null && levelsArray.Length > 0)
+                        {
+                            Log.Info($"[World] LoadRemoteLevelsConfig success: {levelsArray.Length} levels");
+                            levelReader.SetConfigs(levelsArray.ToList());
+                            return true;
+                        }
+                    }
+                    Log.Error("[World] LoadRemoteLevelsConfig: levels data is null or empty");
                     return false;
                 }
-                var firstData = dataJson.First;
-                if (firstData == null || firstData["configs"] == null)
+                else
                 {
-                    Log.Error("[World] call cloud function getLevelsConfig result first data is null");
+                    Log.Error($"[World] LoadRemoteLevelsConfig failed: {response.ErrorMessage}");
                     return false;
                 }
-
-                var levelsJson = firstData["configs"].ToString();
-                var levelsArray = levelsJson.ToObject<LevelConfig[]>();
-                if (levelsArray == null || levelsArray.Length == 0)
-                {
-                    Log.Error("[World] call cloud function getLevelsConfig result levels is null");
-                    return false;
-                }
-                Log.Info("[World] call cloud function getLevelsConfig result data: " + levelsArray.Length);
-                levelReader.SetConfigs(levelsArray.ToList());
-                return true;
             }
             catch (Exception e)
             {
-                Log.Error("[World] GetUserRankList error: " + e.ToString());
+                GameModule.UI.ShowLoading(false);
+                Log.Error($"[World] LoadRemoteLevelsConfig error: {e}");
                 return false;
             }
         }

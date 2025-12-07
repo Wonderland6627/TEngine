@@ -4,9 +4,9 @@ using UnityEngine;
 using TEngine;
 using WeChatWASM;
 using System;
-using Newtonsoft.Json.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine.UI;
+using GameLogic.Network;
 
 namespace GameLogic
 {
@@ -93,46 +93,28 @@ namespace GameLogic
             });
         }
 
-        private void GetOpenID()
+        private async void GetOpenID()
         {
             Log.Info("[World] GetOpenID");
-            // 云开发环境下无需传入code，云函数会自动从context获取openid
-            WX.cloud.CallFunction(new CallFunctionParam()
+            try
             {
-                name = "getUserWXContext",
-                // data参数省略，云函数通过getWXContext()自动获取openid
-/*
-{
-    "result": {
-        "event": {
-            "code": "0a1HYj0w3dCzE43twJ2w36iCMz1HYj02",
-            "tcbContext": {},
-            "userInfo": {
-                "appId": "wxf55f604f65c8f87b",
-                "openId": "ox0H160OiHbng6giS50wOp6YZ7R4"
-            }
-        },
-        "openid": "ox0H160OiHbng6giS50wOp6YZ7R4",
-        "appid": "wxf55f604f65c8f87b",
-        "unionid": ""
-    },
-    "requestID": "d54da294-36e2-40c8-9765-4d68a8134d98",
-    "errMsg": "cloud.callFunction:ok"
-}
-*/
-                success = (res) =>
+                var response = await NetManager.Call<WXContextData>("getUserWXContext");
+                if (response.IsSuccess && response.data != null)
                 {
-                    Log.Info("[World] call cloud function getUserWXContext success: " + res.ToJson().ToString());
-                    var resultDict = res.result.ToObject<Dictionary<string, object>>();
                     var currentUserInfo = GameData.UserInfo;
-                    currentUserInfo.openId = resultDict["openid"].ToString();
+                    currentUserInfo.openId = response.data.openid;
                     GameData.UserInfo = currentUserInfo;
-                },
-                fail = (err) =>
-                {
-                    Log.Error("[World] call cloud function getUserWXContext failed: " + err.ToJson().ToString());
+                    Log.Info($"[World] GetOpenID success: {response.data.openid}");
                 }
-            });
+                else
+                {
+                    Log.Error($"[World] GetOpenID failed: {response.ErrorMessage}");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[World] GetOpenID exception: {e}");
+            }
         }
     }
 
@@ -159,99 +141,40 @@ namespace GameLogic
 
     partial class World
     {
-        public void GetUserGameInfo()
+        public async void GetUserGameInfo()
         {
             Log.Info("[World] GetUserGameInfo");
-            WX.cloud.CallFunction(new CallFunctionParam()
+            try
             {
-                name = "getUserGameInfo",
-                success = (res) =>
+                // 使用 V2 版本，返回新格式数据
+                var response = await NetManager.Call<UserGameInfoData>("getUserGameInfoV2");
+                if (response.IsSuccess && response.data != null)
                 {
-                    Log.Info("[World] call cloud function getUserGameInfo success: " + res.ToJson().ToString());
-                    OnGetUserGameInfoSuccess(res);
-                },
-                fail = (err) =>
-                {
-                    Log.Error("[World] call cloud function getUserGameInfo failed: " + err.ToJson().ToString());
-                }
-            });
-
-            void OnGetUserGameInfoSuccess(CallFunctionResult res)
-            {
-/*
-{
-    "result": {
-        "code": 0,
-        "data": {
-            "_id": "073a77ac681a0c320284cee70fe9ff04",
-            "openid": "ox0H160OiHbng6giS50wOp6YZ7R4",
-            "userGameInfo": {
-                "progressLevelID": 2,
-                "userInfo": {
-                    "appId": "wxf55f604f65c8f87b",
-                    "openId": "ox0H160OiHbng6giS50wOp6YZ7R4"
-                }
-            },
-            "createdAt": "2025-05-06T13:18:42.514Z",
-            "updatedAt": "2025-05-06T13:50:00.139Z"
-        },
-        "msg": "get user game info success"
-    },
-    "requestID": "c50afb2b-0c6e-4fd1-bc76-dd401d6df02a",
-    "errMsg": "cloud.callFunction:ok"
-}
-*/
-                try
-                {
-                    JObject resultJson = JObject.Parse(res.result);
-                    if (resultJson.TryGetValue("code", out var code))
+                    var userData = response.data;
+                    // 直接使用新字段，不再使用兼容属性
+                    int progressLevelID = userData.progressLevelID ?? 0;
+                    if (progressLevelID > 0)
                     {
-                        int codeInt = code.ToObject<int>();
-                        if (codeInt != 0)
-                        {
-                            Log.Error($"[World] parse getUserGameInfo response failed, code: {codeInt}");
-                            return;
-                        }
-                    }
-
-                    if (!resultJson.TryGetValue("data", out var dataJson) || dataJson == null)
-                    {
-                        Log.Error("[World] parse getUserGameInfo response failed, data is null");
-                        return;
-                    }
-
-                    var dataDict = JObject.Parse(dataJson.ToString());
-                    if (!dataDict.TryGetValue("userGameInfo", out var userGameInfoJson) || userGameInfoJson == null)
-                    {
-                        Log.Error("[World] parse getUserGameInfo response failed, userGameInfo is null");
-                        return;
-                    }
-
-                    var userGameInfoDict = userGameInfoJson.ToObject<Dictionary<string, object>>();
-                    if (userGameInfoDict == null || userGameInfoDict.Count == 0)
-                    {
-                        Log.Warning("[World] parse getUserGameInfo response success, but userGameInfo is empty, new user");
-                        return;
-                    }
-                    Log.Info($"[World] parse getUserGameInfo response success: {userGameInfoDict.Count}, {userGameInfoJson}");
-                    foreach (var item in userGameInfoDict)
-                    {
-                        Log.Info($"[World] parse getUserGameInfo response item[{item.Key}] : {item.Value} ({item.Value.GetType()})");
-                    }
-                    if (userGameInfoDict.TryGetValue("progressLevelID", out var value))
-                    {
-                        int progressLevelID = Convert.ToInt32(value);
                         GameData.SetProgressLevelID(progressLevelID);
+                        Log.Info($"[World] GetUserGameInfo success: progressLevelID = {progressLevelID}");
+                    }
+                    else
+                    {
+                        Log.Warning("[World] GetUserGameInfo success, but progressLevelID is 0, new user");
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    Log.Error("[World] parse userGameInfo error: " + e.ToString());
+                    Log.Error($"[World] GetUserGameInfo failed: {response.ErrorMessage}");
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[World] GetUserGameInfo exception: {e}");
             }
         }
 
-        public void SetUserGameInfo(int progressLevelID, string nickName = "", string avatarUrl = "")
+        public async void SetUserGameInfo(int progressLevelID, string nickName = "", string avatarUrl = "")
         {
             Log.Info($"[World] SetUserGameInfo, progressLevelID: {progressLevelID}, nickName: {nickName}, avatarUrl: {avatarUrl}");
             var paramDict = new Dictionary<string, object> 
@@ -260,19 +183,23 @@ namespace GameLogic
             };
             if (!string.IsNullOrEmpty(nickName)) paramDict.Add("nickName", nickName);
             if (!string.IsNullOrEmpty(avatarUrl)) paramDict.Add("avatarUrl", avatarUrl);
-            WX.cloud.CallFunction(new CallFunctionParam()
+            
+            try
             {
-                name = "setUserGameInfo",
-                data = paramDict,
-                success = (res) =>
+                var response = await NetManager.Call<object>("setUserGameInfoV2", paramDict);
+                if (response.IsSuccess)
                 {
-                    Log.Info("[World] call cloud function setUserGameInfo success: " + res.ToJson().ToString());
-                },
-                fail = (err) =>
-                {
-                    Log.Error("[World] call cloud function setUserGameInfo failed: " + err.ToJson().ToString());
+                    Log.Info($"[World] SetUserGameInfo success: {response.msg}");
                 }
-            });
+                else
+                {
+                    Log.Error($"[World] SetUserGameInfo failed: {response.ErrorMessage}");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[World] SetUserGameInfo exception: {e}");
+            }
 
             var kvDataList = new List<KVData>
             {
@@ -298,171 +225,68 @@ namespace GameLogic
             Log.Info("[World] GetRankList");
 
 #if UNITY_EDITOR
-            var rankList = await GetRankListFromJson(null);
-            return rankList;
+            return null;
 #endif
             try
             {
-                var tcs = new UniTaskCompletionSource<CallFunctionResult>();
-                
-                WX.cloud.CallFunction(new CallFunctionParam()
+                var response = await NetManager.Call<List<UserGameInfoData>>("getUserRankList");
+                if (response.IsSuccess && response.data != null)
                 {
-                    name = "getUserRankList",
-                    success = (res) =>
-                    {
-                        Log.Info("[World] call cloud function getUserRankList success: " + res.ToJson().ToString());
-                        tcs.TrySetResult(res);
-                    },
-                    fail = (err) =>
-                    {
-                        Log.Error("[World] call cloud function getUserRankList failed: " + err.ToJson().ToString());
-                        tcs.TrySetException(new Exception(err.ToJson().ToString()));
-                    }
-                });
-
-                var result = await tcs.Task;
-                return await GetRankListFromJson(result);
+                    return await GetRankListFromResponse(response.data);
+                }
+                else
+                {
+                    Log.Error($"[World] GetUserRankList failed: {response.ErrorMessage}");
+                    return null;
+                }
             }
             catch (Exception e)
             {
-                Log.Error("[World] GetUserRankList error: " + e.ToString());
+                Log.Error($"[World] GetUserRankList error: {e}");
                 return null;
             }
 
-            async UniTask<List<PlayerRankInfo>> GetRankListFromJson(CallFunctionResult res)
+            async UniTask<List<PlayerRankInfo>> GetRankListFromResponse(List<UserGameInfoData> userList)
             {
-/*
-{
-    "result": {
-        "code": 0,
-        "data": [
-            {
-                "_id": "073a77ac681a0c320284cee70fe9ff04",
-                "openid": "ox0H160OiHbng6giS50wOp6YZ7R4",
-                "userGameInfo": {
-                    "progressLevelID": 1,
-                    "userInfo": {
-                        "appId": "wxf55f604f65c8f87b",
-                        "openId": "ox0H160OiHbng6giS50wOp6YZ7R4"
-                    },
-                    "avatarUrl": "https://thirdwx.qlogo.cn/mmopen/vi_32/mDvEsaANsJxdrRAQgeYhTMoGdnNJKVMVqqJcJYf1SvIEwaicSiaYiaicrScGpmGMIe9jwJZIjAVz1lCg319qI1Weg5Y96IrcggZb35iagib5SnUfg/132",
-                    "nickName": "Indey"
-                },
-                "createdAt": "2025-05-06T13:18:42.514Z",
-                "updatedAt": "2025-05-14T09:50:20.234Z"
-            },
-            {
-                "_id": "2b83cb16681b842a02941e9307bb451f",
-                "openid": "ox0H168lFD1nmJ_mBG7VR1lc3QwI",
-                "userGameInfo": {},
-                "createdAt": "2025-05-07T16:02:50.522Z",
-                "updatedAt": "2025-05-07T16:02:50.522Z"
-            }
-        ],
-        "msg": "get rank list success"
-    },
-    "requestID": "587b830f-a453-4500-84ba-202c7c76fd96",
-    "errMsg": "cloud.callFunction:ok"
-}
-*/
-            string jsonString = @"
-            {
-                ""code"": 0,
-                ""data"": [
-                    {
-                        ""_id"": ""073a77ac681a0c320284cee70fe9ff04"",
-                        ""openid"": ""ox0H160OiHbng6giS50wOp6YZ7R4"",
-                        ""userGameInfo"": {
-                            ""progressLevelID"": 1,
-                            ""userInfo"": {
-                                ""appId"": ""wxf55f604f65c8f87b"",
-                                ""openId"": ""ox0H160OiHbng6giS50wOp6YZ7R4""
-                            },
-                            ""avatarUrl"": ""https://thirdwx.qlogo.cn/mmopen/vi_32/mDvEsaANsJxdrRAQgeYhTMoGdnNJKVMVqqJcJYf1SvIEwaicSiaYiaicrScGpmGMIe9jwJZIjAVz1lCg319qI1Weg5Y96IrcggZb35iagib5SnUfg/132"",
-                            ""nickName"": ""你好，世界！Hello, World! 👋
-这是一个测试文本，包含中文、英文、数字12345、标点符号！@#$%^&*()_+，以及特殊符号：★☆♥♦♣♠♤♥♦♣♠♧♨️
-还有日文：こんにちは、世界！
-韩文：안녕하세요, 세계!   玖.
-GG Bond。
-法文：Bonjour, le monde!  (=。=)
-德文：Hallo, Welt!
-俄文：Привет, мир!
-阿拉伯文：مرحبا بالعالم
-希腊文：Χαίρετε, κόσμε!
-希伯来文：שלום, עולם
-日文假名：あいうえお、かきくけこ
-希腊字母：αβγδεζηθικλμνξοπρστυφχψω
-数学符号：∑ ∫ ∏ √ ∞ ± ÷ ×
-表情符号：😀 😃 😄 😁 😆 😅 😂 😊 😇
-特殊符号：★☆♥♦♣♠♤♥♦♣♠♧♨️""
-                        },
-                        ""createdAt"": ""2025-05-06T13:18:42.514Z"",
-                        ""updatedAt"": ""2025-05-14T09:50:20.234Z""
-                    },
-                    {
-                        ""_id"": ""2b83cb16681b842a02941e9307bb451f"",
-                        ""openid"": ""ox0H168lFD1nmJ_mBG7VR1lc3QwI"",
-                        ""userGameInfo"": {},
-                        ""createdAt"": ""2025-05-07T16:02:50.522Z"",
-                        ""updatedAt"": ""2025-05-07T16:02:50.522Z""
-                    }
-                ],
-                ""msg"": ""get rank list success""
-            }";
-            try
+                try
                 {
-                    JObject resultJson =
-#if UNITY_EDITOR
-                    JObject.Parse(jsonString);
-#else
-                    JObject.Parse(res.result);
-#endif
-                    if (resultJson.TryGetValue("code", out var code))
-                    {
-                        int codeInt = code.ToObject<int>();
-                        if (codeInt != 0)
-                        {
-                            Log.Error($"[World] parse getUserRankList response failed, code: {codeInt}");
-                            return null;
-                        }
-                    }
-
-                    if (!resultJson.TryGetValue("data", out var dataJson) || dataJson == null)
-                    {
-                        Log.Error("[World] parse getUserRankList response failed, data is null");
-                        return null;
-                    }
-                    var userList = dataJson.ToObject<JArray>();
-                    Log.Info($"[World] parse getUserRankList response success, rank info count: {userList.Count}");
+                    Log.Info($"[World] GetRankListFromResponse: user count = {userList.Count}");
                     List<PlayerRankInfo> rankList = new List<PlayerRankInfo>();
-                    foreach (JObject userData in userList)
+                    
+                    foreach (var userData in userList)
                     {
-                        if (!userData.TryGetValue("userGameInfo", out var userGameInfoJson))
+                        // 直接使用新字段
+                        int progressLevelID = userData.progressLevelID ?? 0;
+                        string nickName = userData.nickName ?? "";
+                        string avatarUrl = userData.avatarUrl ?? "";
+                        
+                        if (progressLevelID <= 0 || string.IsNullOrEmpty(nickName) || string.IsNullOrEmpty(avatarUrl))
                         {
-                            Log.Error($"[World] parse getUserRankList response failed, userGameInfo is null: {userData.ToJson()}");
                             continue;
                         }
-                        var userGameInfo = userGameInfoJson.ToObject<JObject>();
-                        if (userGameInfo == null || userGameInfo.Count == 0) continue;
+                        
                         PlayerRankInfo rankInfo = new PlayerRankInfo();
-                        rankInfo.openid = userData["openid"]?.ToString() ?? "";
-                        rankInfo.progressLevelID = userGameInfo["progressLevelID"]?.Value<int>() ?? 0;
-                        rankInfo.nickName = userGameInfo["nickName"]?.ToString() ?? "";
-                        rankInfo.avatarURL = userGameInfo["avatarUrl"]?.ToString() ?? "";
+                        rankInfo.openid = userData.openid ?? "";
+                        rankInfo.progressLevelID = progressLevelID;
+                        rankInfo.nickName = nickName;
+                        rankInfo.avatarURL = avatarUrl;
+                        
                         if (!rankInfo.IsValid()) continue;
                         rankList.Add(rankInfo);
                     }
+                    
                     rankList.Sort((a, b) => b.progressLevelID.CompareTo(a.progressLevelID));
                     for (int i = 0; i < rankList.Count; i++)
                     {
                         rankList[i].playerRank = i + 1;
                     }
-                    Log.Info($"[World] parse getUserRankList response success, valid rank info count: {rankList.Count}");
+                    
+                    Log.Info($"[World] GetRankListFromResponse success, valid rank info count: {rankList.Count}");
                     return rankList;
                 }
                 catch (Exception e)
                 {
-                    Log.Error("[World] parse getUserRankList error: " + e.ToString());
+                    Log.Error($"[World] GetRankListFromResponse error: {e}");
                     return null;
                 }
             }

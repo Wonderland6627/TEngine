@@ -29,6 +29,7 @@ namespace GameLogic
 		private async void GetRankList()
 		{
 			var rankInfos = await World.Instance.GetUserRankList();
+			if (rankInfos == null) return;
 			if (gameObject == null) return;
 			for (int i = 0; i < rankInfos.Count; i++)
 			{
