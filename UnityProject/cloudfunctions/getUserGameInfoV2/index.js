@@ -23,18 +23,32 @@ exports.main = async (event, context) => {
         updatedAt: now,
       }
       let isAdd = await userGameInfos.add({ data: emptyData })
+      // 将 Date 对象转换为 ISO 字符串格式
+      const formattedEmptyData = {
+        ...emptyData,
+        createdAt: emptyData.createdAt.toISOString(),
+        updatedAt: emptyData.updatedAt.toISOString(),
+      }
       return {
         code: 0,
-        data: emptyData,
+        data: formattedEmptyData,
         msg: "no result found, created empty info",
       }
     }
 
     // 返回数据，确保使用新字段格式
     const userData = hasData.data[0]
+    
+    // 将 Date 对象转换为 ISO 字符串格式，确保 JSON 序列化正确
+    const formattedData = {
+      ...userData,
+      createdAt: userData.createdAt ? new Date(userData.createdAt).toISOString() : null,
+      updatedAt: userData.updatedAt ? new Date(userData.updatedAt).toISOString() : null,
+    }
+    
     return {
       code: 0,
-      data: userData,
+      data: formattedData,
       msg: "get user game info success",
     }
   } catch (error) {
