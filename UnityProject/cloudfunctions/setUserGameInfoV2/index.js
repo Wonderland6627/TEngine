@@ -10,11 +10,10 @@ exports.main = async (event, context) => {
     const wxContext = cloud.getWXContext()
     const OPENID = wxContext.OPENID
     const now = new Date()
-    const nowISO = now.toISOString() // 用于返回的 ISO 字符串
     
     // 构建更新数据，只使用新字段（忽略废弃的 userGameInfo 字段）
     const updateData = {
-      updatedAt: now, // 数据库存储用 Date 对象
+      updatedAt: now,
     }
     
     // 只更新传入的字段
@@ -33,7 +32,7 @@ exports.main = async (event, context) => {
     
     let hasData = await userGameInfos.where({ openid: OPENID }).get()
     if (hasData.data.length === 0) {
-      // 创建新记录，使用新字段（数据库存储用 Date 对象）
+      // 创建新记录，使用新字段
       let addData = { 
         openid: OPENID,
         progressLevelID: event.progressLevelID || 0,
@@ -44,14 +43,9 @@ exports.main = async (event, context) => {
         updatedAt: now,
       }
       let isAdd = await userGameInfos.add({ data: addData });
-      // 返回时使用 ISO 字符串格式
       return {
         code: 0,
-        data: {
-          ...addData,
-          createdAt: nowISO,
-          updatedAt: nowISO,
-        },
+        data: addData,
         msg: "no result found, add info",
       }
     }
@@ -60,19 +54,9 @@ exports.main = async (event, context) => {
     let updateResult = await userGameInfos.where({ openid: OPENID }).update({
       data: updateData,
     })
-    // updateResult 通常只包含统计信息，不包含日期字段，但为了安全起见，如果包含日期则转换
-    const formattedResult = updateResult
-    if (formattedResult && typeof formattedResult === 'object') {
-      if (formattedResult.createdAt) {
-        formattedResult.createdAt = new Date(formattedResult.createdAt).toISOString()
-      }
-      if (formattedResult.updatedAt) {
-        formattedResult.updatedAt = new Date(formattedResult.updatedAt).toISOString()
-      }
-    }
     return {
       code: 0,
-      data: formattedResult,
+      data: updateResult,
       msg: "update user game info success"
     }
   } catch (error) {
