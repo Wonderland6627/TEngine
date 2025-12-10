@@ -24,6 +24,10 @@ namespace GameLogic.Network
         {
             var tcs = new UniTaskCompletionSource<Response<T>>();
 
+            // 记录请求日志
+            string requestJson = parameters != null ? (parameters is string ? (string)parameters : parameters.ToJson()) : "null";
+            Log.Info($"[NetManager] Request: {functionName}, params: {requestJson}");
+
             WX.cloud.CallFunction(new CallFunctionParam()
             {
                 name = functionName,
@@ -35,6 +39,10 @@ namespace GameLogic.Network
                         // 自动解析响应
                         // res.result 可能是字符串或对象，统一转换为字符串再解析
                         string resultJson = res.result is string ? (string)res.result : res.result.ToJson();
+                        
+                        // 记录响应日志
+                        Log.Info($"[NetManager] Response: {functionName}, result: {resultJson}");
+                        
                         var response = Utility.Json.ToObject<Response<T>>(resultJson);
                         tcs.TrySetResult(response);
                     }
@@ -47,8 +55,9 @@ namespace GameLogic.Network
                 fail = (err) =>
                 {
                     // 网络错误处理
-                    Log.Error($"[NetManager] Call {functionName} failed: {err.ToJson()}");
-                    tcs.TrySetException(new Exception(err.ToJson()));
+                    string errorJson = err.ToJson();
+                    Log.Error($"[NetManager] Response: {functionName} failed, error: {errorJson}");
+                    tcs.TrySetException(new Exception(errorJson));
                 }
             });
 

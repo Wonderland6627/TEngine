@@ -73,6 +73,9 @@ namespace GameLogic
                     currentUserInfo.country = result.country;
                     currentUserInfo.language = result.language;
                     GameData.UserInfo = currentUserInfo;
+                    
+                    // 更新用户信息后，同步到云端 只更新昵称和头像，不更新进度
+                    NetManager.Call<object>("setUserGameInfoV2", new Dictionary<string, object> { { "nickName", result.nickName }, { "avatarUrl", result.avatarUrl } }).Forget();
                 },
                 fail = (err) =>
                 {
@@ -108,12 +111,18 @@ namespace GameLogic
                 }
                 else
                 {
-                    Log.Error($"[World] GetOpenID failed: {response.ErrorMessage}");
+                    string errorMsg = response.ErrorMessage;
+                    if (string.IsNullOrEmpty(errorMsg))
+                    {
+                        errorMsg = $"code={response.code}, msg={(string.IsNullOrEmpty(response.msg) ? "null" : response.msg)}, data={(response.data == null ? "null" : "not null")}";
+                    }
+                    Log.Error($"[World] GetOpenID failed: {errorMsg}");
                 }
             }
             catch (Exception e)
             {
                 Log.Error($"[World] GetOpenID exception: {e}");
+                Log.Error($"[World] GetOpenID exception stack: {e.StackTrace}");
             }
         }
     }
@@ -149,12 +158,12 @@ namespace GameLogic
                 // 使用 V2 版本，返回新格式数据
                 var response = await NetManager.Call<UserGameInfoData>("getUserGameInfoV2");
                 if (response.IsSuccess && response.data != null)
-                {
+            {
                     var userData = response.data;
                     // 直接使用新字段，不再使用兼容属性
                     int progressLevelID = userData.progressLevelID ?? 0;
                     if (progressLevelID > 0)
-                    {
+                        {
                         GameData.SetProgressLevelID(progressLevelID);
                         Log.Info($"[World] GetUserGameInfo success: progressLevelID = {progressLevelID}");
                     }
@@ -164,12 +173,12 @@ namespace GameLogic
                     }
                 }
                 else
-                {
+                    {
                     Log.Error($"[World] GetUserGameInfo failed: {response.ErrorMessage}");
+                    }
                 }
-            }
-            catch (Exception e)
-            {
+                catch (Exception e)
+                {
                 Log.Error($"[World] GetUserGameInfo exception: {e}");
             }
         }
@@ -199,7 +208,7 @@ namespace GameLogic
             catch (Exception e)
             {
                 Log.Error($"[World] SetUserGameInfo exception: {e}");
-            }
+                }
 
             var kvDataList = new List<KVData>
             {
@@ -235,7 +244,7 @@ namespace GameLogic
                     return await GetRankListFromResponse(response.data);
                 }
                 else
-                {
+                    {
                     Log.Error($"[World] GetUserRankList failed: {response.ErrorMessage}");
                     return null;
                 }
@@ -248,7 +257,7 @@ namespace GameLogic
 
             async UniTask<List<PlayerRankInfo>> GetRankListFromResponse(List<UserGameInfoData> userList)
             {
-                try
+            try
                 {
                     Log.Info($"[World] GetRankListFromResponse: user count = {userList.Count}");
                     List<PlayerRankInfo> rankList = new List<PlayerRankInfo>();
