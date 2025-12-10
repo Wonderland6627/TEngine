@@ -14,8 +14,6 @@ namespace GameLogic.Network
         public string nickName;
         public string avatarUrl;
         public string openId;
-        public DateTime createdAt;
-        public DateTime updatedAt;
     }
 }
 
