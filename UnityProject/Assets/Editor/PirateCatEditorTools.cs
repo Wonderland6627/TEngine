@@ -24,7 +24,7 @@ public static class PirateCatEditorTools
     private const string BackupBasePath = "CDN_Backup/MiniGame";
     
     // 云函数目录
-    private const string CloudFunctionsSourcePath = "cloudfunctions";
+    private const string CloudFunctionsSourcePath = "cloudfunctions/minigame";
     
     /// <summary>
     /// 步骤1: 更新版本号（更新所有相关配置文件）
