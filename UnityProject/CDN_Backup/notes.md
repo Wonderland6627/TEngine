@@ -23,3 +23,4 @@ CDN_Backup
 
 UOSCDN: https://uos.unity.cn/services/bd2fcdf8-2152-4e5f-b1be-3f6b950c8034/asset/bucket/cde09f24-d39c-4845-a3e3-17344f4f2894
 微信小游戏控制台: https://mp.weixin.qq.com/wxamp/home/guide?lang=zh_CN&token=28368697
+CloudBase: https://tcb.cloud.tencent.com/dev?envId=slimecloudservice-6enxmrfbc5bddc#/db/doc/model/UserGameInfos?sourceType=internal_flexdb

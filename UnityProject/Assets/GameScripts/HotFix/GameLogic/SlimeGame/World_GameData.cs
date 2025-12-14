@@ -55,6 +55,7 @@ namespace GameLogic
             WX_CreateUserInfoButton();
         }
 
+        [Obsolete("使用WX_CreateUserInfoButton直接获取WXUserInfo")]
         private void WX_GetUserInfo(string log)
         {
             Log.Info($"[World] WX.GetUserInfo: {log}");
@@ -92,8 +93,28 @@ namespace GameLogic
             {
                 Log.Info("[World] WX.CreateUserInfoButton OnTap: " + tapRes.ToJson());
                 button.Hide();
-                WX_GetUserInfo("by create user info button");
+                if (tapRes.errCode != 0) return;
+                OnGetWXUserInfo(tapRes.userInfo);
             });
+        }
+
+        private void OnGetWXUserInfo(WXUserInfo userInfo)
+        {
+            var currentUserInfo = GameData.UserInfo;
+            currentUserInfo.nickName = userInfo.nickName;
+            currentUserInfo.avatarUrl = userInfo.avatarUrl;
+            currentUserInfo.gender = userInfo.gender;
+            currentUserInfo.province = userInfo.province;
+            currentUserInfo.city = userInfo.city;
+            currentUserInfo.country = userInfo.country;
+            currentUserInfo.language = userInfo.language;
+            GameData.UserInfo = currentUserInfo;
+
+            NetManager.Call<object>("setUserGameInfoV2", new Dictionary<string, object> 
+            { 
+                { "nickName", userInfo.nickName }, 
+                { "avatarUrl", userInfo.avatarUrl } 
+            }).Forget();
         }
 
         [Obsolete("云函数可以直接调用getWXContext")]

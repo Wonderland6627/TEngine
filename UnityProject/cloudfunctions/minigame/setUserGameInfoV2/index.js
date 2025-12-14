@@ -32,10 +32,7 @@ exports.main = async (event, context) => {
     let hasData = await userGameInfos.where({ openID: OPENID }).get()
     if (hasData.data.length === 0) {
       // 创建新记录，使用新字段
-      let addData = { 
-        progressLevelID: event.progressLevelID || 0,
-        nickName: event.nickName || "",
-        avatarUrl: event.avatarUrl || "",
+      let addData = {
         openID: OPENID,
         createdAt: now,
         updatedAt: now,
