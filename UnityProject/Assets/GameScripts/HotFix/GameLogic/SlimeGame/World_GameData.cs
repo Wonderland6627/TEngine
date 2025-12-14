@@ -236,72 +236,62 @@ namespace GameLogic
 
         public async UniTask<List<PlayerRankInfo>> GetUserRankList()
         {
-            Log.Info("[World] GetRankList");
+            Log.Info("[World] GetUserRankList");
 
 #if UNITY_EDITOR
             return null;
 #endif
-            try
+            var response = await NetManager.Call<List<UserGameInfoData>>("getUserRankListV2");
+            if (response.IsSuccess && response.data != null)
             {
-                var response = await NetManager.Call<List<UserGameInfoData>>("getUserRankList");
-                if (response.IsSuccess && response.data != null)
-                {
-                    return await GetRankListFromResponse(response.data);
-                }
-                else
-                    {
-                    Log.Error($"[World] GetUserRankList failed: {response.ErrorMessage}");
-                    return null;
-                }
+                return await GetRankListFromResponse(response.data);
             }
-            catch (Exception e)
+            else
             {
-                Log.Error($"[World] GetUserRankList error: {e}");
+                Log.Error($"[World] GetUserRankList failed: {response.ErrorMessage}");
                 return null;
             }
 
             async UniTask<List<PlayerRankInfo>> GetRankListFromResponse(List<UserGameInfoData> userList)
             {
-            try
+                Log.Info($"[World] GetRankListFromResponse: user count = {userList.Count}");
+                
+                List<PlayerRankInfo> rankList = new List<PlayerRankInfo>();
+                foreach (var userData in userList)
                 {
-                    Log.Info($"[World] GetRankListFromResponse: user count = {userList.Count}");
-                    List<PlayerRankInfo> rankList = new List<PlayerRankInfo>();
+                    // 云函数已做筛选，这里只做基本验证
+                    int progressLevelID = userData.progressLevelID ?? 0;
+                    string nickName = userData.nickName ?? "";
+                    string avatarUrl = userData.avatarUrl ?? "";
+                    string openID = userData.openID ?? "";
                     
-                    foreach (var userData in userList)
+                    if (progressLevelID <= 0 || 
+                        string.IsNullOrEmpty(nickName) || 
+                        string.IsNullOrEmpty(avatarUrl) ||
+                        string.IsNullOrEmpty(openID))
                     {
-                        int progressLevelID = userData.progressLevelID ?? 0;
-                        string nickName = userData.nickName ?? "";
-                        string avatarUrl = userData.avatarUrl ?? "";
-                        
-                        if (progressLevelID <= 0 || string.IsNullOrEmpty(nickName) || string.IsNullOrEmpty(avatarUrl))
-                        {
-                            continue;
-                        }
-                        
-                        PlayerRankInfo rankInfo = new PlayerRankInfo();
-                        rankInfo.openID = userData.openID ?? "";
-                        rankInfo.progressLevelID = progressLevelID;
-                        rankInfo.nickName = nickName;
-                        rankInfo.avatarURL = avatarUrl;
-                        
-                        if (!rankInfo.IsValid()) continue;
-                        rankList.Add(rankInfo);
+                        continue;
                     }
                     
-                    rankList.Sort((a, b) => b.progressLevelID.CompareTo(a.progressLevelID));
-                    for (int i = 0; i < rankList.Count; i++)
-                    {
-                        rankList[i].playerRank = i + 1;
-                    }
+                    PlayerRankInfo rankInfo = new PlayerRankInfo();
+                    rankInfo.openID = openID;
+                    rankInfo.progressLevelID = progressLevelID;
+                    rankInfo.nickName = nickName;
+                    rankInfo.avatarUrl = avatarUrl;
                     
-                    Log.Info($"[World] GetRankListFromResponse success, valid rank info count: {rankList.Count}");
-                    return rankList;
+                    if (!rankInfo.IsValid()) continue;
+                    rankList.Add(rankInfo);
                 }
-                catch (Exception e)
+                
+                rankList.Sort((a, b) => b.progressLevelID.CompareTo(a.progressLevelID));
+                
+                for (int i = 0; i < rankList.Count; i++)
                 {
-                    Log.Error($"[World] GetRankListFromResponse error: {e}");
-                    return null;
+                    rankList[i].playerRank = i + 1;
                 }
+                
+                Log.Info($"[World] GetRankListFromResponse success, valid rank info count: {rankList.Count}");
+                return rankList;
             }
         }
 

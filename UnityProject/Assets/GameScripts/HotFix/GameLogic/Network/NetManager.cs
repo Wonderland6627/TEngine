@@ -13,11 +13,12 @@ namespace GameLogic.Network
     {
         /// <summary>
         /// 调用云函数（通用方法）
+        /// 异常时返回失败的 Response，不会抛出异常
         /// </summary>
         /// <typeparam name="T">响应数据类型</typeparam>
         /// <param name="functionName">云函数名称</param>
         /// <param name="parameters">请求参数</param>
-        /// <returns>云函数响应</returns>
+        /// <returns>云函数响应，失败时返回 code=-1 的 Response</returns>
         public static async UniTask<Response<T>> Call<T>(
             string functionName,
             object parameters = null)
@@ -48,16 +49,26 @@ namespace GameLogic.Network
                     }
                     catch (Exception e)
                     {
-                        Log.Error($"[NetManager] Parse response failed for {functionName}: {e}");
-                        tcs.TrySetException(e);
+                        var msg = $"Parse response failed for {functionName}: {e}";
+                        Log.Error($"[NetManager] {msg}");
+                        tcs.TrySetResult(new Response<T>
+                        {
+                            code = -1,
+                            msg = msg,
+                            data = default(T)
+                        });
                     }
                 },
                 fail = (err) =>
                 {
-                    // 网络错误处理
-                    string errorJson = err.ToJson();
-                    Log.Error($"[NetManager] Response: {functionName} failed, error: {errorJson}");
-                    tcs.TrySetException(new Exception(errorJson));
+                    var msg = $"Network error: {err.ToJson()}";
+                    Log.Error($"[NetManager] {msg}");
+                    tcs.TrySetResult(new Response<T>
+                    {
+                        code = -1,
+                        msg = msg,
+                        data = default(T)
+                    });
                 }
             });
 

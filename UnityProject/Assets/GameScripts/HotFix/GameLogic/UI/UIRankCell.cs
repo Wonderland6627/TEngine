@@ -10,11 +10,11 @@ namespace GameLogic
         public string openID;
         public int progressLevelID = 0;
         public string nickName;
-        public string avatarURL;
+        public string avatarUrl;
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(openID) && !string.IsNullOrEmpty(nickName) && !string.IsNullOrEmpty(avatarURL);
+            return !string.IsNullOrEmpty(openID) && !string.IsNullOrEmpty(nickName) && !string.IsNullOrEmpty(avatarUrl);
         }
 
         public bool IsSelf()
