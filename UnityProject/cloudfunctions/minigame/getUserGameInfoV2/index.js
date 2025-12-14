@@ -7,18 +7,13 @@ const userGameInfos = db.collection('UserGameInfos')
 // 云函数入口函数
 exports.main = async (event, context) => {
   try {
-    const wxContext = cloud.getWXContext()
-    const OPENID = wxContext.OPENID
+    const OPENID = cloud.getWXContext().OPENID
     const now = new Date()
-    let hasData = await userGameInfos.where({ openid: OPENID }).get()
+    let hasData = await userGameInfos.where({ openID: OPENID }).get()
     if (hasData.data.length === 0) {
       // 创建空记录，使用新字段格式
       let emptyData = {
-        openid: OPENID,
-        progressLevelID: 0,
-        nickName: "",
-        avatarUrl: "",
-        openId: OPENID,
+        openID: OPENID,
         createdAt: now,
         updatedAt: now,
       }

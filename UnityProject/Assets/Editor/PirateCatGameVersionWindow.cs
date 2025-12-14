@@ -167,11 +167,22 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(version));
         if (GUILayout.Button("复制到 CDN_Backup", GUILayout.Height(30)))
         {
-            if (EditorUtility.DisplayDialog("确认复制", 
+            if (EditorUtility.DisplayDialog("确认复制",
                 $"确定要将文件复制到备份目录吗？\n\n版本号: {version}\n" +
-                $"资源修改: {(hasResourceChanged ? "是（将复制 StreamingAssets 和 bin.txt）" : "否（只复制 bin.txt）")}", 
+                $"资源修改: {(hasResourceChanged ? "是（将复制 StreamingAssets 和 bin.txt）" : "否（只复制 bin.txt）")}",
                 "确定", "取消"))
             {
+                string backupPath = System.IO.Path.Combine("CDN_Backup", "MiniGame", version);
+                string fullPath = System.IO.Path.GetFullPath(backupPath);
+                if (System.IO.Directory.Exists(fullPath))
+                {
+                    EditorUtility.RevealInFinder(fullPath);
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("提示", $"目录不存在: {fullPath}", "确定");
+                }
+                
                 PirateCatEditorTools.CopyToBackupDirectory(version, hasResourceChanged);
             }
         }

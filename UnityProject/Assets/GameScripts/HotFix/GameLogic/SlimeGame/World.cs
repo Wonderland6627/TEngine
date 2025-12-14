@@ -28,9 +28,6 @@ namespace GameLogic
         public async UniTaskVoid AsyncInit()
         {
             GameData.GuideFinish = false;
-
-            bool hasOpenID = !string.IsNullOrEmpty(GameData.UserInfo.openId);
-            bool hasBasicInfo = !string.IsNullOrEmpty(GameData.UserInfo.nickName);
 #if UNITY_EDITOR
             InitEditor();
             await LoadConfig();
@@ -39,21 +36,19 @@ namespace GameLogic
             {
                 if (success)
                 {
-                    Log.Info($"[World] Init WX SDK success, hasOpenID: {hasOpenID}, hasBasicInfo: {hasBasicInfo}");
+                    Log.Info($"[World] Init WX SDK success");
                     await LoadConfig();
                     // bool remoteLvlsCfgGetSuccess = await LoadRemoteLevelsConfig(); //加载远端关卡配置 如果有 则使用远端覆盖本地
                     // Log.Info($"[World] LoadRemoteLevelsConfig success: {remoteLvlsCfgGetSuccess}");
-                    // 云开发环境下无需调用WX.Login，直接调用云函数即可获取openid
-                    if (!hasOpenID)
+                    FetchUserGameInfo((success) => 
                     {
-                        GetOpenID();
-                    }
-                    // 2021年后新版本必须通过用户主动触发获取用户信息，直接创建授权按钮
-                    if (!hasBasicInfo)
-                    {
-                        RequestUserInfo();
-                    }
-                    GetUserGameInfo();
+                        // 2021年后新版本必须通过用户主动触发获取用户信息，直接创建授权按钮
+                        bool hasBasicInfo = !string.IsNullOrEmpty(GameData.UserInfo.nickName);
+                        if (!hasBasicInfo)
+                        {
+                            RequestUserInfo();
+                        }
+                    });
                     InitAds();
                 }
                 else
@@ -138,7 +133,7 @@ namespace GameLogic
             {
                 if (GameData.ProgressLevelID < playingLevelId)
                 {
-                    GameData.SetProgressLevelID(playingLevelId, true);
+                    World.Instance.UpdateGameLevel(playingLevelId);
                 }
             }
 

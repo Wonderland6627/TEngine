@@ -52,10 +52,10 @@ namespace GameLogic
             Log.Info("[World] RequestUserInfo - Create user info button");
             // 2021年后，wx.getUserInfo已废弃，必须通过用户主动触发（如点击按钮）获取用户信息
             // 因此直接创建用户信息按钮，无需先检查授权状态
-            CreateUserInfoButton();
+            WX_CreateUserInfoButton();
         }
 
-        private void GetUserInfo(string log)
+        private void WX_GetUserInfo(string log)
         {
             Log.Info($"[World] WX.GetUserInfo: {log}");
             WX.GetUserInfo(new GetUserInfoOption()
@@ -84,7 +84,7 @@ namespace GameLogic
             });
         }
 
-        private void CreateUserInfoButton()
+        private void WX_CreateUserInfoButton()
         {
             Log.Info("[World] WX.CreateUserInfoButton");
             var button = WX.CreateUserInfoButton(0, 0, Screen.width, Screen.height, "zh_CN", false);
@@ -92,20 +92,21 @@ namespace GameLogic
             {
                 Log.Info("[World] WX.CreateUserInfoButton OnTap: " + tapRes.ToJson());
                 button.Hide();
-                GetUserInfo("by create user info button");
+                WX_GetUserInfo("by create user info button");
             });
         }
 
+        [Obsolete("云函数可以直接调用getWXContext")]
         private async void GetOpenID()
         {
             Log.Info("[World] GetOpenID");
             try
             {
-                var response = await NetManager.Call<WXContextData>("getUserWXContext");
+                Response<WXContextData> response = await NetManager.Call<WXContextData>("getUserWXContext");
                 if (response.IsSuccess && response.data != null)
                 {
                     var currentUserInfo = GameData.UserInfo;
-                    currentUserInfo.openId = response.data.openid;
+                    currentUserInfo.openID = response.data.openid;
                     GameData.UserInfo = currentUserInfo;
                     Log.Info($"[World] GetOpenID success: {response.data.openid}");
                 }
@@ -131,18 +132,13 @@ namespace GameLogic
     {
         public void InitEditor()
         {
-            if (string.IsNullOrEmpty(GameData.UserInfo.openId))
+            if (string.IsNullOrEmpty(GameData.UserInfo.openID))
             {
                 GameData.UserInfo = new UserInfo()
                 {
-                    openId = "test",
+                    openID = "test",
                     nickName = "EditorPlayer",
                     avatarUrl = "https://i1.hdslb.com/bfs/face/6532675fc11c0451826ab97f53a771a0d9d4ef79.jpg@150w_150h.jpg",
-                    gender = 1,
-                    province = "",
-                    city = "",
-                    country = "",
-                    language = ""
                 };
             }
         }
@@ -150,70 +146,58 @@ namespace GameLogic
 
     partial class World
     {
-        public async void GetUserGameInfo()
+        public async void FetchUserGameInfo(Action<bool> callback = null)
         {
-            Log.Info("[World] GetUserGameInfo");
             try
             {
-                // 使用 V2 版本，返回新格式数据
                 var response = await NetManager.Call<UserGameInfoData>("getUserGameInfoV2");
-                if (response.IsSuccess && response.data != null)
-            {
-                    var userData = response.data;
-                    // 直接使用新字段，不再使用兼容属性
-                    int progressLevelID = userData.progressLevelID ?? 0;
-                    if (progressLevelID > 0)
-                        {
-                        GameData.SetProgressLevelID(progressLevelID);
-                        Log.Info($"[World] GetUserGameInfo success: progressLevelID = {progressLevelID}");
-                    }
-                    else
-                    {
-                        Log.Warning("[World] GetUserGameInfo success, but progressLevelID is 0, new user");
-                    }
-                }
-                else
-                    {
-                    Log.Error($"[World] GetUserGameInfo failed: {response.ErrorMessage}");
-                    }
-                }
-                catch (Exception e)
+                if (!response.IsSuccess)
                 {
-                Log.Error($"[World] GetUserGameInfo exception: {e}");
+                    Log.Error($"[World] fetch user game info failed: {response.ErrorMessage}");
+                    callback?.Invoke(false);
+                    return;
+                }
+                var userInfo = response.data;
+                if (userInfo == null)
+                {
+                    Log.Error($"[World] fetch user game info failed, userInfo is null");
+                    callback?.Invoke(false);
+                    return;
+                }
+
+                var curUserInfo = GameData.UserInfo;
+                curUserInfo.openID = userInfo.openID;
+                curUserInfo.nickName = userInfo.nickName;
+                curUserInfo.avatarUrl = userInfo.avatarUrl;
+                GameData.UserInfo = curUserInfo;
+                GameData.SetProgressLevelID(userInfo.progressLevelID ?? 0);
+                callback?.Invoke(true);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[World] fetch user game info exception: {e}");
+                callback?.Invoke(false);
             }
         }
 
-        public async void SetUserGameInfo(int progressLevelID, string nickName = "", string avatarUrl = "")
+        public async void UpdateGameLevel(int progressLevelID)
         {
-            Log.Info($"[World] SetUserGameInfo, progressLevelID: {progressLevelID}, nickName: {nickName}, avatarUrl: {avatarUrl}");
             var paramDict = new Dictionary<string, object> 
             {
                  { "progressLevelID", progressLevelID }
             };
-            if (!string.IsNullOrEmpty(nickName)) paramDict.Add("nickName", nickName);
-            if (!string.IsNullOrEmpty(avatarUrl)) paramDict.Add("avatarUrl", avatarUrl);
-            
-            try
+            var response = await NetManager.Call<object>("setUserGameInfoV2", paramDict);
+            if (response.IsSuccess)
             {
-                var response = await NetManager.Call<object>("setUserGameInfoV2", paramDict);
-                if (response.IsSuccess)
-                {
-                    Log.Info($"[World] SetUserGameInfo success: {response.msg}");
-                }
-                else
-                {
-                    Log.Error($"[World] SetUserGameInfo failed: {response.ErrorMessage}");
-                }
+                Log.Info($"[World] SetUserGameInfo success: {response.msg}");
             }
-            catch (Exception e)
-            {
-                Log.Error($"[World] SetUserGameInfo exception: {e}");
-                }
-
             var kvDataList = new List<KVData>
             {
                 new() { key = "progressLevelID", value = progressLevelID.ToString() }
             };
+
+            var nickName = GameData.UserInfo.nickName;
+            var avatarUrl = GameData.UserInfo.avatarUrl;
             if (!string.IsNullOrEmpty(nickName)) kvDataList.Add(new KVData() { key = "nickName", value = nickName });
             if (!string.IsNullOrEmpty(avatarUrl)) kvDataList.Add(new KVData() { key = "avatarUrl", value = avatarUrl });
             WX.SetUserCloudStorage(new SetUserCloudStorageOption()
@@ -264,7 +248,6 @@ namespace GameLogic
                     
                     foreach (var userData in userList)
                     {
-                        // 直接使用新字段
                         int progressLevelID = userData.progressLevelID ?? 0;
                         string nickName = userData.nickName ?? "";
                         string avatarUrl = userData.avatarUrl ?? "";
@@ -275,7 +258,7 @@ namespace GameLogic
                         }
                         
                         PlayerRankInfo rankInfo = new PlayerRankInfo();
-                        rankInfo.openid = userData.openid ?? "";
+                        rankInfo.openID = userData.openID ?? "";
                         rankInfo.progressLevelID = progressLevelID;
                         rankInfo.nickName = nickName;
                         rankInfo.avatarURL = avatarUrl;

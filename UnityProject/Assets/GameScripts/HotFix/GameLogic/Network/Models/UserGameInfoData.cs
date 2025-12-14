@@ -9,11 +9,10 @@ namespace GameLogic.Network
     public class UserGameInfoData
     {
         public string _id;
-        public string openid;
         public int? progressLevelID;
         public string nickName;
         public string avatarUrl;
-        public string openId;
+        public string openID;
     }
 }
 

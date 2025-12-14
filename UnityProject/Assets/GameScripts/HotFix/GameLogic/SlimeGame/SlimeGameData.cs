@@ -1,3 +1,4 @@
+using System;
 using TEngine;
 
 namespace GameLogic
@@ -5,7 +6,7 @@ namespace GameLogic
     [System.Serializable]
     public class UserInfo
     {
-        public string openId;
+        public string openID;
 
         public string nickName;
         public string avatarUrl;
@@ -35,9 +36,12 @@ namespace GameLogic
                     Log.Error($"[SlimeGameData] Set user info is null.");
                     return;
                 }
+
                 _userInfo = value;
-                SaveUserInfo();
-                Log.Info($"[SlimeGameData] Update user info, Current: [{UserInfo.ToJson()}]");
+                string json = _userInfo.ToJson();
+                PlayerPrefs.SetString(User_Info_Key, json);
+                GameEvent.Send(SlimeEvent.OnUserInfoUpdate, _userInfo);
+                Log.Info($"[SlimeGameData] Update user info, Current: [{json}]");
             }
         }
 
@@ -111,27 +115,9 @@ namespace GameLogic
             UserInfo = info;
         }
 
-        protected virtual void SaveUserInfo()
+        public void SetProgressLevelID(int levelID)
         {
-            if (UserInfo == null)
-            {
-                Log.Warning($"[SlimeGameData] Save user info is null.");
-                return;
-            }
-            string json = UserInfo.ToJson();
-            PlayerPrefs.SetString(User_Info_Key, json);
-            GameEvent.Send(SlimeEvent.OnUserInfoUpdate, UserInfo);
-        }
-
-        public void SetProgressLevelID(int levelID, bool save2Cloud = false)
-        {
-            ProgressLevelID = levelID;
-            if (save2Cloud)
-            {
-                string nickName = UserInfo?.nickName ?? "";
-                string avatarUrl = UserInfo?.avatarUrl ?? "";
-                World.Instance.SetUserGameInfo(ProgressLevelID, nickName, avatarUrl);
-            }
+            ProgressLevelID = Math.Max(ProgressLevelID, levelID);
         }
     }
 

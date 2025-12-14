@@ -7,8 +7,7 @@ const userGameInfos = db.collection('UserGameInfos')
 // 云函数入口函数
 exports.main = async (event, context) => {
   try {
-    const wxContext = cloud.getWXContext()
-    const OPENID = wxContext.OPENID
+    const OPENID = cloud.getWXContext().OPENID
     const now = new Date()
     
     // 构建更新数据，只使用新字段（忽略废弃的 userGameInfo 字段）
@@ -26,19 +25,18 @@ exports.main = async (event, context) => {
     if (event.avatarUrl !== undefined) {
       updateData.avatarUrl = event.avatarUrl
     }
-    if (event.openId !== undefined) {
-      updateData.openId = event.openId
+    if (event.openID !== undefined) {
+      updateData.openID = event.openID
     }
     
-    let hasData = await userGameInfos.where({ openid: OPENID }).get()
+    let hasData = await userGameInfos.where({ openID: OPENID }).get()
     if (hasData.data.length === 0) {
       // 创建新记录，使用新字段
       let addData = { 
-        openid: OPENID,
         progressLevelID: event.progressLevelID || 0,
         nickName: event.nickName || "",
         avatarUrl: event.avatarUrl || "",
-        openId: event.openId || OPENID,
+        openID: OPENID,
         createdAt: now,
         updatedAt: now,
       }
@@ -51,7 +49,7 @@ exports.main = async (event, context) => {
     }
     
     // 更新现有记录，使用新字段
-    let updateResult = await userGameInfos.where({ openid: OPENID }).update({
+    let updateResult = await userGameInfos.where({ openID: OPENID }).update({
       data: updateData,
     })
     return {

@@ -1,26 +1,25 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
-using System.Text.RegularExpressions;
 
 namespace GameLogic
 {
     public class PlayerRankInfo
     {
         public int playerRank = -1;
-        public string openid;
+        public string openID;
         public int progressLevelID = 0;
         public string nickName;
         public string avatarURL;
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(openid) && !string.IsNullOrEmpty(nickName) && !string.IsNullOrEmpty(avatarURL);
+            return !string.IsNullOrEmpty(openID) && !string.IsNullOrEmpty(nickName) && !string.IsNullOrEmpty(avatarURL);
         }
 
         public bool IsSelf()
         {
-            return openid == World.Instance.GameData.UserInfo.openId;
+            return openID == World.Instance.GameData.UserInfo.openID;
         }
     }
 
