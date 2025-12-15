@@ -22,7 +22,7 @@ MonoBehaviour:
       m_ResAdminCode: 0
       m_ServerType: 1
       m_CleanCommitPathRes: 1
-      m_InnerResourceSourceUrl: https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/v0.1.7.3/
+      m_InnerResourceSourceUrl: https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/v0.1.7.4/
       m_ExtraResourceSourceUrl: http://127.0.0.1:8088
       m_FormalResourceSourceUrl: http://127.0.0.1:8088
     m_AtlasFolder: Assets/AssetRaw/Atlas
