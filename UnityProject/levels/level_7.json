@@ -1,0 +1,209 @@
+{
+    "levelId": 7,
+    "castles": [
+        {
+            "id": 0,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 22,
+            "position": {
+                "x": 0,
+                "y": -500
+            }
+        },
+        {
+            "id": 1,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 18,
+            "position": {
+                "x": -250,
+                "y": -300
+            }
+        },
+        {
+            "id": 2,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 18,
+            "position": {
+                "x": 250,
+                "y": -300
+            }
+        },
+        {
+            "id": 3,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": -200,
+                "y": -100
+            }
+        },
+        {
+            "id": 4,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 0,
+                "y": -100
+            }
+        },
+        {
+            "id": 5,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 200,
+                "y": -100
+            }
+        },
+        {
+            "id": 6,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": -200,
+                "y": 100
+            }
+        },
+        {
+            "id": 7,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 0,
+                "y": 100
+            }
+        },
+        {
+            "id": 8,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 200,
+                "y": 100
+            }
+        },
+        {
+            "id": 9,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 20,
+            "position": {
+                "x": -250,
+                "y": 300
+            }
+        },
+        {
+            "id": 10,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 20,
+            "position": {
+                "x": 250,
+                "y": 300
+            }
+        },
+        {
+            "id": 11,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 25,
+            "position": {
+                "x": 0,
+                "y": 500
+            }
+        }
+    ],
+    "roads": [
+        {
+            "startCastleId": 0,
+            "endCastleId": 1
+        },
+        {
+            "startCastleId": 0,
+            "endCastleId": 2
+        },
+        {
+            "startCastleId": 1,
+            "endCastleId": 3
+        },
+        {
+            "startCastleId": 2,
+            "endCastleId": 5
+        },
+        {
+            "startCastleId": 3,
+            "endCastleId": 4
+        },
+        {
+            "startCastleId": 4,
+            "endCastleId": 5
+        },
+        {
+            "startCastleId": 3,
+            "endCastleId": 6
+        },
+        {
+            "startCastleId": 4,
+            "endCastleId": 7
+        },
+        {
+            "startCastleId": 5,
+            "endCastleId": 8
+        },
+        {
+            "startCastleId": 6,
+            "endCastleId": 7
+        },
+        {
+            "startCastleId": 7,
+            "endCastleId": 8
+        },
+        {
+            "startCastleId": 6,
+            "endCastleId": 9
+        },
+        {
+            "startCastleId": 7,
+            "endCastleId": 11
+        },
+        {
+            "startCastleId": 8,
+            "endCastleId": 10
+        },
+        {
+            "startCastleId": 9,
+            "endCastleId": 11
+        },
+        {
+            "startCastleId": 10,
+            "endCastleId": 11
+        }
+    ],
+    "config": {
+        "playerSpawnInterval": 1,
+        "playerAttackInterval": 0.275,
+        "enemy_1_SpawnInterval": 1,
+        "enemy_1_AttackInterval": 0.275
+    }
+}

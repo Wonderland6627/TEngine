@@ -1,0 +1,175 @@
+{
+    "levelId": 9,
+    "castles": [
+        {
+            "id": 0,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 20,
+            "position": {
+                "x": -300,
+                "y": -400
+            }
+        },
+        {
+            "id": 1,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 15,
+            "position": {
+                "x": 300,
+                "y": -400
+            }
+        },
+        {
+            "id": 2,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 15,
+            "position": {
+                "x": -300,
+                "y": -100
+            }
+        },
+        {
+            "id": 3,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 0,
+                "y": -100
+            }
+        },
+        {
+            "id": 4,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 15,
+            "position": {
+                "x": 300,
+                "y": -100
+            }
+        },
+        {
+            "id": 5,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": -300,
+                "y": 200
+            }
+        },
+        {
+            "id": 6,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 0,
+                "y": 200
+            }
+        },
+        {
+            "id": 7,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 300,
+                "y": 200
+            }
+        },
+        {
+            "id": 8,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 18,
+            "position": {
+                "x": -300,
+                "y": 500
+            }
+        },
+        {
+            "id": 9,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 18,
+            "position": {
+                "x": 300,
+                "y": 500
+            }
+        }
+    ],
+    "roads": [
+        {
+            "startCastleId": 0,
+            "endCastleId": 2
+        },
+        {
+            "startCastleId": 1,
+            "endCastleId": 4
+        },
+        {
+            "startCastleId": 2,
+            "endCastleId": 3
+        },
+        {
+            "startCastleId": 3,
+            "endCastleId": 4
+        },
+        {
+            "startCastleId": 2,
+            "endCastleId": 5
+        },
+        {
+            "startCastleId": 3,
+            "endCastleId": 6
+        },
+        {
+            "startCastleId": 4,
+            "endCastleId": 7
+        },
+        {
+            "startCastleId": 5,
+            "endCastleId": 6
+        },
+        {
+            "startCastleId": 6,
+            "endCastleId": 7
+        },
+        {
+            "startCastleId": 5,
+            "endCastleId": 8
+        },
+        {
+            "startCastleId": 6,
+            "endCastleId": 8
+        },
+        {
+            "startCastleId": 6,
+            "endCastleId": 9
+        },
+        {
+            "startCastleId": 7,
+            "endCastleId": 9
+        }
+    ],
+    "config": {
+        "playerSpawnInterval": 1,
+        "playerAttackInterval": 0.275,
+        "enemy_1_SpawnInterval": 1,
+        "enemy_1_AttackInterval": 0.275
+    }
+}
