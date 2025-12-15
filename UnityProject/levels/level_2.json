@@ -6,10 +6,10 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 0,
-            "occupiedUnitCount": 12,
+            "occupiedUnitCount": 18,
             "position": {
-                "x": -250,
-                "y": -350
+                "x": 0,
+                "y": -450
             }
         },
         {
@@ -19,7 +19,7 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": -100,
+                "x": -150,
                 "y": -150
             }
         },
@@ -30,7 +30,7 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": 100,
+                "x": 150,
                 "y": -150
             }
         },
@@ -42,7 +42,7 @@
             "occupiedUnitCount": 0,
             "position": {
                 "x": 0,
-                "y": 100
+                "y": 150
             }
         },
         {
@@ -52,8 +52,8 @@
             "occupiedSlimeType": 1,
             "occupiedUnitCount": 8,
             "position": {
-                "x": 250,
-                "y": 350
+                "x": 0,
+                "y": 450
             }
         }
     ],

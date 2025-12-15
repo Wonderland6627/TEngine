@@ -8,30 +8,30 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 15,
             "position": {
-                "x": -300,
-                "y": -200
+                "x": 0,
+                "y": -500
             }
         },
         {
             "id": 1,
             "castleType": 0,
-            "occupiedOnStart": true,
+            "occupiedOnStart": false,
             "occupiedSlimeType": 0,
-            "occupiedUnitCount": 10,
+            "occupiedUnitCount": 0,
             "position": {
-                "x": -300,
-                "y": 200
+                "x": -200,
+                "y": -250
             }
         },
         {
             "id": 2,
             "castleType": 0,
-            "occupiedOnStart": false,
+            "occupiedOnStart": true,
             "occupiedSlimeType": 0,
-            "occupiedUnitCount": 0,
+            "occupiedUnitCount": 5,
             "position": {
-                "x": -150,
-                "y": 0
+                "x": 200,
+                "y": -250
             }
         },
         {
@@ -42,18 +42,18 @@
             "occupiedUnitCount": 0,
             "position": {
                 "x": 0,
-                "y": -200
+                "y": 0
             }
         },
         {
             "id": 4,
             "castleType": 0,
-            "occupiedOnStart": false,
-            "occupiedSlimeType": 0,
-            "occupiedUnitCount": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 10,
             "position": {
-                "x": 0,
-                "y": 200
+                "x": -200,
+                "y": 250
             }
         },
         {
@@ -61,48 +61,37 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 1,
-            "occupiedUnitCount": 10,
+            "occupiedUnitCount": 5,
             "position": {
-                "x": 300,
-                "y": -200
-            }
-        },
-        {
-            "id": 6,
-            "castleType": 0,
-            "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
-            "occupiedUnitCount": 10,
-            "position": {
-                "x": 300,
-                "y": 200
+                "x": 200,
+                "y": 250
             }
         }
     ],
     "roads": [
         {
             "startCastleId": 0,
+            "endCastleId": 1
+        },
+        {
+            "startCastleId": 0,
             "endCastleId": 2
         },
         {
             "startCastleId": 1,
-            "endCastleId": 2
+            "endCastleId": 3
         },
         {
             "startCastleId": 2,
             "endCastleId": 3
         },
         {
-            "startCastleId": 2,
+            "startCastleId": 3,
             "endCastleId": 4
         },
         {
             "startCastleId": 3,
             "endCastleId": 5
-        },
-        {
-            "startCastleId": 4,
-            "endCastleId": 6
         }
     ],
     "config": {

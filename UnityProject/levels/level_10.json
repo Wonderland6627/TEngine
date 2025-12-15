@@ -9,29 +9,29 @@
             "occupiedUnitCount": 30,
             "position": {
                 "x": 0,
-                "y": -600
+                "y": -550
             }
         },
         {
             "id": 1,
             "castleType": 0,
-            "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
-            "occupiedUnitCount": 25,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
             "position": {
                 "x": -300,
-                "y": -400
+                "y": -350
             }
         },
         {
             "id": 2,
             "castleType": 0,
-            "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
-            "occupiedUnitCount": 25,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
             "position": {
                 "x": 300,
-                "y": -400
+                "y": -350
             }
         },
         {
@@ -74,7 +74,7 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": -300,
+                "x": -250,
                 "y": 0
             }
         },
@@ -107,7 +107,7 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": 300,
+                "x": 250,
                 "y": 0
             }
         },
@@ -149,7 +149,7 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 1,
-            "occupiedUnitCount": 30,
+            "occupiedUnitCount": 22,
             "position": {
                 "x": -300,
                 "y": 400
@@ -160,7 +160,7 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 1,
-            "occupiedUnitCount": 30,
+            "occupiedUnitCount": 22,
             "position": {
                 "x": 300,
                 "y": 400
@@ -171,10 +171,10 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 1,
-            "occupiedUnitCount": 35,
+            "occupiedUnitCount": 25,
             "position": {
                 "x": 0,
-                "y": 600
+                "y": 550
             }
         }
     ],

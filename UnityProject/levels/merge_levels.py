@@ -67,10 +67,10 @@ def merge_levels_json(input_dir='.', output_file='levels.json'):
         print("Error: No valid levels to merge!")
         return
     
-    # 写入合并后的 levels.json
+    # 写入合并后的 levels.json（压缩格式，无格式化以减小文件大小）
     try:
         with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(levels, f, ensure_ascii=False, indent=4)
+            json.dump(levels, f, ensure_ascii=False, separators=(',', ':'))
         print(f"\nMerge complete! Created {output_path} with {merge_count} levels.")
     except Exception as e:
         print(f"Error: Failed to write {output_path} - {e}")

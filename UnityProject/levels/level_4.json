@@ -6,7 +6,7 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 0,
-            "occupiedUnitCount": 20,
+            "occupiedUnitCount": 22,
             "position": {
                 "x": 0,
                 "y": -500
@@ -19,7 +19,7 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": -150,
+                "x": -200,
                 "y": -300
             }
         },
@@ -30,7 +30,7 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": 150,
+                "x": 200,
                 "y": -300
             }
         },
@@ -72,10 +72,10 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 1,
-            "occupiedUnitCount": 15,
+            "occupiedUnitCount": 12,
             "position": {
                 "x": -200,
-                "y": 200
+                "y": 300
             }
         },
         {
@@ -83,21 +83,10 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 1,
-            "occupiedUnitCount": 15,
+            "occupiedUnitCount": 12,
             "position": {
                 "x": 200,
-                "y": 200
-            }
-        },
-        {
-            "id": 8,
-            "castleType": 0,
-            "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
-            "occupiedUnitCount": 18,
-            "position": {
-                "x": 0,
-                "y": 500
+                "y": 300
             }
         }
     ],
@@ -141,14 +130,6 @@
         {
             "startCastleId": 5,
             "endCastleId": 7
-        },
-        {
-            "startCastleId": 6,
-            "endCastleId": 8
-        },
-        {
-            "startCastleId": 7,
-            "endCastleId": 8
         }
     ],
     "config": {

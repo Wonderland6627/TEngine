@@ -6,10 +6,10 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 0,
-            "occupiedUnitCount": 20,
+            "occupiedUnitCount": 24,
             "position": {
-                "x": -350,
-                "y": 0
+                "x": 0,
+                "y": -550
             }
         },
         {
@@ -19,8 +19,8 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": -200,
-                "y": -300
+                "x": -250,
+                "y": -350
             }
         },
         {
@@ -30,8 +30,8 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": -100,
-                "y": -150
+                "x": 250,
+                "y": -350
             }
         },
         {
@@ -41,8 +41,8 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": -100,
-                "y": 150
+                "x": -200,
+                "y": -150
             }
         },
         {
@@ -52,19 +52,52 @@
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
             "position": {
-                "x": -200,
-                "y": 300
+                "x": 0,
+                "y": -150
             }
         },
         {
             "id": 5,
             "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 200,
+                "y": -150
+            }
+        },
+        {
+            "id": 6,
+            "castleType": 0,
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": {
+                "x": 0,
+                "y": 150
+            }
+        },
+        {
+            "id": 7,
+            "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 1,
-            "occupiedUnitCount": 15,
+            "occupiedUnitCount": 14,
             "position": {
-                "x": 350,
-                "y": 0
+                "x": -200,
+                "y": 350
+            }
+        },
+        {
+            "id": 8,
+            "castleType": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 14,
+            "position": {
+                "x": 200,
+                "y": 350
             }
         }
     ],
@@ -75,27 +108,43 @@
         },
         {
             "startCastleId": 0,
-            "endCastleId": 4
-        },
-        {
-            "startCastleId": 1,
             "endCastleId": 2
         },
         {
-            "startCastleId": 2,
+            "startCastleId": 1,
             "endCastleId": 3
+        },
+        {
+            "startCastleId": 2,
+            "endCastleId": 5
         },
         {
             "startCastleId": 3,
             "endCastleId": 4
         },
         {
-            "startCastleId": 2,
+            "startCastleId": 4,
             "endCastleId": 5
         },
         {
             "startCastleId": 3,
-            "endCastleId": 5
+            "endCastleId": 6
+        },
+        {
+            "startCastleId": 4,
+            "endCastleId": 6
+        },
+        {
+            "startCastleId": 5,
+            "endCastleId": 6
+        },
+        {
+            "startCastleId": 6,
+            "endCastleId": 7
+        },
+        {
+            "startCastleId": 6,
+            "endCastleId": 8
         }
     ],
     "config": {
