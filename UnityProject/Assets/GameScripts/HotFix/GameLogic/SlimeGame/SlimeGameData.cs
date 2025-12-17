@@ -24,6 +24,7 @@ namespace GameLogic
         private const string Guide_Finish_Key = "slime_guide_finish";
         private const string Enable_Sound_Key = "slime_enable_sound";
         private const string Enable_Vibration_Key = "slime_enable_vibration";
+        private const string Request_User_Info_Date_Key = "slime_request_userinfo_date";
 
         private UserInfo _userInfo = new();
         public UserInfo UserInfo
@@ -118,6 +119,26 @@ namespace GameLogic
         public void SetProgressLevelID(int levelID)
         {
             ProgressLevelID = Math.Max(ProgressLevelID, levelID);
+        }
+
+        /// <summary>
+        /// 是否在今天已经触发过“请求用户信息”（用于控制每天最多触发一次）
+        /// </summary>
+        public bool HasRequestedUserInfoToday()
+        {
+            string today = DateTime.Now.ToString("yyyyMMdd");
+            string last = PlayerPrefs.GetString(Request_User_Info_Date_Key, "");
+            return last == today;
+        }
+
+        /// <summary>
+        /// 标记今天已经触发过“请求用户信息”
+        /// </summary>
+        public void MarkRequestedUserInfoToday()
+        {
+            string today = DateTime.Now.ToString("yyyyMMdd");
+            PlayerPrefs.SetString(Request_User_Info_Date_Key, today);
+            Log.Info($"[SlimeGameData] MarkRequestedUserInfoToday: [{today}]");
         }
     }
 

@@ -42,12 +42,8 @@ namespace GameLogic
                     // Log.Info($"[World] LoadRemoteLevelsConfig success: {remoteLvlsCfgGetSuccess}");
                     FetchUserGameInfo((success) => 
                     {
-                        // 2021年后新版本必须通过用户主动触发获取用户信息，直接创建授权按钮
-                        bool hasBasicInfo = !string.IsNullOrEmpty(GameData.UserInfo.nickName);
-                        if (!hasBasicInfo)
-                        {
-                            RequestUserInfo();
-                        }
+                        // 2021年后新版本必须通过用户主动触发获取用户信息
+                        // 这里不在启动时自动弹授权，改为：第一关胜利后若未获取到昵称再触发（见 UIGameOverWindow）
                     });
                     InitAds();
                 }

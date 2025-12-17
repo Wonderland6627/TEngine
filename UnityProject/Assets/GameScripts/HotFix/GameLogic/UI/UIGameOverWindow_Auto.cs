@@ -30,6 +30,23 @@ namespace GameLogic
 
 			bool isWin = m_Param.IsWin();
 
+			// 胜利后检查用户信息：若未获取到昵称 则主动触发一次授权按钮
+			if (isWin)
+			{
+ 				if (World.Instance.GameData != null)
+ 				{
+ 					var userInfo = World.Instance.GameData.UserInfo;
+ 					bool hasUserName = userInfo != null && !string.IsNullOrEmpty(userInfo.nickName);
+ 					bool requestedToday = World.Instance.GameData.HasRequestedUserInfoToday();
+ 					if (!hasUserName && !requestedToday)
+ 					{
+ 						Log.Info("[UIGameOverWindow] Win but user nickname is empty, request user info (once per day)");
+ 						World.Instance.GameData.MarkRequestedUserInfoToday();
+ 						World.Instance.RequestUserInfo();
+ 					}
+ 				}
+			}
+
 			Color winColor = new Color32(0, 200, 255, 255);
 			Color defeatColor = new Color32(175, 175, 175, 255);
 
