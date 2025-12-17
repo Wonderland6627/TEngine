@@ -282,8 +282,25 @@ namespace GameLogic
                     if (!rankInfo.IsValid()) continue;
                     rankList.Add(rankInfo);
                 }
-                
-                rankList.Sort((a, b) => b.progressLevelID.CompareTo(a.progressLevelID));
+
+                // 排序：关卡等级从高到低；同一关卡等级内，把玩家自己排到最前面
+                string selfOpenId = GameData.UserInfo != null ? (GameData.UserInfo.openID ?? "") : "";
+                rankList.Sort((a, b) =>
+                {
+                    int levelCompare = b.progressLevelID.CompareTo(a.progressLevelID);
+                    if (levelCompare != 0) return levelCompare;
+
+                    if (!string.IsNullOrEmpty(selfOpenId))
+                    {
+                        bool aIsSelf = a != null && a.openID == selfOpenId;
+                        bool bIsSelf = b != null && b.openID == selfOpenId;
+                        if (aIsSelf != bIsSelf) return aIsSelf ? -1 : 1;
+                    }
+
+                    string aId = a != null ? (a.openID ?? "") : "";
+                    string bId = b != null ? (b.openID ?? "") : "";
+                    return string.CompareOrdinal(aId, bId);
+                });
                 
                 for (int i = 0; i < rankList.Count; i++)
                 {
