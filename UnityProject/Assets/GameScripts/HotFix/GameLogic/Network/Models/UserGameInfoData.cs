@@ -8,11 +8,11 @@ namespace GameLogic.Network
     [Serializable]
     public class UserGameInfoData
     {
-        public string _id;
-        public int? progressLevelID;
-        public string nickName;
-        public string avatarUrl;
-        public string openID;
+        public string _id = "";
+        public int progressLevelID = 0;
+        public string nickName = "";
+        public string avatarUrl = "";
+        public string openID = "";
     }
 }
 
