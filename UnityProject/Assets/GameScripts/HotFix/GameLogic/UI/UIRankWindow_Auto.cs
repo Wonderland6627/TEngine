@@ -9,6 +9,8 @@ namespace GameLogic
 	partial class UIRankWindow : UIWindow
 	{
 		private List<UIWidget> childCells = new();
+		private List<PlayerRankInfo> m_LastRankInfos = null;
+		private bool m_IsRefreshing = false;
 
 		protected override void OnCreate()
 		{
@@ -26,16 +28,76 @@ namespace GameLogic
 			};
         }
 
+		/// <summary>
+		/// 是否在拉取到的排行榜名单中
+		/// </summary>
+		public bool CheckSelfInRankList(List<PlayerRankInfo> rankInfos)
+		{
+			if (rankInfos == null || rankInfos.Count == 0)
+			{
+				Log.Info("[UIRankWindow] CheckSelfInRankList: rankInfos is empty");
+				return false;
+			}
+
+			string selfOpenId = World.Instance.GameData.UserInfo;
+			if (string.IsNullOrEmpty(selfOpenId))
+			{
+				Log.Warning("[UIRankWindow] CheckSelfInRankList: selfOpenId is empty");
+				return false;
+			}
+
+			return rankInfos.Any(info => info.openID == selfOpenId);
+		}
+
+		/// <summary>
+		/// 调用请求用户信息（用于补齐昵称/头像，避免自己无法进入排行榜）
+		/// </summary>
+		public void CallRequestUserInfo()
+		{
+			World.Instance.RequestUserInfo();
+		}
+
+		/// <summary>
+		/// 刷新排行榜：重新拉取并重建列表
+		/// </summary>
+		public void RefreshRankList()
+		{
+			GetRankList();
+		}
+
 		private async void GetRankList()
 		{
-			var rankInfos = await World.Instance.GetUserRankList();
-			if (rankInfos == null) return;
-			if (gameObject == null) return;
-			for (int i = 0; i < rankInfos.Count; i++)
+			if (m_IsRefreshing) return;
+			m_IsRefreshing = true;
+			try
 			{
-				UIRankCell rankCell = CreateWidgetByPrefab<UIRankCell>(m_itemPlayerRankCell, m_rectRankContent);
-				rankCell.SetData(rankInfos[i]);
-				childCells.Add(rankCell);
+				if (World.Instance == null)
+				{
+					Log.Warning("[UIRankWindow] GetRankList: World is null");
+					return;
+				}
+
+				for (int i = 0; i < childCells.Count; i++)
+				{
+					childCells[i]?.Destroy();
+				}
+				childCells.Clear();
+
+				var rankInfos = await World.Instance.GetUserRankList();
+				m_LastRankInfos = rankInfos;
+				if (rankInfos == null) return;
+				if (gameObject == null) return;
+
+				for (int i = 0; i < rankInfos.Count; i++)
+				{
+					UIRankCell rankCell = CreateWidgetByPrefab<UIRankCell>(m_itemPlayerRankCell, m_rectRankContent);
+					rankCell.SetData(rankInfos[i]);
+					childCells.Add(rankCell);
+				}
+			}
+			finally
+			{
+				m_IsRefreshing = false;
 			}
 		}
 	}
