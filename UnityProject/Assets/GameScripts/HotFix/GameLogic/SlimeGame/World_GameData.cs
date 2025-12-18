@@ -234,6 +234,11 @@ namespace GameLogic
             WX.GetOpenDataContext().PostMessage(msgData.ToJson());
         }
 
+        // 排行榜查询缓存：每1分钟只真正查询一次
+        private List<PlayerRankInfo> m_CachedRankList = null;
+        private float m_RankListCacheTime = 0f;
+        private const float RANK_LIST_CACHE_DURATION = 60f;
+
         public async UniTask<List<PlayerRankInfo>> GetUserRankList()
         {
             Log.Info("[World] GetUserRankList");
@@ -241,15 +246,26 @@ namespace GameLogic
 #if UNITY_EDITOR
             return null;
 #endif
+            float currentTime = Time.realtimeSinceStartup;
+            if (m_CachedRankList != null && (currentTime - m_RankListCacheTime) < RANK_LIST_CACHE_DURATION)
+            {
+                Log.Info($"[World] GetUserRankList: return cached data, cache age: {currentTime - m_RankListCacheTime:F1}s");
+                return m_CachedRankList;
+            }
+
             var response = await NetManager.Call<List<UserGameInfoData>>("getUserRankListV2");
             if (response.IsSuccess && response.data != null)
             {
-                return await GetRankListFromResponse(response.data);
+                var rankList = await GetRankListFromResponse(response.data);
+                m_CachedRankList = rankList;
+                m_RankListCacheTime = currentTime;
+                Log.Info($"[World] GetUserRankList: cache updated");
+                return rankList;
             }
             else
             {
                 Log.Error($"[World] GetUserRankList failed: {response.ErrorMessage}");
-                return null;
+                return m_CachedRankList;
             }
 
             async UniTask<List<PlayerRankInfo>> GetRankListFromResponse(List<UserGameInfoData> userList)
