@@ -191,7 +191,7 @@ namespace GameLogic
                 curUserInfo.nickName = userInfo.nickName;
                 curUserInfo.avatarUrl = userInfo.avatarUrl;
                 GameData.UserInfo = curUserInfo;
-                GameData.SetProgressLevelID(userInfo.progressLevelID ?? 0);
+                GameData.SetProgressLevelID(userInfo.progressLevelID);
                 callback?.Invoke(true);
             }
             catch (Exception e)
@@ -276,7 +276,7 @@ namespace GameLogic
                 foreach (var userData in userList)
                 {
                     // 云函数已做筛选，这里只做基本验证
-                    int progressLevelID = userData.progressLevelID ?? 0;
+                    int progressLevelID = userData.progressLevelID;
                     string nickName = userData.nickName ?? "";
                     string avatarUrl = userData.avatarUrl ?? "";
                     string openID = userData.openID ?? "";

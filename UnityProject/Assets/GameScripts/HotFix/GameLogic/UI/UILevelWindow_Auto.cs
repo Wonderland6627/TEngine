@@ -74,8 +74,7 @@ namespace GameLogic
 
 			int progressLevelID = World.Instance.GameData.ProgressLevelID;
 			bool isLocked = previewLevelId > progressLevelID + 1;
-			m_btnStart.interactable = !isLocked;
-			EventTriggerListener.Get(m_btnStart).enabled = !isLocked;
+			EventTriggerListener.Get(m_btnStart).SetInteractable(!isLocked);
 			m_imgLevelPreview.color = isLocked? Color.black : Color.white;
 			m_imgLevelLock.gameObject.SetActive(isLocked);
 			m_textLevel.text = $"第 {previewLevelId} 关" + (isLocked ? " 未解锁" : "");

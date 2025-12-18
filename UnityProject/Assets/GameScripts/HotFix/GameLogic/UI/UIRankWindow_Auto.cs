@@ -2,20 +2,24 @@ using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GameLogic
 {
 	[Window(UILayer.UI, fullScreen: true)]
 	partial class UIRankWindow : UIWindow
 	{
+		private UIRankCell myRankCell;
 		private List<UIWidget> childCells = new();
-		private List<PlayerRankInfo> m_LastRankInfos = null;
-		private bool m_IsRefreshing = false;
+		private List<PlayerRankInfo> rankInfos = null;
+		private bool isRefreshing = false;
 
 		protected override void OnCreate()
 		{
 			base.OnCreate();
 
+			myRankCell = CreateWidget<UIRankCell>(m_itemPlayerRankMine, false);
+			RefreshMyRankCell();
 			GetRankList();
 			EventTriggerListener.Get(m_btnFriendsRank.gameObject).OnClick = go =>
             {
@@ -28,25 +32,15 @@ namespace GameLogic
 			};
         }
 
-		/// <summary>
-		/// 是否在拉取到的排行榜名单中
-		/// </summary>
-		public bool CheckSelfInRankList(List<PlayerRankInfo> rankInfos)
+		public PlayerRankInfo GetMyRankInfo()
 		{
 			if (rankInfos == null || rankInfos.Count == 0)
 			{
-				Log.Info("[UIRankWindow] CheckSelfInRankList: rankInfos is empty");
-				return false;
+				Log.Warning("[UIRankWindow] GetMyRankInfo: rankInfos is empty");
+				return null;
 			}
 
-			string selfOpenId = World.Instance.GameData.UserInfo;
-			if (string.IsNullOrEmpty(selfOpenId))
-			{
-				Log.Warning("[UIRankWindow] CheckSelfInRankList: selfOpenId is empty");
-				return false;
-			}
-
-			return rankInfos.Any(info => info.openID == selfOpenId);
+			return rankInfos.FirstOrDefault(info => info.IsSelf());
 		}
 
 		/// <summary>
@@ -67,8 +61,8 @@ namespace GameLogic
 
 		private async void GetRankList()
 		{
-			if (m_IsRefreshing) return;
-			m_IsRefreshing = true;
+			if (isRefreshing) return;
+			isRefreshing = true;
 			try
 			{
 				if (World.Instance == null)
@@ -84,7 +78,7 @@ namespace GameLogic
 				childCells.Clear();
 
 				var rankInfos = await World.Instance.GetUserRankList();
-				m_LastRankInfos = rankInfos;
+				this.rankInfos = rankInfos;
 				if (rankInfos == null) return;
 				if (gameObject == null) return;
 
@@ -94,13 +88,32 @@ namespace GameLogic
 					rankCell.SetData(rankInfos[i]);
 					childCells.Add(rankCell);
 				}
+
+				RefreshMyRankCell();
 			}
 			finally
 			{
-				m_IsRefreshing = false;
+				isRefreshing = false;
 			}
 		}
+
+		private void RefreshMyRankCell()
+		{
+			PlayerRankInfo info = GetMyRankInfo();
+			if (info == null) 
+			{
+				info = new PlayerRankInfo();
+				info.playerRank = -1;
+				info.progressLevelID = World.Instance.GameData.ProgressLevelID;
+				info.openID = World.Instance.GameData.UserInfo.openID;
+				info.nickName = World.Instance.GameData.UserInfo.nickName;
+				info.avatarUrl = World.Instance.GameData.UserInfo.avatarUrl;
+			}
+			myRankCell.SetData(info);
+			myRankCell.Visible = true;
+		}
 	}
+	
 
 	partial class UIRankWindow
 	{
@@ -114,6 +127,7 @@ namespace GameLogic
 		private Button m_btnFriendsRank;
 		private GameObject m_itemFriendsRankPanel;
 		private RectTransform m_rectRankContent;
+		private GameObject m_itemPlayerRankMine;
 		protected override void ScriptGenerator()
 		{
 			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
@@ -125,6 +139,7 @@ namespace GameLogic
 			m_btnFriendsRank = FindChildComponent<Button>("Content/m_imgRankListContent/m_btnFriendsRank");
 			m_itemFriendsRankPanel = FindChild("Content/m_imgRankListContent/m_itemFriendsRankPanel").gameObject;
 			m_rectRankContent = FindChildComponent<RectTransform>("Content/m_imgRankListContent/Scroll View/Viewport/m_rectRankContent");
+			m_itemPlayerRankMine = FindChild("Content/m_imgRankListContent/m_itemPlayerRankMine").gameObject;
 		}
 		#endregion
 	}

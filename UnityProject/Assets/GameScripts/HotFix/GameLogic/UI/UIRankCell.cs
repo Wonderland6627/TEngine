@@ -28,7 +28,9 @@ namespace GameLogic
         public void SetData(PlayerRankInfo data)
         {
             m_textPlayerName.font = FontGetter.defaultFont;
-            m_textPlayerRank.text = data.playerRank.ToString();
+
+            string rankStr = data.playerRank == -1 ? "--" : data.playerRank.ToString();
+            m_textPlayerRank.text = rankStr;
             m_textPlayerLevel.text = data.progressLevelID.ToString();
 
             string nickName = data.nickName;
@@ -40,6 +42,10 @@ namespace GameLogic
             //     nickName = "Player";
             //     Log.Warning($"[UIRankCell] nickName is unable to show, nickName = {data.nickName}");
             // }
+            if (string.IsNullOrEmpty(nickName))
+            {
+                nickName = "无名氏";
+            }
             if (data.IsSelf())
             {
                 nickName += " (我)";

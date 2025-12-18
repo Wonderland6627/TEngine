@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace TEngine
 {
@@ -49,6 +50,16 @@ namespace TEngine
 			if (listener == null)
 				listener = go.AddComponent<EventTriggerListener>();
 			return listener;
+		}
+
+		public void SetInteractable(bool interactable)
+		{
+			Button button = GetComponent<Button>();
+			if (button != null)
+			{
+				button.interactable = interactable;
+			}
+			this.enabled = interactable;
 		}
 
 		private bool _IsValidTrigger()
