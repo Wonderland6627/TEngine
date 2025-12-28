@@ -8,21 +8,12 @@ namespace GameLogic
 	[Window(UILayer.UI, fullScreen: false)]
 	partial class UISettingsWindow : UIWindow
 	{
-		private UnityAction closeAction;
-
 		protected override void OnCreate()
 		{
 			base.OnCreate();
 
 			m_textTitle.raycastTarget = true;
 			m_textVersion.raycastTarget = true;
-			if (userDatas != null && userDatas.Length > 0)
-			{
-				if (userDatas[0] is UnityAction ca)
-				{
-					closeAction = ca;
-				}
-			}
 
 			m_togSound.isOn = World.Instance.GameData.EnableSound;
 			m_togVibration.isOn = World.Instance.GameData.EnableVibration;
@@ -64,7 +55,6 @@ namespace GameLogic
         protected override void OnDestroy()
         {
 	        World.Instance.HideBannerAd();
-			closeAction?.Invoke();
             base.OnDestroy();
         }
 	}

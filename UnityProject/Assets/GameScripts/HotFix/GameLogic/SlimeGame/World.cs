@@ -108,14 +108,14 @@ namespace GameLogic
         public void PauseGame()
         {
             isPlaying = false;
-            GameModule.Base.PauseGame();
+            BaseObject.PauseAll();
 
             Log.Info($"[World] PauseGame");
         }
 
         public void ResumeGame()
         {
-            GameModule.Base.ResumeGame();
+            BaseObject.ResumeAll();
             isPlaying = true;
 
             Log.Info($"[World] ResumeGame");

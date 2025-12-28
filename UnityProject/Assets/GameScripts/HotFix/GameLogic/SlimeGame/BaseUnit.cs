@@ -12,7 +12,7 @@ public enum UnitType: int
     Enemy_1 = 1,
 }
 
-public partial class BaseUnit : UIWidget
+public partial class BaseUnit : BaseObject
 {
     public UnitType unitType;
 
@@ -37,9 +37,9 @@ public partial class BaseUnit : UIWidget
         arrivalThreshold = 1f;
     }
 
-    protected override void OnUpdate()
+    protected override void OnGameUpdate()
     {
-        base.OnUpdate();
+        base.OnGameUpdate();
         Move2Target();
         CheckTriggered();
     }

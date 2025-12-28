@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
-using Cysharp.Threading.Tasks;
 
 namespace GameLogic
 {

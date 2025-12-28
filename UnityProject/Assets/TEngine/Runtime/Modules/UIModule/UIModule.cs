@@ -491,6 +491,9 @@ namespace TEngine
         private void OnSetWindowVisible()
         {
             bool isHideNext = false;
+            UIWindow topWindow = null;
+            
+            // 找到顶层可见窗口
             for (int i = _stack.Count - 1; i >= 0; i--)
             {
                 UIWindow window = _stack[i];
@@ -501,6 +504,10 @@ namespace TEngine
                         continue;
                     }
                     window.Visible = true;
+                    if (topWindow == null)
+                    {
+                        topWindow = window;
+                    }
                     if (window.IsPrepare && window.FullScreen)
                     {
                         isHideNext = true;
@@ -510,6 +517,14 @@ namespace TEngine
                 {
                     window.Visible = false;
                 }
+            }
+            
+            // 更新所有窗口的顶层状态
+            for (int i = 0; i < _stack.Count; i++)
+            {
+                UIWindow window = _stack[i];
+                bool isTop = (window == topWindow && !window.IsHide);
+                window.SetTopWindowState(isTop);
             }
         }
 

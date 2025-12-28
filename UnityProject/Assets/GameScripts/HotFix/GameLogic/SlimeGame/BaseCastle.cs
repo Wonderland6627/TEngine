@@ -18,7 +18,7 @@ public enum CastleType: int
 /// 1. 空塔：任何单位进来 占领数字-1；当数字为0 被单位占领
 /// 2. 被占领的塔：占领单位进来 占领数字+1；非占领单位进来 数字-1；当数字为0 被非占领单位占领
 /// </summary>
-public partial class BaseCastle : UIWidget
+public partial class BaseCastle : BaseObject
 {
     public Transform unitContainer;
     
@@ -75,9 +75,9 @@ public partial class BaseCastle : UIWidget
         UpdateCastleImage();
     }
 
-    protected override void OnUpdate()
+    protected override void OnGameUpdate()
     {
-        base.OnUpdate();
+        base.OnGameUpdate();
         SpawnUnit();
     }
 

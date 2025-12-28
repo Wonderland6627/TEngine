@@ -35,18 +35,27 @@ namespace GameLogic
 			};
             EventTriggerListener.Get(m_btnSettings).OnClick = go =>
 			{
-                World.Instance.PauseGame();
-                UnityAction closeAction = () =>
-                {
-                    World.Instance.ResumeGame();
-                };
-                GameModule.UI.ShowUIAsync<UISettingsWindow>(closeAction);
+                GameModule.UI.ShowUIAsync<UISettingsWindow>();
 			};
             EventTriggerListener.Get(m_btnRule).OnClick = go =>
             {
                 GameModule.UI.ShowUIAsync<UIRuleTipsWindow>(false);
             };
             World.Instance.ReportGameStart();
+        }
+        
+        protected override void OnTopWindowChanged(bool isTop)
+        {
+            base.OnTopWindowChanged(isTop);
+            Log.Info("[UIMainWindow] OnTopWindowChanged, isTop: " + isTop);
+            if (isTop)
+            {
+                World.Instance.ResumeGame();
+            }
+            else
+            {
+                World.Instance.PauseGame();
+            }
         }
 
         protected override void OnDestroy()

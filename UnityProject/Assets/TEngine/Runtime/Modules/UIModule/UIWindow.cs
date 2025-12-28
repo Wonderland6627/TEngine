@@ -213,6 +213,11 @@ namespace TEngine
         /// UI是否隐藏标志位。
         /// </summary>
         public bool IsHide { internal set; get; } = false;
+        
+        /// <summary>
+        /// 是否是顶层窗口。
+        /// </summary>
+        public bool IsTopWindow { private set; get; } = false;
         #endregion
 
         public void Init(string name, int layer, bool fullScreen, string assetName, bool fromResources, int hideTimeToClose)
@@ -445,6 +450,30 @@ namespace TEngine
         protected virtual void Close()
         {
             GameModule.UI.CloseUI(this.GetType());
+        }
+        
+        /// <summary>
+        /// 当窗口的顶层状态发生变化时调用
+        /// </summary>
+        /// <param name="isTop">是否是顶层窗口</param>
+        protected virtual void OnTopWindowChanged(bool isTop)
+        {
+            // 子类可以重写此方法来响应顶层状态变化
+        }
+        
+        /// <summary>
+        /// 内部方法：设置顶层窗口状态
+        /// </summary>
+        internal void SetTopWindowState(bool isTop)
+        {
+            if (IsTopWindow != isTop)
+            {
+                IsTopWindow = isTop;
+                if (IsPrepare)
+                {
+                    OnTopWindowChanged(isTop);
+                }
+            }
         }
 
         internal void CancelHideToCloseTimer()

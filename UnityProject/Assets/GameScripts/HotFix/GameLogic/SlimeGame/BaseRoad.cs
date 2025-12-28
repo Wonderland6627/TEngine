@@ -4,7 +4,7 @@ using TEngine;
 using System.Collections.Generic;
 using GameLogic;
 
-public partial class BaseRoad : UIWidget
+public partial class BaseRoad : BaseObject
 {
     public Road data;
 
@@ -17,9 +17,9 @@ public partial class BaseRoad : UIWidget
         m_imgRoad.pixelsPerUnitMultiplier = UnityEngine.Random.Range(2, 3.3f);
     }
 
-    protected override void OnUpdate()
+    protected override void OnGameUpdate()
     {
-        base.OnUpdate();
+        base.OnGameUpdate();
         CheckUnitsTriggered();
     }
 
