@@ -47,12 +47,13 @@ namespace TEngine.Editor.UI
                 strFile.Append($"namespace {nameSpace}\n");
                 strFile.Append("{\n");
                 //strFile.Append("\t[Window(UILayer.UI)]\n");
-                strFile.Append("\tpartial class " + className + "\n");
+                strFile.Append("\tpartial class " + className + ": UIWindow" + "\n");
                 strFile.Append("\t{\n");
 
                 // 脚本工具生成的代码
                 strFile.Append("\t\t#region 脚本工具生成的代码\n");
                 strFile.Append(strVar);
+                strFile.Append("\n");
                 strFile.Append("\t\tprotected override void ScriptGenerator()\n");
                 strFile.Append("\t\t{\n");
                 strFile.Append(strBind);

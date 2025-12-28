@@ -198,6 +198,7 @@ namespace TEngine.Editor.UI
                         break;
                 }
 
+                /*
                 if (componentName == "Button")
                 {
                     string varFuncName = GetBtnFuncName(varName);
@@ -228,6 +229,7 @@ namespace TEngine.Editor.UI
                     strCallback.Append($"\t\tprivate void {varFuncName}(float value)\n");
                     strCallback.Append("\t\t{\n\t\t}\n");
                 }
+                */
             }
         }
 
