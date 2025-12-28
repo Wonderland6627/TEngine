@@ -12,7 +12,7 @@ namespace GameLogic
     {
         public SlimeConfigReader<LevelConfig> levelReader { get; private set; }
         public SlimeConfigReader<UnitConfig> unitReader { get; private set; }
-        public SlimeConfigReader<RewardConfig> rewardReader { get; private set; }
+        // 锦囊系统已移除 - rewardReader
 
         private async UniTask LoadConfig()
         {
@@ -20,8 +20,7 @@ namespace GameLogic
             await levelReader.LoadLocalConfig("levels");
             unitReader = new();
             await unitReader.LoadLocalConfig("units");
-            rewardReader = new();
-            await rewardReader.LoadLocalConfig("rewards");
+            // 锦囊系统已移除 - rewardReader 配置加载
         }
 
         private async UniTask<bool> LoadRemoteLevelsConfig()

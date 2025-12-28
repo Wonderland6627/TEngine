@@ -165,19 +165,7 @@ public partial class BaseCastle : UIWidget
             GameModule.Timer.RemoveTimer(attackTimer);
             attackTimer = -1;
             occupiedTime++;
-            if (unitType == UnitType.Player)
-            {
-                if (World.Instance.playerGetMoreSlimeAfterOccupy)
-                {
-                    RewardAction action = World.Instance.activeRewardAction;
-                    if (action == null) return;
-                    int addCount = (int)action.GetEffectValue();
-                    for (int i = 0; i < addCount; i++)
-                    {
-                        SpawnUnit(null);
-                    }
-                }
-            }
+            // 锦囊系统已移除 - playerGetMoreSlimeAfterOccupy 相关逻辑
             if (curOccupiedTime > 0 && unitType == UnitType.Enemy_1) // 非空塔被敌方占领
             {
                 OnOccupiedByUnit(unitType);
@@ -202,10 +190,7 @@ public partial class BaseCastle : UIWidget
 
     private void OnOccupiedByUnit(UnitType unitType)
     {
-        if (unitType != UnitType.Player)
-        {
-            World.Instance.TryShowAdsRewardWindow();
-        }
+        // 锦囊系统已移除
     }
 
     // 直接被占领

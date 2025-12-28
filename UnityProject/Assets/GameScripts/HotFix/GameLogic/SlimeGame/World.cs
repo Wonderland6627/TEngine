@@ -24,6 +24,12 @@ namespace GameLogic
         public bool isPlaying = false;
 
         private int aiPlayerExeTimer = -1;
+        
+        // 游戏状态变量
+        public float playerSlimeMoveSpeedCoe = 1f; // 玩家史莱姆移动速度系数
+        public float enemySlimeMoveSpeedCoe = 1f; // 敌人史莱姆移动速度系数
+        public float playerSlimeSpawnSpeedCoe = 1f; // 玩家史莱姆生成速度系数
+        public float enemySlimeSpawnSpeedCoe = 1f; // 敌人史莱姆生成速度系数
 
         public async UniTaskVoid AsyncInit()
         {
@@ -89,8 +95,7 @@ namespace GameLogic
             }
             roads.Clear();
 
-            occupiedCastleTimes = 0;
-            ResetRewardAction();
+            // 锦囊系统已移除 - occupiedCastleTimes 和 ResetRewardAction
             ClearAdsState();
             
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);

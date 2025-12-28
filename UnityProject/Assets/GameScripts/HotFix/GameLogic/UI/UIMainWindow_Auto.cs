@@ -24,7 +24,6 @@ namespace GameLogic
         {
             base.OnCreate();
             LoadLevel(World.Instance.playingLevelId);
-            GameEvent.AddEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResultReceived);
             GameEvent.AddEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             if (curLevelID == 1)
             {
@@ -59,24 +58,8 @@ namespace GameLogic
             {
                 GameEvent.RemoveEventListener(SlimeEvent.OnKnownTutorial, StopTutorialTips);
             }
-            GameEvent.RemoveEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResultReceived);
             GameEvent.RemoveEventListener<GameOverParam>(SlimeEvent.OnGameOver, OnGameOver);
             base.OnDestroy();
-        }
-
-        private void OnAdsResultReceived(AdsEventParam param)
-        {
-            if (param == null)
-            {
-                Log.Info("[UIMainWindow] ads result is null");
-                return;
-            }
-
-            if (param.adsType == AdsType.Reward)
-            {
-                Log.Info($"[UIMainWindow] trigger ads result, isCompleted: {param.isCompleted}, adsType: {param.adsType}");
-                World.Instance.TriggerReward(param.isCompleted);
-            }
         }
 
         private void OnGameOver(GameOverParam param)

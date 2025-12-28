@@ -17,10 +17,13 @@ namespace GameLogic
         
         public void InitAds()
         {
+            const string BANNER_AD_UNIT_ID = "adunit-2d2f49b16256da07";
+            const string REWARDED_VIDEO_AD_UNIT_ID = "adunit-105af47a1ee46634";
+
             var windowInfo = WX.GetWindowInfo();
             _bannerAd = WX.CreateCustomAd(new WXCreateCustomAdParam()
             {
-                adUnitId = "adunit-2d2f49b16256da07",
+                adUnitId = BANNER_AD_UNIT_ID,
                 adIntervals = 30,
                 style = new CustomStyle()
                 {
@@ -31,15 +34,15 @@ namespace GameLogic
             });
             _bannerAd.OnError((res)=>
             {
-                Log.Info($"[Ads] bannerad error response: {res.errCode}, {res.errMsg}");
+                Log.Info($"[Ads] bannerAd error response: {res.errCode}, {res.errMsg}");
             });
             _bannerAd.OnLoad((loadRsp)=> {
-                Log.Info($"[Ads] bannerad loaded: {loadRsp.errMsg}");
+                Log.Info($"[Ads] bannerAd loaded: {loadRsp.errMsg}");
             });
 
             _rewardedVideoAd = WX.CreateRewardedVideoAd(new WXCreateRewardedVideoAdParam()
             {
-                adUnitId = "adunit-105af47a1ee46634",
+                adUnitId = REWARDED_VIDEO_AD_UNIT_ID,
                 multiton = false,
             });
             _rewardedVideoAd.Load(success =>

@@ -68,13 +68,6 @@ namespace GameLogic
 			{
 				childCells[i].Destroy();
 			}
-			var rewardActions = World.Instance.GetRewardActions();
-			for (int i = 0; i < rewardActions.Count; i++)
-			{
-				UIAdsRewardCell rewardCell = CreateWidgetByPrefab<UIAdsRewardCell>(m_itemRewardCell, m_rectRewardContent);
-				rewardCell.SetData(rewardActions[i]);
-				childCells.Add(rewardCell);
-			}
 		}
 
 		private bool GetIfRefreshRewardsWithAds()
