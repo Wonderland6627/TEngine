@@ -42,6 +42,7 @@ namespace GameLogic
             public bool occupiedOnStart { get; set; }
             public int occupiedSlimeType { get; set; }
             public int occupiedUnitCount { get; set; }
+            public int emptyCastleOccupyRequirement { get; set; } = -10; // 空城堡需要多少个单位数量才能被占领，默认为-10
             public Position position { get; set; }
 
             public class Position

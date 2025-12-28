@@ -107,6 +107,7 @@ namespace GameLogic
                 castle.isOccupiedOnStart = config.occupiedOnStart;
                 castle.occupiedUnitType = (UnitType)config.occupiedSlimeType;
                 castle.occupiedUnitCount = config.occupiedUnitCount;
+                castle.emptyCastleOccupyRequirement = config.emptyCastleOccupyRequirement;
                 castle.unitContainer = m_tfUnitContainer;
                 castle.transform.localPosition = new Vector2(config.position.x, config.position.y);
                 castle.transform.localScale = Vector3.one;

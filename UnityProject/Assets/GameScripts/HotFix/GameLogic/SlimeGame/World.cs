@@ -126,9 +126,14 @@ namespace GameLogic
             if (!isPlaying) return;
             if (castles.Count == 0) return;
 
-            //检查所有的castle的被占领类型是否都相同
+            // 检查：所有的castle的被占领类型是否都相同
             List<UnitType> unitTypes = castles.Select(castle => castle.occupiedUnitType).Distinct().ToList();
             if (unitTypes.Count > 1) return;
+
+            // 所有城堡都必须是被占领状态
+            bool allOccupied = castles.All(castle => castle.isOccupiedOnStart || castle.occupiedUnitCount > 0);
+            if (!allOccupied) return;
+
             UnitType winUnitType = unitTypes[0];
             if (winUnitType == UnitType.Player)
             {

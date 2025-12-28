@@ -349,6 +349,12 @@ public class LevelEditorWindow : EditorWindow
                 selectedCastle.occupiedUnitCount = EditorGUILayout.IntField("单位数量", selectedCastle.occupiedUnitCount);
                 EditorGUI.EndDisabledGroup();
                 
+                // 空城堡占领需求 - 只在开局占领为false时显示
+                if (!selectedCastle.occupiedOnStart)
+                {
+                    selectedCastle.emptyCastleOccupyRequirement = EditorGUILayout.IntField("占领需求数量", selectedCastle.emptyCastleOccupyRequirement);
+                }
+                
                 EditorGUILayout.Space(5);
                 EditorGUILayout.LabelField("位置", EditorStyles.boldLabel);
                 
@@ -524,6 +530,7 @@ public class LevelEditorWindow : EditorWindow
             occupiedOnStart = false,
             occupiedSlimeType = 0,
             occupiedUnitCount = 0,
+            emptyCastleOccupyRequirement = -10,
             position = new LevelConfig.Castle.Position
             {
                 x = 0,

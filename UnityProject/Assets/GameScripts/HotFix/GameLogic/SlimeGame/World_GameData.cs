@@ -203,6 +203,12 @@ namespace GameLogic
 
         public async void UpdateGameLevel(int progressLevelID)
         {
+            if (progressLevelID <= GameData.ProgressLevelID)
+            {
+                Log.Info($"[World] UpdateGameLevel: progressLevelID is less than or equal to current progressLevelID: {progressLevelID}");
+                return;
+            }
+
             var paramDict = new Dictionary<string, object> 
             {
                  { "progressLevelID", progressLevelID }
@@ -212,11 +218,11 @@ namespace GameLogic
             {
                 Log.Info($"[World] SetUserGameInfo success: {response.msg}");
             }
+
             var kvDataList = new List<KVData>
             {
                 new() { key = "progressLevelID", value = progressLevelID.ToString() }
             };
-
             var nickName = GameData.UserInfo.nickName;
             var avatarUrl = GameData.UserInfo.avatarUrl;
             if (!string.IsNullOrEmpty(nickName)) kvDataList.Add(new KVData() { key = "nickName", value = nickName });

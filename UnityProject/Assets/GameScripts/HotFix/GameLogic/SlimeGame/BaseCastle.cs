@@ -29,6 +29,7 @@ public partial class BaseCastle : UIWidget
     public bool isOccupied => occupiedUnitCount > 0 && occupiedTime > 0; //是否被任何单位占领
     public int occupiedTime = 0; //被占领次数
     public int occupiedUnitCount; //占领单位数量
+    public int emptyCastleOccupyRequirement = -10; //空城堡需要多少个单位数量才能被占领
 
     public Vector2 startDragPos;
     public Vector2 dragDir;
@@ -52,7 +53,7 @@ public partial class BaseCastle : UIWidget
     {
         if (!isOccupiedOnStart)
         {
-            occupiedUnitCount = -10;
+            occupiedUnitCount = emptyCastleOccupyRequirement;
         } 
         else 
         {
