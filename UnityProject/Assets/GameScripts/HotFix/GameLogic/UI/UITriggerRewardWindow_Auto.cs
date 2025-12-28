@@ -1,33 +1,11 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TEngine;
-using UnityEngine.Events;
 
 namespace GameLogic
 {
-	[Window(UILayer.UI, fullScreen: false)]
-	partial class UITriggerRewardWindow : UIWindow
-	{
-		private UnityAction closeAction;
-		
-		protected override void OnCreate()
-		{
-			base.OnCreate();
-			
-			EventTriggerListener.Get(m_imgBG.gameObject).OnClick = go =>
-			{
-				Close();
-			};
-        }
-
-        protected override void OnDestroy()
-        {
-			closeAction?.Invoke();
-            base.OnDestroy();
-        }
-	}
-	
-	partial class UITriggerRewardWindow
+	partial class UITriggerRewardWindow: UIWindow
 	{
 		#region 脚本工具生成的代码
 		private Image m_imgBG;
@@ -37,6 +15,7 @@ namespace GameLogic
 		private RectTransform m_rectEffect;
 		private Image m_imgReward;
 		private Text m_textRewardTxt;
+
 		protected override void ScriptGenerator()
 		{
 			m_imgBG = FindChildComponent<Image>("Content/m_imgBG");
