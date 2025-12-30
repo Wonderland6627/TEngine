@@ -84,6 +84,11 @@ public partial class BaseUnit : BaseObject
         target.OnTriggeredByUnit(unitType);
         Destroy();
     }
+
+    public void Disappear()
+    {
+        Destroy();
+    }
 }
 
 partial class BaseUnit

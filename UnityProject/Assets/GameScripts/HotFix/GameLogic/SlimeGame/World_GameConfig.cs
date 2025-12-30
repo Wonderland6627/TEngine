@@ -12,15 +12,41 @@ namespace GameLogic
     {
         public SlimeConfigReader<LevelConfig> levelReader { get; private set; }
         public SlimeConfigReader<UnitConfig> unitReader { get; private set; }
-        // 锦囊系统已移除 - rewardReader
+        
+        public GameConfig gameConfig { get; private set; }
 
+        // 游戏配置资源路径
+        private const string GAME_CONFIG_PATH = "Assets/AssetRaw/Configs/GameConfig.asset";
+        
         private async UniTask LoadConfig()
         {
             levelReader = new();
             await levelReader.LoadLocalConfig("levels");
             unitReader = new();
             await unitReader.LoadLocalConfig("units");
-            // 锦囊系统已移除 - rewardReader 配置加载
+            
+            await LoadGameConfig();
+        }
+        
+        // 加载游戏配置
+        private async UniTask LoadGameConfig()
+        {
+            try
+            {
+                gameConfig = await GameModule.Resource.LoadAssetAsync<GameConfig>(GAME_CONFIG_PATH);
+                if (gameConfig != null)
+                {
+                    Log.Info("[World] LoadGameConfig success");
+                }
+                else
+                {
+                    Log.Warning("[World] LoadGameConfig failed, config file not found");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[World] LoadGameConfig error: {e}");
+            }
         }
 
         private async UniTask<bool> LoadRemoteLevelsConfig()

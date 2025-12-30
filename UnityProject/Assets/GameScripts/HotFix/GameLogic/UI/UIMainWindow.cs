@@ -20,6 +20,19 @@ namespace GameLogic
         private Tweener m_TutorialTweener;
         private Coroutine m_TutorialCoroutine;
         
+        private AnimationCurve DisappearIntervalCurve
+        {
+            get
+            {
+                if (World.Instance.gameConfig == null || World.Instance.gameConfig.disappearIntervalCurve == null)
+                {
+                    return AnimationCurve.EaseInOut(0f, 0.15f, 1f, 0.02f);
+                }
+                
+                return World.Instance.gameConfig.disappearIntervalCurve;
+            }
+        }
+        
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -71,10 +84,78 @@ namespace GameLogic
             base.OnDestroy();
         }
 
-        private void OnGameOver(GameOverParam param)
+        private async void OnGameOver(GameOverParam param)
         {
             Log.Info("[UIMainWindow] trigger GameOver, winner: " + param.winUnitType);
+            
+            // 如果胜利，先执行连锁消除效果
+            if (param.IsWin())
+            {
+                await PlayWinDisappearEffect();
+            }
+            
+            // 显示游戏结束页
             GameModule.UI.ShowUIAsync<UIGameOverWindow>(param);
+        }
+
+        // 胜利时的连锁消除效果
+        private async UniTask PlayWinDisappearEffect()
+        {
+            // 收集所有道路上的单位
+            List<BaseUnit> allUnits = new List<BaseUnit>();
+            foreach (var road in World.Instance.roads)
+            {
+                if (road != null && road.Units != null)
+                {
+                    foreach (var unit in road.Units)
+                    {
+                        if (unit != null && unit.transform != null)
+                        {
+                            allUnits.Add(unit);
+                        }
+                    }
+                }
+            }
+            
+            Log.Info($"[UIMainWindow] PlayWinDisappearEffect, units count: {allUnits.Count}");
+            
+            if (allUnits.Count == 0) return;
+            
+            // 逐个调用Disappear方法，间隔时间逐渐缩短
+            for (int i = 0; i < allUnits.Count; i++)
+            {
+                var unit = allUnits[i];
+                if (unit != null && unit.transform != null)
+                {
+                    unit.Disappear();
+                    
+                    // 计算当前单位的间隔时间
+                    float interval = CalculateDisappearInterval(i, allUnits.Count);
+                    if (i < allUnits.Count - 1) // 最后一个单位不需要等待
+                    {
+                        await UniTask.WaitForSeconds(interval);
+                    }
+                }
+            }
+        }
+        
+        // 计算消失间隔时间：使用AnimationCurve曲线配置
+        private float CalculateDisappearInterval(int index, int totalCount)
+        {
+            AnimationCurve curve = DisappearIntervalCurve;
+            
+            if (totalCount <= 1) 
+            {
+                // 如果只有一个单位，使用曲线在0位置的值
+                return curve.Evaluate(0f);
+            }
+            
+            // 将索引映射到0-1的范围（0表示第一个单位，1表示最后一个单位）
+            float progress = (float)index / (totalCount - 1);
+            progress = Mathf.Clamp01(progress);
+            
+            // 通过曲线直接获取间隔时间（曲线Y轴值就是间隔时间）
+            return curve.Evaluate(progress);
         }
 
         protected override void OnUpdate()
