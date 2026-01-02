@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: -7887316023851409248}
   - component: {fileID: -7416592744228762273}
   m_Layer: 5
-  m_Name: UIMainWindow
+  m_Name: UIGameWindow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

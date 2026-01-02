@@ -19,9 +19,9 @@ namespace GameLogic
             await UniTask.WaitUntil(() => castles != null && castles.Count > 0);
             Log.Info("[World] 2 castles.Count = " + castles.Count);
 
-            UIMainWindow mainWindow = await GameModule.UI.GetUIAsyncAwait<UIMainWindow>();
-            if (mainWindow == null) return;
-            mainWindow.ShowTutorialTips();
+            UIGameWindow gameWindow = await GameModule.UI.GetUIAsyncAwait<UIGameWindow>();
+            if (gameWindow == null) return;
+            gameWindow.ShowTutorialTips();
 
             Log.Info("[World] TryStartGameGuide");
         }

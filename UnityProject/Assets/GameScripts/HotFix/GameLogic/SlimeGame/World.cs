@@ -74,7 +74,7 @@ namespace GameLogic
             playingLevelId = levelId;
             aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 5f, true);
             isPlaying = true;
-            GameModule.UI.ShowUIAsync<UIMainWindow>();
+            GameModule.UI.ShowUIAsync<UIGameWindow>();
             TryStartGameGuide();
 
             Log.Info($"[World] StartGame, levelId: {levelId}");
@@ -99,7 +99,7 @@ namespace GameLogic
             ClearAdsState();
             
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
-            GameModule.UI.CloseUI<UIMainWindow>();
+            GameModule.UI.CloseUI<UIGameWindow>();
             // GameModule.UI.ShowUIAsync<UILevelWindow>();
 
             Log.Info($"[World] EndGame");
@@ -234,7 +234,7 @@ namespace GameLogic
             {
                 return;
             }
-            var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIMainWindow>();
+            var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIGameWindow>();
             if (mainWindow == null)
             {
                 return;

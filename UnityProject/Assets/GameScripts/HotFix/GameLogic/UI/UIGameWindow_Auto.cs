@@ -5,7 +5,7 @@ using TEngine;
 
 namespace GameLogic
 {
-	partial class UIMainWindow: UIWindow
+	partial class UIGameWindow: UIWindow
 	{
 		#region 脚本工具生成的代码
 		private Image m_img_bg;

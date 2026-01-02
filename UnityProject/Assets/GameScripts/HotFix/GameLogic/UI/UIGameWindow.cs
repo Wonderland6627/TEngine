@@ -10,7 +10,7 @@ using System.Collections;
 namespace GameLogic
 {
     [Window(UILayer.UI, fullScreen: true)]
-    partial class UIMainWindow
+    partial class UIGameWindow
     {
         private int curLevelID = 0;
         private List<BaseCastle> m_Castles = new List<BaseCastle>();
