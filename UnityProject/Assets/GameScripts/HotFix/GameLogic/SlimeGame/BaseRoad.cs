@@ -11,6 +11,10 @@ public partial class BaseRoad : BaseObject
     private List<BaseUnit> m_Units = new List<BaseUnit>();
     public List<BaseUnit> Units => m_Units;
 
+    private HashSet<BaseUnit> unitsToDestroy = new HashSet<BaseUnit>();
+    
+    const float sqrTriggerDistance = 0.01f; // 0.1f * 0.1f
+
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -35,30 +39,50 @@ public partial class BaseRoad : BaseObject
 
     private void CheckUnitsTriggered()
     {
+        if (m_Units.Count < 2)
+        {
+            return;
+        }
+
+        unitsToDestroy.Clear();
         for (int i = 0; i < m_Units.Count; i++)
         {
+            BaseUnit unit1 = m_Units[i];
+            if (unit1 == null || unit1.transform == null || unitsToDestroy.Contains(unit1))
+            {
+                continue;
+            }
+            
             for (int j = i + 1; j < m_Units.Count; j++)
             {
-                BaseUnit unit1 = m_Units[i];
                 BaseUnit unit2 = m_Units[j];
-                if (unit1 == null || unit1.transform == null
-                 || unit2 == null || unit2.transform == null)
+                if (unit2 == null || unit2.transform == null || unitsToDestroy.Contains(unit2))
                 {
                     continue;
                 }
+                
                 if (unit1.unitType == unit2.unitType)
                 {
                     continue;
                 }
-                float distance = Vector2.Distance(unit1.transform.position, unit2.transform.position);
-                if (distance < 0.1f)
+                
+                Vector2 pos1 = unit1.transform.position;
+                Vector2 pos2 = unit2.transform.position;
+                float sqrDistance = (pos1 - pos2).sqrMagnitude;
+                
+                if (sqrDistance < sqrTriggerDistance)
                 {
-                    m_Units.Remove(unit1);
-                    m_Units.Remove(unit2);
-                    unit1.Destroy();
-                    unit2.Destroy();
-                }  
-            }  
+                    unitsToDestroy.Add(unit1);
+                    unitsToDestroy.Add(unit2);
+                    break; // unit1已标记销毁，跳出内层循环
+                }
+            }
+        }
+        
+        foreach (BaseUnit unit in unitsToDestroy)
+        {
+            m_Units.Remove(unit);
+            unit.Destroy();
         }
     }
 

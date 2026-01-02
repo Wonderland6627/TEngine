@@ -21,10 +21,12 @@ public partial class BaseUnit : BaseObject
     
     public BaseCastle target;
     private Vector2 moveDir;
+    private float sqrArrivalThreshold = 0f; // 平方阈值
 
     protected override void OnCreate()
     {
         base.OnCreate();
+        sqrArrivalThreshold = arrivalThreshold * arrivalThreshold;
     }
 
     protected override void OnDestroy()
@@ -34,7 +36,7 @@ public partial class BaseUnit : BaseObject
 
     public void Init() 
     {
-        arrivalThreshold = 1f;
+        sqrArrivalThreshold = arrivalThreshold * arrivalThreshold;
     }
 
     protected override void OnGameUpdate()
@@ -66,14 +68,16 @@ public partial class BaseUnit : BaseObject
 
     private void CheckTriggered()
     {
-        if (target == null)
+        if (target == null || target.transform == null)
         {
             return;
         }
 
-        //check castle
-        float distance = Vector2.Distance(transform.position, target.transform.position);
-        if (distance < arrivalThreshold)
+        Vector2 unitPos = transform.position;
+        Vector2 targetPos = target.transform.position;
+        float sqrDistance = (unitPos - targetPos).sqrMagnitude;
+        
+        if (sqrDistance < sqrArrivalThreshold)
         {
             OnTriggerTarget();
         }
@@ -87,6 +91,7 @@ public partial class BaseUnit : BaseObject
 
     public void Disappear()
     {
+        World.Instance.Vibrate();
         Destroy();
     }
 }
