@@ -250,7 +250,8 @@ namespace GameLogic
             Log.Info("[World] GetUserRankList");
 
 #if UNITY_EDITOR
-            return null;
+            var list = MockData.GetMockGameInfoData(15, true);
+            return GetRankListFromResponse(list);
 #endif
             float currentTime = Time.realtimeSinceStartup;
             if (m_CachedRankList != null && (currentTime - m_RankListCacheTime) < RANK_LIST_CACHE_DURATION)
@@ -262,7 +263,7 @@ namespace GameLogic
             var response = await NetManager.Call<List<UserGameInfoData>>("getUserRankListV2");
             if (response.IsSuccess && response.data != null)
             {
-                var rankList = await GetRankListFromResponse(response.data);
+                var rankList = GetRankListFromResponse(response.data);
                 m_CachedRankList = rankList;
                 m_RankListCacheTime = currentTime;
                 Log.Info($"[World] GetUserRankList: cache updated");
@@ -274,7 +275,7 @@ namespace GameLogic
                 return m_CachedRankList;
             }
 
-            async UniTask<List<PlayerRankInfo>> GetRankListFromResponse(List<UserGameInfoData> userList)
+            List<PlayerRankInfo> GetRankListFromResponse(List<UserGameInfoData> userList)
             {
                 Log.Info($"[World] GetRankListFromResponse: user count = {userList.Count}");
                 
