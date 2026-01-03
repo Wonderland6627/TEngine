@@ -1,0 +1,18 @@
+# AI Asset Processor Python Dependencies
+# 安装命令: pip install -r requirements.txt
+
+# 图片处理库
+Pillow>=10.0.0
+
+# 去背景库
+rembg>=2.0.50
+
+# rembg 的必需依赖（ONNX 运行时）
+onnxruntime>=1.15.0
+
+# 图像处理库（用于去水印）
+opencv-python>=4.8.0
+
+# NumPy (rembg 和 opencv 的依赖)
+numpy>=1.24.0
+
