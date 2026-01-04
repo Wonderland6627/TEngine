@@ -1,4 +1,4 @@
-# AI Asset Processor Python Dependencies
+# Image Asset Processor Python Dependencies
 # 安装命令: pip install -r requirements.txt
 
 # 图片处理库

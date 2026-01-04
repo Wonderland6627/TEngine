@@ -1,8 +1,8 @@
-# AI Asset Processor - Python Tools
+# Image Asset Processor - Python Tools
 
 ## 简介
 
-这个工具用于处理 AI 生成的图片资产，支持以下功能：
+这个工具用于处理图片资产，支持以下功能：
 
 - **缩放和裁剪**：支持中心裁剪、等比缩放、拉伸三种模式
 - **去背景**：使用 rembg 库一键去除图片背景
@@ -51,7 +51,7 @@ pip install Pillow>=10.0.0 numpy>=1.24.0 onnxruntime>=1.15.0 rembg>=2.0.50 openc
 
 ### 通过 Unity Editor 使用
 
-1. 在 Unity 中打开菜单：`PirateCat > AI Asset Processor`
+1. 在 Unity 中打开菜单：`PirateCat > 图片处理工具`
 2. 将图片拖拽到左侧拖拽区域
 3. 设置处理参数
 4. 点击 "Execute Process" 按钮

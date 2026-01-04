@@ -7,10 +7,10 @@ using System.Text;
 namespace GameLogic.Editor
 {
     /// <summary>
-    /// AI 资产处理器 - Unity Editor 窗口
-    /// 用于处理 AI 生成的图片资产（去背景/缩放/裁剪/压缩）
+    /// 图片资产处理器 - Unity Editor 窗口
+    /// 用于处理图片资产（去背景/缩放/裁剪/格式转换）
     /// </summary>
-    public class AIAssetProcessor : EditorWindow
+    public class ImageAssetProcessor : EditorWindow
     {
         private Texture2D previewTexture;
         private string inputImagePath = "";
@@ -63,10 +63,10 @@ namespace GameLogic.Editor
             Stretch        // 拉伸
         }
         
-        [MenuItem("PirateCat/AI切图处理")]
+        [MenuItem("PirateCat/图片处理工具")]
         public static void ShowWindow()
         {
-            AIAssetProcessor window = GetWindow<AIAssetProcessor>("AI Asset Processor");
+            ImageAssetProcessor window = GetWindow<ImageAssetProcessor>("Image Asset Processor");
             window.minSize = new Vector2(650, 550);
             window.Show();
         }
@@ -430,7 +430,7 @@ namespace GameLogic.Editor
             }
             
             // 执行 Python 脚本
-            UnityEngine.Debug.Log($"[AIAssetProcessor] Executing: {pythonPath} {args.ToString()}");
+            UnityEngine.Debug.Log($"[ImageAssetProcessor] Executing: {pythonPath} {args.ToString()}");
             
             // 构建完整的命令行参数，添加 -u 参数禁用输出缓冲
             string fullArgs = $"-u {args.ToString()}";
@@ -532,7 +532,7 @@ namespace GameLogic.Editor
                 isProcessing = false;
                 EditorApplication.update -= UpdateProcessProgress;
                 EditorUtility.ClearProgressBar();
-                UnityEngine.Debug.LogError($"[AIAssetProcessor] Exception: {ex.Message}");
+                UnityEngine.Debug.LogError($"[ImageAssetProcessor] Exception: {ex.Message}");
                 EditorUtility.DisplayDialog("Error", 
                     $"Failed to execute Python script:\n{ex.Message}", 
                     "OK");
@@ -707,7 +707,7 @@ namespace GameLogic.Editor
                         process.WaitForExit();
                         if (process.ExitCode == 0)
                         {
-                            UnityEngine.Debug.Log($"[AIAssetProcessor] Found Python at: {path}");
+                            UnityEngine.Debug.Log($"[ImageAssetProcessor] Found Python at: {path}");
                             return path;
                         }
                     }

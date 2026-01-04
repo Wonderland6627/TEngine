@@ -31,7 +31,7 @@ def check_package(package_name, import_name=None):
 
 def main():
     print("=" * 60)
-    print("AI Asset Processor - 依赖安装脚本")
+    print("Image Asset Processor - 依赖安装脚本")
     print("=" * 60)
     
     # 需要安装的包列表
