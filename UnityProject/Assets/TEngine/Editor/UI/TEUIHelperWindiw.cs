@@ -27,10 +27,70 @@ namespace TEngine.Editor.UI
         public Type type;
         [LabelText("命名空间")]
         public string nameSpace = "";
-        [LabelText("类名")]
+        [LabelText("类名"), OnValueChanged("OnClassNameChanged")]
         public string className;
-        [LabelText("生成位置"), FolderPath]
+        
+        [HideInInspector]
         public string savePath= "Assets/Scripts/UIScriptsAuto";
+        
+        [LabelText("生成位置"), FolderPath, OnValueChanged("OnDisplaySavePathChanged")]
+        [ShowInInspector]
+        private string DisplaySavePath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(className))
+                    return savePath;
+                return $"{savePath}/{className}";
+            }
+            set
+            {
+                // 从显示路径中提取基础路径（去掉类名部分）
+                if (string.IsNullOrEmpty(value))
+                {
+                    savePath = value;
+                    OnSavePathChange();
+                    return;
+                }
+                
+                // 如果类名为空，直接保存
+                if (string.IsNullOrEmpty(className))
+                {
+                    savePath = value;
+                    OnSavePathChange();
+                    return;
+                }
+                
+                // 检查路径是否以类名结尾，如果是则去掉类名部分
+                var normalizedValue = value.Replace("\\", "/").TrimEnd('/');
+                if (normalizedValue.EndsWith($"/{className}"))
+                {
+                    savePath = normalizedValue.Substring(0, normalizedValue.Length - className.Length - 1);
+                }
+                else
+                {
+                    // 检查最后一部分是否是类名
+                    var lastSlashIndex = normalizedValue.LastIndexOf('/');
+                    if (lastSlashIndex >= 0)
+                    {
+                        var lastPart = normalizedValue.Substring(lastSlashIndex + 1);
+                        if (lastPart == className)
+                        {
+                            savePath = normalizedValue.Substring(0, lastSlashIndex);
+                        }
+                        else
+                        {
+                            savePath = normalizedValue;
+                        }
+                    }
+                    else
+                    {
+                        savePath = normalizedValue;
+                    }
+                }
+                OnSavePathChange();
+            }
+        }
 
         [ReadOnly, LabelText("生成的脚本"),HorizontalGroup(GroupID ="BS")]
         public TextAsset buildScript;
@@ -64,6 +124,16 @@ namespace TEngine.Editor.UI
             var path = Path.GetFullPath(originPath);
             if (File.Exists(path))
                 buildScript = AssetDatabase.LoadAssetAtPath<TextAsset>(originPath);
+        }
+        
+        void OnDisplaySavePathChanged()
+        {
+            OnSavePathChange();
+        }
+        
+        void OnClassNameChanged()
+        {
+            OnSavePathChange();
         }
         [Button(SdfIconType.Trash, Name = ""), HorizontalGroup(GroupID = "BS", Width = 50)]
         void Delete()
