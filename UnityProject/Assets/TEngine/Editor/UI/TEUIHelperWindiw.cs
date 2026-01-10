@@ -27,10 +27,39 @@ namespace TEngine.Editor.UI
         public Type type;
         [LabelText("命名空间")]
         public string nameSpace = "";
-        [LabelText("类名")]
+        [LabelText("类名"), OnValueChanged("OnClassNameChanged")]
         public string className;
-        [LabelText("生成位置"), FolderPath]
+        [LabelText("生成位置"), FolderPath, OnValueChanged("OnSavePathChanged")]
         public string savePath= "Assets/Scripts/UIScriptsAuto";
+        
+        // 获取用于路径的类名（去掉Window后缀）
+        private string GetClassNameForPath()
+        {
+            if (string.IsNullOrEmpty(className))
+                return className;
+            
+            // 如果类名以"Window"结尾，则去掉这个后缀
+            if (className.EndsWith("Window"))
+            {
+                return className.Substring(0, className.Length - 6); // "Window"长度为6
+            }
+            
+            return className;
+        }
+        
+        // 真正的文件生成路径（只读，自动拼接生成位置和类名）
+        [ReadOnly, LabelText("文件生成路径")]
+        [ShowInInspector]
+        private string ActualSavePath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(className))
+                    return savePath;
+                var classNameForPath = GetClassNameForPath();
+                return $"{savePath}/{classNameForPath}";
+            }
+        }
 
         [ReadOnly, LabelText("生成的脚本"),HorizontalGroup(GroupID ="BS")]
         public TextAsset buildScript;
@@ -60,15 +89,25 @@ namespace TEngine.Editor.UI
         }
         void OnSavePathChange()
         {
-            var originPath = $"{savePath}/{className}_Auto.cs";
+            var originPath = $"{ActualSavePath}/{className}_Auto.cs";
             var path = Path.GetFullPath(originPath);
             if (File.Exists(path))
                 buildScript = AssetDatabase.LoadAssetAtPath<TextAsset>(originPath);
         }
+        
+        void OnSavePathChanged()
+        {
+            OnSavePathChange();
+        }
+        
+        void OnClassNameChanged()
+        {
+            OnSavePathChange();
+        }
         [Button(SdfIconType.Trash, Name = ""), HorizontalGroup(GroupID = "BS", Width = 50)]
         void Delete()
         {
-            AssetDatabase.DeleteAsset($"{savePath}/{className}.cs");
+            AssetDatabase.DeleteAsset($"{ActualSavePath}/{className}.cs");
             buildScript = null;
         }
         [Sirenix.OdinInspector.PropertySpace(30)]
@@ -81,7 +120,7 @@ namespace TEngine.Editor.UI
                 Debug.LogError("出错啦，请检查是否选中root为空" + root == null);
                 return;
             }
-            var originPath = $"{savePath}/{className}_Auto.cs";
+            var originPath = $"{ActualSavePath}/{className}_Auto.cs";
             var path = Path.GetFullPath(originPath);
             MakeSure(path);
             File.WriteAllText(path, str);
