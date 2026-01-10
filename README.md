@@ -90,7 +90,7 @@ https://zh.stardewvalleywiki.com/%E5%8F%B2%E8%8E%B1%E5%A7%86%EF%BC%88%E6%80%AA%E
       占领城堡后的气泡、
       占领后派出的N个士兵表情、
       被占领后逃跑的士兵表情
-- [ ] 胜利后史莱姆逐个消失、震动效果
+- [x] 胜利后史莱姆逐个消失、震动效果
 - [ ] 设计种族关系、个体差异
 - [ ] 设计多打多的逻辑
 - [ ] 设计炮塔城堡
@@ -112,6 +112,7 @@ https://zh.stardewvalleywiki.com/%E5%8F%B2%E8%8E%B1%E5%A7%86%EF%BC%88%E6%80%AA%E
  
 <summary>备忘</summary>
 v0.1.7.0 CDN操作 此版本忽略
+https://ai.feishu.cn/wiki/Q4K5wpUMNiE7fwkN4xcc1kScncg
 
 ---
 
