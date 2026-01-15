@@ -15,7 +15,6 @@ namespace GameLogic
         public SlimeGameData GameData =
 #if UNITY_EDITOR
             new EditorUserData();
-        // new WXUserData();
 #else
             new WXUserData();
 #endif
@@ -121,91 +120,62 @@ namespace GameLogic
         private async void GetOpenID()
         {
             Log.Info("[World] GetOpenID");
-            try
+            Response<WXContextData> response = await NetManager.CallHttp<WXContextData>("getUserWXContext");
+            if (response.IsSuccess && response.data != null)
             {
-                Response<WXContextData> response = await NetManager.CallHttp<WXContextData>("getUserWXContext");
-                if (response.IsSuccess && response.data != null)
-                {
-                    var currentUserInfo = GameData.UserInfo;
-                    currentUserInfo.openID = response.data.openid;
-                    GameData.UserInfo = currentUserInfo;
-                    Log.Info($"[World] GetOpenID success: {response.data.openid}");
-                }
-                else
-                {
-                    string errorMsg = response.ErrorMessage;
-                    if (string.IsNullOrEmpty(errorMsg))
-                    {
-                        errorMsg = $"code={response.code}, msg={(string.IsNullOrEmpty(response.msg) ? "null" : response.msg)}, data={(response.data == null ? "null" : "not null")}";
-                    }
-                    Log.Error($"[World] GetOpenID failed: {errorMsg}");
-                }
+                var currentUserInfo = GameData.UserInfo;
+                currentUserInfo.openID = response.data.openid;
+                GameData.UserInfo = currentUserInfo;
+                Log.Info($"[World] GetOpenID success: {response.data.openid}");
             }
-            catch (Exception e)
+            else
             {
-                Log.Error($"[World] GetOpenID exception: {e}");
-                Log.Error($"[World] GetOpenID exception stack: {e.StackTrace}");
+                string errorMsg = response.ErrorMessage;
+                if (string.IsNullOrEmpty(errorMsg))
+                {
+                    errorMsg = $"code={response.code}, msg={(string.IsNullOrEmpty(response.msg) ? "null" : response.msg)}, data={(response.data == null ? "null" : "not null")}";
+                }
+                Log.Error($"[World] GetOpenID failed: {errorMsg}");
             }
         }
     }
 
     partial class World
     {
-        public void InitEditor()
-        {
-            if (string.IsNullOrEmpty(GameData.UserInfo.openID))
-            {
-                GameData.UserInfo = new UserInfo()
-                {
-                    openID = "test",
-                    nickName = "EditorPlayer",
-                    avatarUrl = "https://i1.hdslb.com/bfs/face/6532675fc11c0451826ab97f53a771a0d9d4ef79.jpg@150w_150h.jpg",
-                };
-            }
-        }
-
         /// <summary>
         /// Editor环境登录流程：调用getCode2Session获取token
         /// </summary>
         public async UniTask<bool> LoginEditor()
         {
-            try
+            Log.Info("[World] LoginEditor: Start editor platform login");
+            
+            // 调用getCode2Session接口，platform="Editor"
+            var loginRequest = new Dictionary<string, object>
             {
-                Log.Info("[World] LoginEditor: Start editor platform login");
-                
-                // 调用getCode2Session接口，platform="Editor"
-                var loginRequest = new Dictionary<string, object>
-                {
-                    { "platform", "Editor" },
-                    { "code", "editor_test_code" }  // Editor环境下code可以是任意值
-                };
-                
-                var response = await NetManager.CallHttp<SessionData>("getCode2Session", loginRequest);
-                if (!response.IsSuccess || response.data == null)
-                {
-                    Log.Error($"[World] LoginEditor failed: {response.ErrorMessage}");
-                    return false;
-                }
-
-                // 保存token
-                NetManager.AuthToken = response.data.token;
-                Log.Info($"[World] LoginEditor success: openid={response.data.openid}, token saved");
-                
-                // 更新本地用户信息
-                if (!string.IsNullOrEmpty(response.data.openid))
-                {
-                    var currentUserInfo = GameData.UserInfo;
-                    currentUserInfo.openID = response.data.openid;
-                    GameData.UserInfo = currentUserInfo;
-                }
-                
-                return true;
-            }
-            catch (Exception e)
+                { "platform", "Editor" },
+                { "code", "editor" }  // Editor环境下code可以是任意值
+            };
+            
+            var response = await NetManager.CallHttp<SessionData>("getCode2Session", loginRequest);
+            if (!response.IsSuccess || response.data == null)
             {
-                Log.Error($"[World] LoginEditor exception: {e}");
+                Log.Error($"[World] LoginEditor failed: {response.ErrorMessage}");
                 return false;
             }
+
+            // 保存token
+            NetManager.AuthToken = response.data.token;
+            Log.Info($"[World] LoginEditor success: openid={response.data.openid}, token saved");
+            
+            // 更新本地用户信息
+            if (!string.IsNullOrEmpty(response.data.openid))
+            {
+                var currentUserInfo = GameData.UserInfo;
+                currentUserInfo.openID = response.data.openid;
+                GameData.UserInfo = currentUserInfo;
+            }
+            
+            return true;
         }
 
         /// <summary>
@@ -213,68 +183,60 @@ namespace GameLogic
         /// </summary>
         public async UniTask<bool> LoginWeChat()
         {
-            try
+            Log.Info("[World] LoginWeChat: Start wechat login");
+            
+            // 步骤1: 调用WX.Login()获取code
+            string wxCode = null;
+            var loginTcs = new UniTaskCompletionSource<string>();
+            
+            WX.Login(new LoginOption()
             {
-                Log.Info("[World] LoginWeChat: Start wechat login");
-                
-                // 步骤1: 调用WX.Login()获取code
-                string wxCode = null;
-                var loginTcs = new UniTaskCompletionSource<string>();
-                
-                WX.Login(new LoginOption()
+                success = (res) =>
                 {
-                    success = (res) =>
-                    {
-                        Log.Info($"[World] WX.Login success: code={res.code}");
-                        loginTcs.TrySetResult(res.code);
-                    },
-                    fail = (err) =>
-                    {
-                        Log.Error($"[World] WX.Login failed: {err.ToJson()}");
-                        loginTcs.TrySetResult(null);
-                    }
-                });
-                
-                wxCode = await loginTcs.Task;
-                if (string.IsNullOrEmpty(wxCode))
+                    Log.Info($"[World] WX.Login success: code={res.code}");
+                    loginTcs.TrySetResult(res.code);
+                },
+                fail = (err) =>
                 {
-                    Log.Error("[World] LoginWeChat: Failed to get wx code");
-                    return false;
+                    Log.Error($"[World] WX.Login failed: {err.ToJson()}");
+                    loginTcs.TrySetResult(null);
                 }
-
-                // 步骤2: 调用getCode2Session接口获取token
-                var loginRequest = new Dictionary<string, object>
-                {
-                    { "code", wxCode },
-                    { "platform", "wechat" }  // 可选，默认就是wechat
-                };
-                
-                var response = await NetManager.CallHttp<SessionData>("getCode2Session", loginRequest);
-                if (!response.IsSuccess || response.data == null)
-                {
-                    Log.Error($"[World] LoginWeChat: getCode2Session failed: {response.ErrorMessage}");
-                    return false;
-                }
-
-                // 步骤3: 保存token
-                NetManager.AuthToken = response.data.token;
-                Log.Info($"[World] LoginWeChat success: openid={response.data.openid}, token saved");
-                
-                // 更新本地用户信息
-                if (!string.IsNullOrEmpty(response.data.openid))
-                {
-                    var currentUserInfo = GameData.UserInfo;
-                    currentUserInfo.openID = response.data.openid;
-                    GameData.UserInfo = currentUserInfo;
-                }
-                
-                return true;
-            }
-            catch (Exception e)
+            });
+            
+            wxCode = await loginTcs.Task;
+            if (string.IsNullOrEmpty(wxCode))
             {
-                Log.Error($"[World] LoginWeChat exception: {e}");
+                Log.Error("[World] LoginWeChat: Failed to get wx code");
                 return false;
             }
+
+            // 步骤2: 调用getCode2Session接口获取token
+            var loginRequest = new Dictionary<string, object>
+            {
+                { "code", wxCode },
+                { "platform", "wechat" }  // 可选，默认就是wechat
+            };
+            
+            var response = await NetManager.CallHttp<SessionData>("getCode2Session", loginRequest);
+            if (!response.IsSuccess || response.data == null)
+            {
+                Log.Error($"[World] LoginWeChat: getCode2Session failed: {response.ErrorMessage}");
+                return false;
+            }
+
+            // 步骤3: 保存token
+            NetManager.AuthToken = response.data.token;
+            Log.Info($"[World] LoginWeChat success: openid={response.data.openid}, token saved");
+            
+            // 更新本地用户信息
+            if (!string.IsNullOrEmpty(response.data.openid))
+            {
+                var currentUserInfo = GameData.UserInfo;
+                currentUserInfo.openID = response.data.openid;
+                GameData.UserInfo = currentUserInfo;
+            }
+            
+            return true;
         }
     }
 
@@ -282,36 +244,29 @@ namespace GameLogic
     {
         public async void FetchUserGameInfo(Action<bool> callback = null)
         {
-            try
+            var response = await NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2");
+            if (!response.IsSuccess)
             {
-                var response = await NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2");
-                if (!response.IsSuccess)
-                {
-                    Log.Error($"[World] fetch user game info failed: {response.ErrorMessage}");
-                    callback?.Invoke(false);
-                    return;
-                }
-                var userInfo = response.data;
-                if (userInfo == null)
-                {
-                    Log.Error($"[World] fetch user game info failed, userInfo is null");
-                    callback?.Invoke(false);
-                    return;
-                }
-
-                var curUserInfo = GameData.UserInfo;
-                curUserInfo.openID = userInfo.openID;
-                curUserInfo.nickName = userInfo.nickName;
-                curUserInfo.avatarUrl = userInfo.avatarUrl;
-                GameData.UserInfo = curUserInfo;
-                GameData.SetProgressLevelID(userInfo.progressLevelID);
-                callback?.Invoke(true);
-            }
-            catch (Exception e)
-            {
-                Log.Error($"[World] fetch user game info exception: {e}");
+                Log.Error($"[World] fetch user game info failed: {response.ErrorMessage}");
                 callback?.Invoke(false);
+                return;
             }
+            var userInfo = response.data;
+            if (userInfo == null)
+            {
+                Log.Error($"[World] fetch user game info failed, userInfo is null");
+                callback?.Invoke(false);
+                return;
+            }
+
+            var curUserInfo = GameData.UserInfo;
+            curUserInfo.openID = userInfo.openID;
+            curUserInfo.nickName = userInfo.nickName;
+            curUserInfo.avatarUrl = userInfo.avatarUrl;
+            GameData.UserInfo = curUserInfo;
+            GameData.SetProgressLevelID(userInfo.progressLevelID);
+            callback?.Invoke(true);
+            Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
         }
 
         public async void UpdateGameLevel(int progressLevelID)
@@ -363,8 +318,8 @@ namespace GameLogic
             Log.Info("[World] GetUserRankList");
 
 #if UNITY_EDITOR
-            var list = MockData.GetMockGameInfoData(15, true);
-            return GetRankListFromResponse(list);
+            // var list = MockData.GetMockGameInfoData(15, true);
+            // return GetRankListFromResponse(list);
 #endif
             float currentTime = Time.realtimeSinceStartup;
             if (m_CachedRankList != null && (currentTime - m_RankListCacheTime) < RANK_LIST_CACHE_DURATION)

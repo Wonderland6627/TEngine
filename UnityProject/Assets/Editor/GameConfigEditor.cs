@@ -43,5 +43,11 @@ namespace GameLogic.Editor
             
             Debug.Log($"[GameConfigEditor] Created config at: {configPath}");
         }
+
+        [MenuItem("PirateCat/清理本地缓存")]
+        public static void ClearLocalCache()
+        {
+            PlayerPrefs.DeleteAll();
+        }
     }
 }

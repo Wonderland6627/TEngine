@@ -35,10 +35,9 @@ namespace GameLogic
         {
             GameData.GuideFinish = false;
 #if UNITY_EDITOR
-            InitEditor();
-            // Editor环境：执行测试模式登录
             await LoginEditor();
             await LoadConfig();
+            FetchUserGameInfo();
 #else
             InitWX(async (success) =>
             {

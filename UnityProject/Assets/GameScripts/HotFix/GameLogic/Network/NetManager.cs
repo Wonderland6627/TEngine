@@ -139,16 +139,8 @@ namespace GameLogic.Network
             string functionName,
             object parameters = null) where T : class
         {
-            try
-            {
-                var response = await Call<T>(functionName, parameters);
-                return response.IsSuccess ? response.data : null;
-            }
-            catch (Exception e)
-            {
-                Log.Error($"[NetManager] CallData {functionName} exception: {e}");
-                return null;
-            }
+            var response = await Call<T>(functionName, parameters);
+            return response.IsSuccess ? response.data : null;
         }
 
         #region HTTP接口（用于Express服务端通信）
