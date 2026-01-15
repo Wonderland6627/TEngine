@@ -88,10 +88,10 @@ Express服务端: /api/minigame/getUserGameInfoV2
 - **用户数据**：`Assets/GameScripts/HotFix/GameLogic/SlimeGame/World_GameData.cs`
 
 #### 服务端代码
-- **路由**：`d:\CustomProjects\Slime\piratecat_slime_express\routes\minigame.js`
-- **控制器**：`d:\CustomProjects\Slime\piratecat_slime_express\controllers\minigameController.js`
-- **认证服务**：`d:\CustomProjects\Slime\piratecat_slime_express\services\authService.js`
-- **认证中间件**：`d:\CustomProjects\Slime\piratecat_slime_express\middlewares\auth.js`
+- **路由**：`piratecat_slime_express/routes/minigame.js`
+- **控制器**：`piratecat_slime_express/controllers/minigameController.js`
+- **认证服务**：`piratecat_slime_express/services/authService.js`
+- **认证中间件**：`piratecat_slime_express/middlewares/auth.js`
 
 ---
 
@@ -120,25 +120,56 @@ LoadConfig()                // 加载配置
 
 **当前问题：**
 - Editor环境下调用 `getUserGameInfoV2` 时，需要token认证
-- 但Editor环境没有微信SDK，无法获取code
+- 但Editor环境没有微信SDK，无法获取真实的微信code
 
-**解决方案：使用测试模式**
+**解决方案：使用Editor平台测试模式**
 
-#### 方式1：通过测试Token（推荐）
+#### Editor平台测试模式（最新实现）
 ```
-NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2")
-  ├─ Header: x-test-token: {TEST_TOKEN}
-  ├─ Header: x-test-openid: "test_user"
+Unity Editor启动
   ↓
-Express服务端检测到测试模式
-  ├─ isTestMode(req) = true
-  ├─ authMiddleware 跳过token验证
-  └─ req.user = { openid: "test_user", platform: "test", isTestMode: true }
+World.AsyncInit()
+  ↓
+InitEditor()
+  ├─ 设置测试用户信息（本地）
+  └─ 调用服务端获取/创建用户数据
+  ↓
+【测试模式登录】
+NetManager.CallHttp<SessionData>("getCode2Session", { 
+  platform: "Editor", 
+  code: "any_code_here"  // 任意值即可
+})
+  ├─ Header: x-platform: "Editor" 或 body.platform: "Editor"
+  ↓
+Express服务端: /api/minigame/getCode2Session
+  ├─ 检测到 platform="Editor"
+  ├─ 检查 ENABLE_TEST_MODE=true（环境变量）
+  ├─ EditorAuth.code2Session(code)  // 使用测试openid
+  │   └─ openid = TEST_OPENID 或自动生成
+  ├─ generateToken()  // 生成JWT token
+  └─ 返回: { openid, token, session_key, platform: "editor" }
+  ↓
+客户端保存token
+  ├─ NetManager.AuthToken = response.data.token
+  └─ NetManager.AuthToken 自动保存到 PlayerPrefs
+  ↓
+获取用户游戏信息
+  ↓
+NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2")
+  ├─ Header: Authorization: Bearer {token}
+  ↓
+Express服务端: /api/minigame/getUserGameInfoV2
+  ├─ authMiddleware 验证token，提取openid
+  └─ userService.getUserGameInfo(openid)
+     ├─ 查询数据库
+     ├─ 如果不存在，创建空记录
+     └─ 返回用户游戏数据
+  ↓
+客户端更新本地数据
+  ├─ GameData.UserInfo.openID = userInfo.openID
+  ├─ GameData.UserInfo.nickName = userInfo.nickName
+  └─ GameData.SetProgressLevelID(userInfo.progressLevelID)
 ```
-
-#### 方式2：通过环境变量
-- 设置 `ENABLE_TEST_MODE=true`
-- 设置 `TEST_TOKEN=any` 或具体token值
 
 ### 2.3 Editor环境完整流程（应该实现）
 
@@ -148,24 +179,43 @@ Unity Editor启动
 World.AsyncInit()
   ↓
 InitEditor()
-  ├─ 设置测试用户信息（本地）
-  └─ 可选：调用服务端获取/创建用户数据
+  ├─ 设置测试用户信息（本地，可选）
+  └─ 调用服务端登录流程
   ↓
-【可选】测试模式登录
-NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2", null)
-  ├─ Header: x-test-token: {TEST_TOKEN}      // 从环境变量读取
-  ├─ Header: x-test-openid: "test_user"        // 或从配置读取
+【测试模式登录 - 必须步骤】
+NetManager.CallHttp<SessionData>("getCode2Session", {
+  platform: "Editor",
+  code: "editor_test_code"  // 任意值
+})
+  ├─ Header: x-platform: "Editor" 或 body.platform: "Editor"
   ↓
-Express服务端（测试模式）
-  ├─ authMiddleware 检测到测试模式
-  ├─ 跳过token验证
-  └─ 返回/创建测试用户数据
+Express服务端（Editor平台）
+  ├─ PlatformAuthFactory.detectPlatform(req) → "editor"
+  ├─ 检查 ENABLE_TEST_MODE === 'true'
+  ├─ EditorAuth.code2Session(code)
+  │   └─ 返回测试openid（从TEST_OPENID环境变量或自动生成）
+  ├─ generateToken() 生成JWT token
+  └─ 返回: { openid, token, platform: "editor", ... }
+  ↓
+客户端保存token
+  ├─ NetManager.AuthToken = response.data.token
+  └─ 自动保存到 PlayerPrefs
+  ↓
+【获取用户游戏信息】
+NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2")
+  ├─ Header: Authorization: Bearer {token}
+  ↓
+Express服务端
+  ├─ authMiddleware 验证token
+  └─ 返回/创建用户数据
 ```
 
 ### 2.4 代码位置
 
 - **Editor初始化**：`Assets/GameScripts/HotFix/GameLogic/SlimeGame/World_GameData.cs` (第154-165行)
-- **测试模式检测**：`d:\CustomProjects\Slime\piratecat_slime_express\middlewares\auth.js` (第11-21行)
+- **平台认证**：`piratecat_slime_express/utils/platformAuth.js` (EditorAuth类，第110-131行)
+- **平台检测**：`piratecat_slime_express/utils/platformAuth.js` (detectPlatform方法，第164-195行)
+- **认证中间件**：`piratecat_slime_express/middlewares/auth.js` (统一token验证)
 
 ---
 
@@ -174,14 +224,24 @@ Express服务端（测试模式）
 ### 3.1 登录接口
 
 #### `POST /api/minigame/getCode2Session`
-**功能**：通过微信code获取session信息和token
+**功能**：通过平台code获取session信息和token（支持多平台）
 
 **请求参数**：
 ```json
 {
-  "code": "微信登录凭证code"
+  "code": "平台登录凭证code",
+  "platform": "wechat"  // 可选，默认"wechat"。Editor环境使用"Editor"
 }
 ```
+
+**平台类型**：
+- `wechat`：微信平台（默认），需要真实微信code
+- `Editor`：Unity编辑器平台（测试模式），code可以是任意值，需要 `ENABLE_TEST_MODE=true`
+
+**请求方式**：
+- **Body参数**：`{ "code": "...", "platform": "..." }`
+- **Header参数**：`x-platform: Editor`（可选，优先级低于body）
+- **Query参数**：`?platform=Editor`（可选，优先级最低）
 
 **响应格式**：
 ```json
@@ -190,19 +250,21 @@ Express服务端（测试模式）
   "data": {
     "openid": "用户openid",
     "token": "JWT token",
-    "session_key": "微信session_key",
+    "session_key": "session_key",
     "unionid": "unionid（如果有）",
-    "appid": "微信appid",
-    "platform": "wechat"
+    "appid": "微信appid（仅微信平台）",
+    "platform": "wechat"  // 或 "editor"
   },
-  "msg": "get session success"
+  "msg": "success"
 }
 ```
 
 **流程**：
-1. 验证code参数
-2. 检测平台类型（默认微信）
-3. 调用微信API：`https://api.weixin.qq.com/sns/jscode2session`
+1. 检测平台类型（从header、body或query获取，默认微信）
+2. 如果是Editor平台，检查 `ENABLE_TEST_MODE === 'true'`
+3. 根据平台类型调用对应的认证实例：
+   - 微信平台：调用微信API `https://api.weixin.qq.com/sns/jscode2session`
+   - Editor平台：使用测试openid（从 `TEST_OPENID` 环境变量或自动生成）
 4. 生成JWT token（包含openid、platform、session_key）
 5. 返回session信息
 
@@ -212,8 +274,11 @@ Express服务端（测试模式）
 **功能**：获取用户游戏信息（需要认证）
 
 **认证方式**：
-- **Bearer Token**：`Authorization: Bearer {token}`
-- **测试模式**：`x-test-token: {TEST_TOKEN}` + `x-test-openid: {openid}`
+- **Bearer Token**：`Authorization: Bearer {token}`（标准方式）
+- **自定义Header**：`x-auth-token: {token}`（备选方式）
+- **Body/Query**：`token: {token}`（备选方式）
+
+**注意**：Editor环境需要先通过 `getCode2Session` 接口（platform="Editor"）获取token
 
 **响应格式**：
 ```json
@@ -272,12 +337,15 @@ Express服务端（测试模式）
 ### 4.2 Editor环境
 
 **缺失的步骤**：
-1. ✅ 在Editor环境下，自动设置测试token header
-2. ✅ 可选：调用服务端接口同步测试用户数据
+1. ✅ 在Editor环境下，调用 `getCode2Session` 接口（platform="Editor"）获取token
+2. ✅ 保存token到 `NetManager.AuthToken`
+3. ✅ 在后续请求中自动携带token（Authorization header）
+4. ✅ 调用 `getUserGameInfoV2` 获取/同步用户数据
 
 **建议实现位置**：
-- 在 `NetManager.CallHttp()` 中，检测到Editor环境时自动添加测试header
-- 或在 `InitEditor()` 中调用服务端接口
+- 在 `World.AsyncInit()` 中，`InitEditor()` 成功后
+- 在 `FetchUserGameInfo()` 之前，先执行Editor平台登录流程
+- 检测到Editor环境时，自动使用 `platform="Editor"` 调用 `getCode2Session`
 
 ---
 
@@ -310,24 +378,50 @@ Express服务端（测试模式）
 
 ---
 
-## 六、测试模式配置
+## 六、测试模式配置（Editor平台）
 
 ### 6.1 环境变量
 
 **服务端需要配置**：
 ```bash
-ENABLE_TEST_MODE=true
-TEST_TOKEN=any                    # 或具体token值
-TEST_OPENID=test_user             # 可选，默认值
+ENABLE_TEST_MODE=true             # 必须设置为true，才能使用Editor平台
+TEST_OPENID=editor_test_user      # 可选，不设置则自动生成（格式：editor_test_{timestamp}）
 NODE_ENV=development              # 或 production
 ```
 
-### 6.2 测试模式检测逻辑
+**注意**：
+- `ENABLE_TEST_MODE=true` 是使用Editor平台的必要条件
+- 生产环境应设置 `ENABLE_TEST_MODE=false`，禁用Editor平台
 
-**服务端**：`middlewares/auth.js`
-1. 检查 `ENABLE_TEST_MODE === 'true'` 或 `NODE_ENV === 'development'`
-2. 检查请求header中的 `x-test-token`
-3. 如果匹配，跳过token验证，使用测试openid
+### 6.2 Editor平台测试模式逻辑
+
+**服务端**：`utils/platformAuth.js`
+1. 客户端调用 `getCode2Session` 时，传递 `platform="Editor"`（通过header或body）
+2. 服务端检测到 `platform === "editor"` 时：
+   - 检查 `ENABLE_TEST_MODE === 'true'`，否则抛出错误
+   - 使用 `EditorAuth.code2Session(code)` 处理
+   - code可以是任意值，不做验证
+   - 返回测试openid（从 `TEST_OPENID` 环境变量或自动生成）
+   - 生成标准JWT token
+3. 客户端使用获取的token，通过标准的 `Authorization: Bearer {token}` header访问其他接口
+
+### 6.3 客户端调用示例
+
+**Unity Editor环境**：
+```csharp
+// 1. 获取token（Editor平台）
+var sessionRequest = new { 
+    platform = "Editor", 
+    code = "editor_test_code"  // 任意值
+};
+var sessionResponse = await NetManager.CallHttp<SessionData>("getCode2Session", sessionRequest);
+
+// 2. 保存token
+NetManager.AuthToken = sessionResponse.data.token;
+
+// 3. 使用token访问接口（自动携带Authorization header）
+var userInfo = await NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2");
+```
 
 ---
 
@@ -340,18 +434,22 @@ NODE_ENV=development              # 或 production
 
 ### Editor环境完整流程
 ```
-启动 → InitEditor → 设置测试用户（本地）→ [可选] getUserGameInfoV2（测试模式）→ 更新本地数据
+启动 → InitEditor → getCode2Session(platform="Editor") → 保存token → getUserGameInfoV2 → 更新本地数据
 ```
 
 ---
 
 ## 八、注意事项
 
-1. **微信环境**：必须先登录获取token，才能调用需要认证的接口
-2. **Editor环境**：使用测试模式时，需要配置正确的环境变量
-3. **Token过期**：客户端需要处理token过期的情况
+1. **微信环境**：必须先调用 `WX.Login()` 获取code，然后调用 `getCode2Session` 获取token，才能调用需要认证的接口
+2. **Editor环境**：
+   - 必须先调用 `getCode2Session`（platform="Editor"）获取token
+   - 服务端必须设置 `ENABLE_TEST_MODE=true` 才能使用Editor平台
+   - code可以是任意值，不需要真实微信code
+3. **Token过期**：客户端需要处理token过期的情况（401错误），重新执行登录流程
 4. **错误处理**：所有网络请求都应该有错误处理和重试机制
 5. **数据同步**：本地数据和服务端数据需要保持同步
+6. **平台标识**：Editor环境通过 `platform="Editor"` 参数标识，可以通过header（`x-platform`）或body传递
 
 ---
 
@@ -364,9 +462,9 @@ NODE_ENV=development              # 或 production
 - `Assets/GameScripts/HotFix/GameLogic/SlimeGame/SlimeGameData.cs` - 数据结构定义
 
 ### 服务端
-- `d:\CustomProjects\Slime\piratecat_slime_express\routes\minigame.js` - 路由定义
-- `d:\CustomProjects\Slime\piratecat_slime_express\controllers\minigameController.js` - 控制器
-- `d:\CustomProjects\Slime\piratecat_slime_express\services\authService.js` - 认证服务
-- `d:\CustomProjects\Slime\piratecat_slime_express\middlewares\auth.js` - 认证中间件
-- `d:\CustomProjects\Slime\piratecat_slime_express\utils\tokenManager.js` - Token管理
-- `d:\CustomProjects\Slime\piratecat_slime_express\utils\platformAuth.js` - 平台认证
+- `piratecat_slime_express/routes/minigame.js` - 路由定义
+- `piratecat_slime_express/controllers/minigameController.js` - 控制器
+- `piratecat_slime_express/services/authService.js` - 认证服务
+- `piratecat_slime_express/middlewares/auth.js` - 认证中间件（统一token验证）
+- `piratecat_slime_express/utils/tokenManager.js` - Token管理（JWT生成和验证）
+- `piratecat_slime_express/utils/platformAuth.js` - 平台认证（支持微信、Editor等平台）
