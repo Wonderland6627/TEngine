@@ -54,7 +54,7 @@ namespace GameLogic
             GameModule.UI.ShowLoading();
             try
             {
-                var response = await NetManager.Call<List<LevelsConfigData>>("getLevelsConfigV2");
+                var response = await NetManager.CallHttp<List<LevelsConfigData>>("getLevelsConfigV2");
                 GameModule.UI.ShowLoading(false);
                 
                 if (response.IsSuccess && response.data != null && response.data.Count > 0)

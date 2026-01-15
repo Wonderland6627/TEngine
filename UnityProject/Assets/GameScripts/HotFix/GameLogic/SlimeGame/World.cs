@@ -36,6 +36,8 @@ namespace GameLogic
             GameData.GuideFinish = false;
 #if UNITY_EDITOR
             InitEditor();
+            // Editor环境：执行测试模式登录
+            await LoginEditor();
             await LoadConfig();
 #else
             InitWX(async (success) =>
@@ -43,6 +45,13 @@ namespace GameLogic
                 if (success)
                 {
                     Log.Info($"[World] Init WX SDK success");
+                    // 微信环境：执行登录流程
+                    bool loginSuccess = await LoginWeChat();
+                    if (!loginSuccess)
+                    {
+                        Log.Error("[World] WeChat login failed");
+                        return;
+                    }
                     await LoadConfig();
                     // bool remoteLvlsCfgGetSuccess = await LoadRemoteLevelsConfig(); //加载远端关卡配置 如果有 则使用远端覆盖本地
                     // Log.Info($"[World] LoadRemoteLevelsConfig success: {remoteLvlsCfgGetSuccess}");
