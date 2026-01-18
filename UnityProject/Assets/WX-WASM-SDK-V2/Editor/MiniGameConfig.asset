@@ -15,11 +15,11 @@ MonoBehaviour:
   ProjectConf:
     projectName: "\u53F2\u83B1\u59C6\u5DE5\u5382"
     Appid: wxf55f604f65c8f87b
-    CDN: https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/v0.1.7.4/
+    CDN: https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/v0.1.7.5/
     assetLoadType: 0
     compressDataPackage: 0
     VideoUrl: 
-    DST: D:/CustomProjects/TEngine/UnityProject/WXExport
+    DST: D:/CustomProjects/Slime/TEngine/UnityProject/WXExport
     StreamCDN: 
     bundleHashLength: 32
     bundlePathIdentifier: StreamingAssets;
@@ -29,7 +29,7 @@ MonoBehaviour:
     HideAfterCallMain: 1
     preloadFiles: 
     Orientation: 0
-    bgImageSrc: Assets/AssetRaw/UIRaw/Atlas/Main/common_bg_b.png
+    bgImageSrc: Assets/AssetRaw/UIRaw/Raw/Common/loading_bg.png
     dataFileSubPrefix: 
     maxStorage: 200
     defaultReleaseSize: 31457280

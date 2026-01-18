@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -435,6 +436,17 @@ namespace TEngine
             s_TextEditor.OnFocus();
             s_TextEditor.Copy();
             s_TextEditor.text = string.Empty;
+        }
+
+        /// <summary>
+        /// 注册服务器切换功能到Operations窗口
+        /// </summary>
+        /// <param name="getServerNames">获取服务器名称列表</param>
+        /// <param name="getCurrentServer">获取当前服务器索引</param>
+        /// <param name="onSwitch">切换服务器回调</param>
+        public static void RegisterServerSwitch(Func<string[]> getServerNames, Func<int> getCurrentServer, Action<int> onSwitch)
+        {
+            OperationsWindow.RegisterServerSwitch(getServerNames, getCurrentServer, onSwitch);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using GameBase;
 using GameLogic;
+using GameLogic.Network;
 using TEngine;
 
 /// <summary>
@@ -40,6 +41,7 @@ public partial class GameApp:Singleton<GameApp>
     private void StartGameLogic()
     {
         Log.Info("GameApp StartGameLogic");
+        NetManager.Initialize();
         World.Instance.AsyncInit();
     }
     

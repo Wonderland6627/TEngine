@@ -10,6 +10,15 @@ using Utility = TEngine.Utility;
 namespace GameLogic.Network
 {
     /// <summary>
+    /// 服务器类型
+    /// </summary>
+    public enum ServerType
+    {
+        Dev,        // 开发环境
+        Production  // 生产环境
+    }
+
+    /// <summary>
     /// 网络管理器
     /// 统一处理云函数调用和HTTP请求，返回值解析
     /// </summary>
@@ -17,12 +26,63 @@ namespace GameLogic.Network
     {
         // 配置
         private const string KEY_AUTH_TOKEN = "NetManager_AuthToken";
+        private const string KEY_SERVER_TYPE = "NetManager_ServerType";
         private static string _authToken = null;
+        private static ServerType _currentServerType = ServerType.Production;
 
         /// <summary>
-        /// 服务端基础URL（例如：http://localhost:3000）
+        /// 服务器地址配置（根据需要修改这里的地址）
         /// </summary>
-        public static string ServerBaseUrl = "http://localhost:3000";
+        private static readonly Dictionary<ServerType, string> ServerUrls = new Dictionary<ServerType, string>
+        {
+            { ServerType.Dev, "http://localhost:3000" },
+            { ServerType.Production, "https://express-slime-216111-7-1352845565.sh.run.tcloudbase.com" }
+        };
+
+        /// <summary>
+        /// 当前服务器类型
+        /// </summary>
+        public static ServerType CurrentServerType
+        {
+            get => _currentServerType;
+            set
+            {
+                _currentServerType = value;
+                PlayerPrefs.SetInt(KEY_SERVER_TYPE, (int)value);
+                PlayerPrefs.Save();
+                Log.Info($"[NetManager] Server switched to {value}: {ServerBaseUrl}");
+            }
+        }
+
+        /// <summary>
+        /// 服务端基础URL（根据当前服务器类型自动获取）
+        /// </summary>
+        public static string ServerBaseUrl => ServerUrls[_currentServerType];
+
+        /// <summary>
+        /// 初始化（在游戏启动时调用一次）
+        /// </summary>
+        public static void Initialize()
+        {
+            _currentServerType = (ServerType)PlayerPrefs.GetInt(KEY_SERVER_TYPE, (int)ServerType.Production);
+            Log.Info($"[NetManager] Initialized with server: {_currentServerType} ({ServerBaseUrl})");
+
+            // 注册调试器服务器切换功能
+            RegisterDebuggerServerSwitch();
+        }
+
+        /// <summary>
+        /// 注册调试器服务器切换功能
+        /// </summary>
+        private static void RegisterDebuggerServerSwitch()
+        {
+            string[] serverNames = Enum.GetNames(typeof(ServerType));
+            DebuggerModule.RegisterServerSwitch(
+                () => serverNames,
+                () => (int)_currentServerType,
+                (index) => CurrentServerType = (ServerType)index
+            );
+        }
 
         /// <summary>
         /// 认证Token（自动缓存到本地）
