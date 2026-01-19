@@ -4,6 +4,7 @@ using System.Text;
 using TEngine;
 using WeChatWASM;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Networking;
 using Utility = TEngine.Utility;
 
@@ -27,6 +28,12 @@ namespace GameLogic.Network
         // 配置
         private const string KEY_AUTH_TOKEN = "NetManager_AuthToken";
         private const string KEY_SERVER_TYPE = "NetManager_ServerType";
+        
+        // 网络配置
+        private const int REQUEST_TIMEOUT = 30;     // 请求超时时间（秒）
+        private const int MAX_RETRY_COUNT = 3;      // 最大重试次数
+        private const int RETRY_DELAY_MS = 1000;    // 重试间隔（毫秒）
+        
         private static string _authToken = null;
         private static ServerType _currentServerType = ServerType.Production;
 
@@ -165,7 +172,7 @@ namespace GameLogic.Network
                         Log.Error($"[NetManager] {msg}");
                         tcs.TrySetResult(new Response<T>
                         {
-                            code = -1,
+                            code = ResponseCode.CLIENT_PARSE_ERROR,
                             msg = msg,
                             data = default(T)
                         });
@@ -177,7 +184,7 @@ namespace GameLogic.Network
                     Log.Error($"[NetManager] {msg}");
                     tcs.TrySetResult(new Response<T>
                     {
-                        code = -1,
+                        code = ResponseCode.ERROR,
                         msg = msg,
                         data = default(T)
                     });
@@ -214,54 +221,133 @@ namespace GameLogic.Network
         /// <returns>HTTP响应</returns>
         public static async UniTask<Response<T>> CallHttp<T>(string apiName, object parameters = null)
         {
-            try
+            if (Application.internetReachability == NetworkReachability.NotReachable)
             {
-                // 从路由字典查找接口路径
-                if (!ApiRouteMap.TryGetValue(apiName, out string endpoint))
-                {
-                    var msg = $"Unknown API: {apiName}";
-                    Log.Error($"[NetManager] {msg}");
-                    return new Response<T> { code = -1, msg = msg, data = default(T) };
-                }
-
-                // 构建完整URL
-                string url = ServerBaseUrl.TrimEnd('/') + endpoint;
-
-                // 准备请求数据
-                string requestJson = parameters != null ? (parameters is string ? (string)parameters : parameters.ToJson()) : "{}";
-                Log.Info($"[NetManager] HTTP POST {url}, params: {requestJson}");
-
-                // 发送HTTP请求
-                using UnityWebRequest request = new UnityWebRequest(url, "POST");
-                byte[] bodyRaw = Encoding.UTF8.GetBytes(requestJson);
-                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                request.downloadHandler = new DownloadHandlerBuffer();
-                request.SetRequestHeader("Content-Type", "application/json");
-                
-                // 添加token
-                if (!string.IsNullOrEmpty(AuthToken))
-                {
-                    request.SetRequestHeader("Authorization", $"Bearer {AuthToken}");
-                }
-
-                await request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success)
-                {
-                    Log.Error($"[NetManager] HTTP error: {request.error}");
-                    return new Response<T> { code = -1, msg = request.error, data = default(T) };
-                }
-
-                string responseJson = request.downloadHandler.text;
-                Log.Info($"[NetManager] HTTP Response: {responseJson}");
-                
-                return Utility.Json.ToObject<Response<T>>(responseJson);
+                Log.Warning("[NetManager] No network connection");
+                return new Response<T> { code = ResponseCode.CLIENT_NO_NETWORK, msg = "No network connection", data = default(T) };
             }
-            catch (Exception e)
+            
+            // 从路由字典查找接口路径
+            if (!ApiRouteMap.TryGetValue(apiName, out string endpoint))
             {
-                Log.Error($"[NetManager] HTTP exception: {e}");
-                return new Response<T> { code = -1, msg = e.Message, data = default(T) };
+                var msg = $"Unknown API: {apiName}";
+                Log.Error($"[NetManager] {msg}");
+                return new Response<T> { code = ResponseCode.CLIENT_UNKNOWN_API, msg = msg, data = default(T) };
             }
+
+            // 构建完整URL
+            string url = ServerBaseUrl.TrimEnd('/') + endpoint;
+
+            // 准备请求数据
+            string requestJson = parameters != null ? (parameters is string ? (string)parameters : parameters.ToJson()) : "{}";
+            
+            // 带重试的请求
+            return await SendHttpRequestWithRetry<T>(url, requestJson, MAX_RETRY_COUNT);
+        }
+        
+        /// <summary>
+        /// 发送HTTP请求（带重试机制）
+        /// </summary>
+        private static async UniTask<Response<T>> SendHttpRequestWithRetry<T>(string url, string requestJson, int retryCount)
+        {
+            string lastError = null;
+            
+            for (int attempt = 0; attempt <= retryCount; attempt++)
+            {
+                if (attempt > 0)
+                {
+                    Log.Warning($"[NetManager] Retry attempt {attempt}/{retryCount} for {url}");
+                    await UniTask.Delay(RETRY_DELAY_MS);
+                }
+                
+                try
+                {
+                    var result = await SendHttpRequestInternal<T>(url, requestJson);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+                catch (Exception e)
+                {
+                    lastError = e.Message;
+                    
+                    // 判断是否为可重试的错误（超时、连接失败等）
+                    if (!IsRetryableError(e))
+                    {
+                        break;
+                    }
+                }
+            }
+            
+            // 所有重试都失败
+            Log.Error($"[NetManager] HTTP request failed after {retryCount + 1} attempts: {lastError}");
+            return new Response<T> { code = ResponseCode.CLIENT_REQUEST_FAILED, msg = lastError ?? "Request failed", data = default(T) };
+        }
+        
+        /// <summary>
+        /// 发送HTTP请求（内部实现）
+        /// </summary>
+        private static async UniTask<Response<T>> SendHttpRequestInternal<T>(string url, string requestJson)
+        {
+            Log.Info($"[NetManager] HTTP POST {url}, params: {requestJson}");
+            
+            using var request = new UnityWebRequest(url, "POST");
+            request.timeout = REQUEST_TIMEOUT;
+            
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(requestJson);
+            using var uploadHandler = new UploadHandlerRaw(bodyRaw);
+            using var downloadHandler = new DownloadHandlerBuffer();
+            
+            request.uploadHandler = uploadHandler;
+            request.downloadHandler = downloadHandler;
+            request.SetRequestHeader("Content-Type", "application/json");
+            
+            // 添加token
+            if (!string.IsNullOrEmpty(AuthToken))
+            {
+                request.SetRequestHeader("Authorization", $"Bearer {AuthToken}");
+            }
+
+            await request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                // 区分可重试和不可重试的错误
+                if (IsRetryableResult(request.result))
+                {
+                    throw new Exception($"HTTP error (retryable): {request.error}");
+                }
+                
+                Log.Error($"[NetManager] HTTP error: {request.error}");
+                return new Response<T> { code = ResponseCode.ERROR, msg = request.error, data = default(T) };
+            }
+
+            string responseJson = downloadHandler.text;
+            Log.Info($"[NetManager] HTTP Response: {responseJson}");
+            
+            return Utility.Json.ToObject<Response<T>>(responseJson);
+        }
+        
+        /// <summary>
+        /// 判断是否为可重试的异常
+        /// </summary>
+        private static bool IsRetryableError(Exception e)
+        {
+            // 超时、连接失败等可以重试
+            string message = e.Message.ToLower();
+            return message.Contains("timeout") || 
+                   message.Contains("connection") || 
+                   message.Contains("retryable");
+        }
+        
+        /// <summary>
+        /// 判断是否为可重试的请求结果
+        /// </summary>
+        private static bool IsRetryableResult(UnityWebRequest.Result result)
+        {
+            // 连接错误和数据处理错误可以重试，协议错误（如404、500）不重试
+            return result == UnityWebRequest.Result.ConnectionError;
         }
 
         /// <summary>
