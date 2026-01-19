@@ -267,5 +267,12 @@ namespace TEngine
         /// <returns>异步游戏物体实例。</returns>
         /// <remarks>会实例化资源到场景，无需主动UnloadAsset，Destroy时自动UnloadAsset。</remarks>
         UniTask<GameObject> LoadGameObjectAsync(string location, Transform parent = null, CancellationToken cancellationToken = default, string packageName = "");
+
+        /// <summary>
+        /// 更新 RemoteServices 的版本号（在版本更新成功后调用）
+        /// </summary>
+        /// <param name="packageName">资源包名称</param>
+        /// <param name="version">版本号</param>
+        void UpdateRemoteServicesVersion(string packageName, string version);
     }
 }

@@ -10,24 +10,141 @@ namespace TEngine
     {
         /// <summary>
         /// 远端资源地址查询服务类
+        /// 支持 CDN 结构：
+        /// - 版本文件从根目录读取：{CDNBaseURL}/Package.version
+        /// - Bundle 和清单文件从版本目录读取：{CDNBaseURL}/{version}/{fileName}
         /// </summary>
         private class RemoteServices : IRemoteServices
         {
             private readonly string _defaultHostServer;
             private readonly string _fallbackHostServer;
+            private string _currentPackageVersion;
+            private readonly string _packageName;
+            private readonly string _versionFileName;
 
-            public RemoteServices(string defaultHostServer, string fallbackHostServer)
+            public RemoteServices(string defaultHostServer, string fallbackHostServer, string packageName = "DefaultPackage")
             {
-                _defaultHostServer = defaultHostServer;
-                _fallbackHostServer = fallbackHostServer;
+                _defaultHostServer = defaultHostServer.TrimEnd('/');
+                _fallbackHostServer = fallbackHostServer.TrimEnd('/');
+                _packageName = packageName;
+                // 版本文件名格式：PackageManifest_{PackageName}_{BuildVersion}.version
+                // 但实际 CDN 上可能是 Package.version
+                _versionFileName = YooAssetSettingsData.GetPackageVersionFileName(packageName);
             }
+
+            /// <summary>
+            /// 更新当前包版本号（在读取版本文件后调用）
+            /// </summary>
+            public void UpdatePackageVersion(string version)
+            {
+                if (!string.IsNullOrEmpty(version) && version != _currentPackageVersion)
+                {
+                    _currentPackageVersion = version;
+                    YooLogger.Log($"[RemoteServices] Updated package version to: {version}");
+                }
+            }
+
+            /// <summary>
+            /// 尝试从 package 获取当前版本号
+            /// </summary>
+            private string TryGetPackageVersion()
+            {
+                if (!string.IsNullOrEmpty(_currentPackageVersion))
+                {
+                    return _currentPackageVersion;
+                }
+
+                // 尝试从 YooAssets 获取当前版本号
+                try
+                {
+                    var package = YooAssets.TryGetPackage(_packageName);
+                    if (package != null && !string.IsNullOrEmpty(package.PackageVersion))
+                    {
+                        _currentPackageVersion = package.PackageVersion;
+                        return _currentPackageVersion;
+                    }
+                }
+                catch
+                {
+                    // 忽略错误，返回 null
+                }
+
+                return null;
+            }
+
             string IRemoteServices.GetRemoteMainURL(string fileName)
             {
-                return $"{_defaultHostServer}/{fileName}";
+                return GetRemoteURL(_defaultHostServer, fileName);
             }
+
             string IRemoteServices.GetRemoteFallbackURL(string fileName)
             {
-                return $"{_fallbackHostServer}/{fileName}";
+                return GetRemoteURL(_fallbackHostServer, fileName);
+            }
+
+            /// <summary>
+            /// 根据文件类型构建 URL
+            /// </summary>
+            private string GetRemoteURL(string baseUrl, string fileName)
+            {
+                // 判断是否为版本文件
+                // 版本文件格式：PackageManifest_{PackageName}_{BuildVersion}.version
+                // 或者简化的 Package.version
+                if (IsVersionFile(fileName))
+                {
+                    // 版本文件从根目录读取
+                    // 支持两种格式：
+                    // 1. PackageManifest_{PackageName}_{BuildVersion}.version -> Package.version
+                    // 2. Package.version -> Package.version
+                    string versionFileName = "Package.version";
+                    return $"{baseUrl}/{versionFileName}";
+                }
+                else
+                {
+                    // Bundle 和清单文件从版本目录读取
+                    string version = TryGetPackageVersion();
+                    if (string.IsNullOrEmpty(version))
+                    {
+                        // 如果还没有版本号，先尝试从根目录读取（兼容旧逻辑）
+                        // 这种情况可能发生在初始化阶段，版本文件还未读取
+                        YooLogger.Warning($"[RemoteServices] Package version not available, using root path for file: {fileName}");
+                        return $"{baseUrl}/{fileName}";
+                    }
+                    else
+                    {
+                        // 从版本目录读取：{baseUrl}/{version}/{fileName}
+                        return $"{baseUrl}/{version}/{fileName}";
+                    }
+                }
+            }
+
+            /// <summary>
+            /// 判断是否为版本文件
+            /// </summary>
+            private bool IsVersionFile(string fileName)
+            {
+                // 检查是否为版本文件
+                // 1. 文件名以 .version 结尾
+                // 2. 或者文件名匹配 PackageManifest_{PackageName}_*.version 格式
+                if (fileName.EndsWith(".version"))
+                {
+                    // 检查是否匹配标准格式
+                    if (fileName == _versionFileName)
+                    {
+                        return true;
+                    }
+                    // 也支持简化的 Package.version
+                    if (fileName == "Package.version")
+                    {
+                        return true;
+                    }
+                    // 检查是否包含 PackageManifest 和 PackageName
+                    if (fileName.Contains("PackageManifest") && fileName.Contains(_packageName))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
         }
         

@@ -375,6 +375,16 @@ namespace TEngine
                 : YooAssets.GetPackage(customPackageName);
             return package.UpdatePackageManifestAsync(packageVersion, autoSaveVersion, timeout);
         }
+
+        /// <summary>
+        /// 更新 RemoteServices 的版本号（在版本更新成功后调用）
+        /// </summary>
+        /// <param name="packageName">资源包名称</param>
+        /// <param name="version">版本号</param>
+        public void UpdateRemoteServicesVersion(string packageName, string version)
+        {
+            m_ResourceManager?.UpdateRemoteServicesVersion(packageName, version);
+        }
         
         /// <summary>
         /// 资源下载器，用于下载当前资源版本所有的资源包文件。
