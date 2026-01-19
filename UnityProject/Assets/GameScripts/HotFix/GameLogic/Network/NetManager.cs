@@ -20,6 +20,18 @@ namespace GameLogic.Network
     }
 
     /// <summary>
+    /// Token状态
+    /// </summary>
+    public enum TokenState
+    {
+        None,       // 无Token
+        Valid,      // 有效
+        Expiring,   // 即将过期（剩余时间小于阈值）
+        Expired,    // 已过期
+        Invalid     // 无效（解析失败）
+    }
+
+    /// <summary>
     /// 网络管理器
     /// 统一处理云函数调用和HTTP请求，返回值解析
     /// </summary>
@@ -34,7 +46,11 @@ namespace GameLogic.Network
         private const int MAX_RETRY_COUNT = 3;      // 最大重试次数
         private const int RETRY_DELAY_MS = 1000;    // 重试间隔（毫秒）
         
+        // Token配置
+        private const int TOKEN_EXPIRING_THRESHOLD_HOURS = 24;  // Token即将过期阈值（小时）
+        
         private static string _authToken = null;
+        private static long? _cachedTokenExpireTime = null;     // 缓存的Token过期时间（Unix时间戳）
         private static ServerType _currentServerType = ServerType.Production;
 
         /// <summary>
@@ -107,6 +123,7 @@ namespace GameLogic.Network
             set
             {
                 _authToken = value;
+                _cachedTokenExpireTime = null; // 清除缓存的过期时间，下次访问时重新解析
                 if (string.IsNullOrEmpty(value))
                 {
                     PlayerPrefs.DeleteKey(KEY_AUTH_TOKEN);
@@ -118,6 +135,189 @@ namespace GameLogic.Network
                 PlayerPrefs.Save();
             }
         }
+        
+        /// <summary>
+        /// 清除Token（登出时调用）
+        /// </summary>
+        public static void ClearToken()
+        {
+            AuthToken = null;
+            _cachedTokenExpireTime = null;
+            Log.Info("[NetManager] Token cleared");
+        }
+        
+        #region Token有效性检查
+        
+        /// <summary>
+        /// 检查是否有有效的Token（可直接使用，无需重新登录）
+        /// </summary>
+        public static bool HasValidToken
+        {
+            get
+            {
+                var state = GetTokenState();
+                return state == TokenState.Valid || state == TokenState.Expiring;
+            }
+        }
+        
+        /// <summary>
+        /// 检查是否需要登录（无Token或Token已过期）
+        /// </summary>
+        public static bool NeedLogin
+        {
+            get
+            {
+                var state = GetTokenState();
+                return state == TokenState.None || state == TokenState.Expired || state == TokenState.Invalid;
+            }
+        }
+        
+        /// <summary>
+        /// 检查Token是否即将过期（建议静默刷新）
+        /// </summary>
+        public static bool IsTokenExpiring
+        {
+            get
+            {
+                return GetTokenState() == TokenState.Expiring;
+            }
+        }
+        
+        /// <summary>
+        /// 获取Token状态
+        /// </summary>
+        public static TokenState GetTokenState()
+        {
+            string token = AuthToken;
+            if (string.IsNullOrEmpty(token))
+            {
+                return TokenState.None;
+            }
+            
+            long? expireTime = GetTokenExpireTime(token);
+            if (!expireTime.HasValue)
+            {
+                return TokenState.Invalid;
+            }
+            
+            long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long remaining = expireTime.Value - now;
+            
+            if (remaining <= 0)
+            {
+                return TokenState.Expired;
+            }
+            
+            // 检查是否即将过期
+            long expiringThreshold = TOKEN_EXPIRING_THRESHOLD_HOURS * 3600;
+            if (remaining < expiringThreshold)
+            {
+                return TokenState.Expiring;
+            }
+            
+            return TokenState.Valid;
+        }
+        
+        /// <summary>
+        /// 获取Token剩余有效时间（秒），无效时返回0
+        /// </summary>
+        public static long GetTokenRemainingSeconds()
+        {
+            long? expireTime = GetTokenExpireTime(AuthToken);
+            if (!expireTime.HasValue)
+            {
+                return 0;
+            }
+            
+            long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long remaining = expireTime.Value - now;
+            return remaining > 0 ? remaining : 0;
+        }
+        
+        /// <summary>
+        /// 获取Token剩余有效时间的可读字符串
+        /// </summary>
+        public static string GetTokenRemainingTimeString()
+        {
+            long seconds = GetTokenRemainingSeconds();
+            if (seconds <= 0)
+            {
+                return "Expired";
+            }
+            
+            TimeSpan ts = TimeSpan.FromSeconds(seconds);
+            if (ts.TotalDays >= 1)
+            {
+                return $"{(int)ts.TotalDays}d {ts.Hours}h";
+            }
+            if (ts.TotalHours >= 1)
+            {
+                return $"{(int)ts.TotalHours}h {ts.Minutes}m";
+            }
+            return $"{ts.Minutes}m {ts.Seconds}s";
+        }
+        
+        /// <summary>
+        /// 解析JWT Token获取过期时间（Unix时间戳）
+        /// </summary>
+        /// <param name="token">JWT Token</param>
+        /// <returns>过期时间戳，解析失败返回null</returns>
+        private static long? GetTokenExpireTime(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return null;
+            }
+            
+            // 使用缓存
+            if (_cachedTokenExpireTime.HasValue)
+            {
+                return _cachedTokenExpireTime;
+            }
+            
+            try
+            {
+                // JWT格式: header.payload.signature
+                string[] parts = token.Split('.');
+                if (parts.Length != 3)
+                {
+                    Log.Warning("[NetManager] Invalid JWT format");
+                    return null;
+                }
+                
+                // Base64Url解码payload
+                string payload = parts[1];
+                // Base64Url -> Base64 转换
+                payload = payload.Replace('-', '+').Replace('_', '/');
+                switch (payload.Length % 4)
+                {
+                    case 2: payload += "=="; break;
+                    case 3: payload += "="; break;
+                }
+                
+                byte[] bytes = Convert.FromBase64String(payload);
+                string json = Encoding.UTF8.GetString(bytes);
+                
+                // 解析JSON获取exp字段
+                var data = Utility.Json.ToObject<Dictionary<string, object>>(json);
+                if (data != null && data.TryGetValue("exp", out var expValue))
+                {
+                    long exp = Convert.ToInt64(expValue);
+                    _cachedTokenExpireTime = exp; // 缓存结果
+                    return exp;
+                }
+                
+                Log.Warning("[NetManager] JWT payload missing 'exp' field");
+                return null;
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"[NetManager] Failed to parse JWT: {e.Message}");
+                return null;
+            }
+        }
+        
+        #endregion
 
         // API路由字典：接口名 -> HTTP端点路径
         private static readonly Dictionary<string, string> ApiRouteMap = new Dictionary<string, string>
