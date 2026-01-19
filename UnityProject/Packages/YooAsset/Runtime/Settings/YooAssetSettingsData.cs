@@ -69,7 +69,7 @@ namespace YooAsset
         /// </summary>
         public static string GetPackageVersionFileName(string packageName)
         {
-            return $"{Setting.ManifestFileName}_{packageName}_{Setting.BuildVersion}.version";
+            return $"{Setting.ManifestFileName}_{packageName}.version";
         }
     }
 }
