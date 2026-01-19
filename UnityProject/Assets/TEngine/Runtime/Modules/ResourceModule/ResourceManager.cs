@@ -105,11 +105,6 @@ namespace TEngine
         private Dictionary<string, ResourcePackage> PackageMap { get; } = new Dictionary<string, ResourcePackage>();
 
         /// <summary>
-        /// RemoteServices 引用列表（用于更新版本号）
-        /// </summary>
-        private Dictionary<string, RemoteServices> RemoteServicesMap { get; } = new Dictionary<string, RemoteServices>();
-
-        /// <summary>
         /// 资源信息列表。
         /// </summary>
         private readonly Dictionary<string, AssetInfo> _assetInfoMap = new Dictionary<string, AssetInfo>();
@@ -235,13 +230,11 @@ namespace TEngine
             {
                 string defaultHostServer = HostServerURL;
                 string fallbackHostServer = FallbackHostServerURL;
-                var remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer, packageName);
-                RemoteServicesMap[packageName] = remoteServices;
                 var createParameters = new HostPlayModeParameters();
                 createParameters.CacheBootVerifyLevel = VerifyLevel;
                 createParameters.DecryptionServices = new FileStreamDecryption();
                 createParameters.BuildinQueryServices = new GameQueryServices();
-                createParameters.RemoteServices = remoteServices;
+                createParameters.RemoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
                 initializationOperation = package.InitializeAsync(createParameters);
             }
 
@@ -250,13 +243,11 @@ namespace TEngine
             {
                 string defaultHostServer = HostServerURL;
                 string fallbackHostServer = FallbackHostServerURL;
-                var remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer, packageName);
-                RemoteServicesMap[packageName] = remoteServices;
                 var createParameters = new WebPlayModeParameters();
                 createParameters.CacheBootVerifyLevel = VerifyLevel;
                 createParameters.DecryptionServices = new FileStreamDecryption();
                 createParameters.BuildinQueryServices = new GameQueryServices();
-                createParameters.RemoteServices = remoteServices;
+                createParameters.RemoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
                 initializationOperation = package.InitializeAsync(createParameters);
                 Log.Info($"Init package : {packageName}, play mode : {playMode}, host server : {defaultHostServer}, fallback host server : {fallbackHostServer}");
             }
@@ -265,27 +256,7 @@ namespace TEngine
 
             Log.Info($"Init resource package version : {initializationOperation?.PackageVersion}, Game Version: {Version.GameVersion}");
 
-            // 更新 RemoteServices 的版本号（如果已初始化）
-            if (initializationOperation?.Status == EOperationStatus.Succeed && 
-                !string.IsNullOrEmpty(initializationOperation.PackageVersion) &&
-                RemoteServicesMap.TryGetValue(packageName, out var remoteServices))
-            {
-                remoteServices.UpdatePackageVersion(initializationOperation.PackageVersion);
-            }
-
             return initializationOperation;
-        }
-
-        /// <summary>
-        /// 更新 RemoteServices 的版本号（在版本更新成功后调用）
-        /// </summary>
-        public void UpdateRemoteServicesVersion(string packageName, string version)
-        {
-            if (RemoteServicesMap.TryGetValue(packageName, out var remoteServices))
-            {
-                remoteServices.UpdatePackageVersion(version);
-                Log.Info($"[ResourceManager] Updated RemoteServices version for package '{packageName}' to '{version}'");
-            }
         }
 
         internal override void Update(float elapseSeconds, float realElapseSeconds)

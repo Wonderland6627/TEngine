@@ -49,8 +49,7 @@ namespace GameMain
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
 
             Log.Info($"[ResUpdate-1] [ProcedureUpdateVersion] GetStaticVersion UpdatePackageVersionAsync, GameModule.Resource.GetPackageVersion(): [{GameModule.Resource.GetPackageVersion()}], GameModule.Resource.PackageVersion: [{GameModule.Resource.PackageVersion}]");
-            // 使用 appendTimeTicks: true 避免 CDN 缓存问题
-            var operation = GameModule.Resource.UpdatePackageVersionAsync(appendTimeTicks: true);
+            var operation = GameModule.Resource.UpdatePackageVersionAsync();
 
             try
             {
@@ -64,11 +63,6 @@ namespace GameMain
                     //线上最新版本operation.PackageVersion
                     GameModule.Resource.PackageVersion = operation.PackageVersion;
                     Log.Debug($"Updated package Version : from {GameModule.Resource.GetPackageVersion()} to {operation.PackageVersion}");
-                    
-                    // 更新 RemoteServices 的版本号，以便后续 bundle 请求使用正确的版本目录
-                    // 注意：RemoteServices 会自动从 package 获取版本号，这里手动更新以确保及时性
-                    GameModule.Resource.UpdateRemoteServicesVersion(GameModule.Resource.PackageName, operation.PackageVersion);
-                    
                     ChangeState<ProcedureUpdateManifest>(_procedureOwner);
                 }
                 else
