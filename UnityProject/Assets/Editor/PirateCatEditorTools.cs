@@ -5,7 +5,6 @@ using UnityEngine;
 using YooAsset;
 using YooAsset.Editor;
 using TEngine.Editor;
-using Newtonsoft.Json.Linq;
 
 /// <summary>
 /// 打包工具核心逻辑
@@ -23,44 +22,80 @@ public static class PirateCatEditorTools
     // 备份目录
     private const string BackupBasePath = "CDN_Backup/MiniGame";
     
-    // 云函数目录
-    private const string CloudFunctionsSourcePath = "cloudfunctions/minigame";
-    
     /// <summary>
-    /// 步骤1: 更新版本号（更新所有相关配置文件）
+    /// 步骤1: 更新资源版本号（更新所有相关配置文件）
     /// </summary>
-    /// <param name="version">版本号（如 v0.1.7.3）</param>
+    /// <param name="resourceVersion">资源版本号（如 v0.1.7.3）</param>
+    /// <param name="appVersion">App版本号（如 1.0.0），用于CDN地址拼接</param>
     /// <returns>是否成功</returns>
-    public static bool UpdateVersion(string version)
+    public static bool UpdateVersion(string resourceVersion, string appVersion)
     {
         try
         {
-            Debug.Log($"[PirateCatEditorTools] Step 1: Update version to {version}");
+            Debug.Log($"[PirateCatEditorTools] Step 1: Update resource version to {resourceVersion}");
             
-            // 验证版本号格式
-            if (string.IsNullOrEmpty(version) || !version.StartsWith("v"))
+            // 验证资源版本号格式
+            if (string.IsNullOrEmpty(resourceVersion) || !resourceVersion.StartsWith("v"))
             {
-                EditorUtility.DisplayDialog("错误", "版本号必须以 'v' 开头（如 v0.1.7.3）", "确定");
+                EditorUtility.DisplayDialog("错误", "资源版本号必须以 'v' 开头（如 v0.1.7.3）", "确定");
                 return false;
             }
             
-            // 更新 YooAssetSettings.asset 的 BuildVersion
-            UpdateYooAssetVersion(version);
+            // 验证App版本号格式
+            if (string.IsNullOrEmpty(appVersion))
+            {
+                EditorUtility.DisplayDialog("错误", "App版本号不能为空", "确定");
+                return false;
+            }
             
-            // 更新 InnerResourceSourceUrl
-            UpdateInnerResourceSourceUrl(version);
+            // 更新 YooAssetSettings.asset 的 BuildVersion（使用资源版本号）
+            UpdateYooAssetVersion(resourceVersion);
             
-            // 更新 MiniGameConfig.asset 的 CDN
-            UpdateMiniGameConfigCDN(version);
+            // 更新 InnerResourceSourceUrl（使用App版本号拼接CDN地址）
+            UpdateInnerResourceSourceUrl(appVersion);
             
-            Debug.Log($"[PirateCatEditorTools] Version updated successfully to {version}");
-            EditorUtility.DisplayDialog("成功", $"版本号已更新为 {version}", "确定");
+            // 更新 MiniGameConfig.asset 的 CDN（使用App版本号拼接CDN地址）
+            UpdateMiniGameConfigCDN(appVersion);
+            
+            Debug.Log($"[PirateCatEditorTools] Resource version updated successfully to {resourceVersion}, CDN uses app version {appVersion}");
             return true;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[PirateCatEditorTools] Failed to update version: {e.Message}\n{e.StackTrace}");
-            EditorUtility.DisplayDialog("错误", $"更新版本号失败：{e.Message}", "确定");
+            Debug.LogError($"[PirateCatEditorTools] Failed to update resource version: {e.Message}\n{e.StackTrace}");
+            EditorUtility.DisplayDialog("错误", $"更新资源版本号失败：{e.Message}", "确定");
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// 更新 App 版本号（更新 BuildSettings 中的 PlayerSettings.bundleVersion）
+    /// </summary>
+    /// <param name="appVersion">App版本号（如 1.0.0）</param>
+    /// <returns>是否成功</returns>
+    public static bool UpdateAppVersion(string appVersion)
+    {
+        try
+        {
+            Debug.Log($"[PirateCatEditorTools] Update app version to {appVersion}");
+            
+            // 验证版本号格式
+            if (string.IsNullOrEmpty(appVersion))
+            {
+                EditorUtility.DisplayDialog("错误", "App版本号不能为空", "确定");
+                return false;
+            }
+            
+            // 更新 PlayerSettings.bundleVersion
+            PlayerSettings.bundleVersion = appVersion;
+            
+            Debug.Log($"[PirateCatEditorTools] App version updated successfully to {appVersion}");
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[PirateCatEditorTools] Failed to update app version: {e.Message}\n{e.StackTrace}");
+            EditorUtility.DisplayDialog("错误", $"更新App版本号失败：{e.Message}", "确定");
             return false;
         }
     }
@@ -113,116 +148,9 @@ public static class PirateCatEditorTools
         }
     }
     
-    /// <summary>
-    /// 步骤4: 更新 project.config.json 文件，添加 cloudfunctionRoot 配置，并复制 cloudfunctions 文件夹
-    /// </summary>
-    /// <returns>是否成功</returns>
-    public static bool UpdateProjectConfigJson()
-    {
-        try
-        {
-            Debug.Log("[PirateCatEditorTools] Step 4: Update project.config.json and copy cloudfunctions");
-            
-            string exportPath = GetMiniGameExportPath();
-            string projectConfigPath = Path.Combine(exportPath, "minigame", "project.config.json");
-            
-            // 检查文件是否存在
-            if (!File.Exists(projectConfigPath))
-            {
-                Debug.LogWarning($"[PirateCatEditorTools] project.config.json not found at {projectConfigPath}, skipping update");
-                return false;
-            }
-            
-            // 读取 JSON 文件
-            string jsonContent = File.ReadAllText(projectConfigPath);
-            
-            // 使用 Newtonsoft.Json 解析 JSON
-            JObject jsonObj = JObject.Parse(jsonContent);
-            
-            // 检查是否已经存在 cloudfunctionRoot
-            bool alreadyExists = jsonObj["cloudfunctionRoot"] != null;
-            
-            // 设置或更新 cloudfunctionRoot 配置
-            jsonObj["cloudfunctionRoot"] = "cloudfunctions/";
-            
-            if (alreadyExists)
-            {
-                Debug.Log("[PirateCatEditorTools] Updated existing cloudfunctionRoot in project.config.json");
-            }
-            else
-            {
-                Debug.Log("[PirateCatEditorTools] Added cloudfunctionRoot to project.config.json");
-            }
-            
-            // 格式化 JSON（保持缩进）
-            string formattedJson = jsonObj.ToString(Newtonsoft.Json.Formatting.Indented);
-            
-            // 写入文件
-            File.WriteAllText(projectConfigPath, formattedJson);
-            Debug.Log($"[PirateCatEditorTools] project.config.json updated successfully at {projectConfigPath}");
-            
-            // 更新成功后，复制 cloudfunctions 文件夹到 minigame 目录
-            CopyCloudFunctionsToMinigame(exportPath);
-            
-            return true;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[PirateCatEditorTools] Failed to update project.config.json: {e.Message}\n{e.StackTrace}");
-            return false;
-        }
-    }
     
     /// <summary>
-    /// 复制 cloudfunctions 文件夹到 minigame 目录
-    /// </summary>
-    /// <param name="exportPath">导出路径（WXExport）</param>
-    private static void CopyCloudFunctionsToMinigame(string exportPath)
-    {
-        try
-        {
-            // 源路径：项目根目录下的 cloudfunctions 文件夹
-            string cloudFunctionsSource = Path.Combine(Application.dataPath, "..", CloudFunctionsSourcePath);
-            cloudFunctionsSource = Path.GetFullPath(cloudFunctionsSource);
-            
-            // 目标路径：WXExport/minigame/cloudfunctions
-            string cloudFunctionsDest = Path.Combine(exportPath, "minigame", "cloudfunctions");
-            
-            // 检查源文件夹是否存在
-            if (!Directory.Exists(cloudFunctionsSource))
-            {
-                Debug.LogWarning($"[PirateCatEditorTools] CloudFunctions source folder not found at {cloudFunctionsSource}, skipping copy");
-                return;
-            }
-            
-            // 检查 minigame 目录是否存在
-            string minigamePath = Path.Combine(exportPath, "minigame");
-            if (!Directory.Exists(minigamePath))
-            {
-                Debug.LogWarning($"[PirateCatEditorTools] Minigame folder not found at {minigamePath}, skipping cloudfunctions copy");
-                return;
-            }
-            
-            // 如果目标文件夹已存在，先删除
-            if (Directory.Exists(cloudFunctionsDest))
-            {
-                Directory.Delete(cloudFunctionsDest, true);
-                Debug.Log($"[PirateCatEditorTools] Deleted existing cloudfunctions folder at {cloudFunctionsDest}");
-            }
-            
-            // 复制文件夹
-            FileUtil.CopyFileOrDirectory(cloudFunctionsSource, cloudFunctionsDest);
-            Debug.Log($"[PirateCatEditorTools] Copied cloudfunctions from {cloudFunctionsSource} to {cloudFunctionsDest}");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[PirateCatEditorTools] Failed to copy cloudfunctions folder: {e.Message}\n{e.StackTrace}");
-            // 不抛出异常，只记录错误，因为这不是关键步骤
-        }
-    }
-    
-    /// <summary>
-    /// 步骤5: 复制文件到 Backup 目录
+    /// 步骤4: 复制文件到 Backup 目录
     /// </summary>
     /// <param name="version">版本号</param>
     /// <param name="hasResourceChanged">是否修改了资源</param>
@@ -231,7 +159,7 @@ public static class PirateCatEditorTools
     {
         try
         {
-            Debug.Log($"[PirateCatEditorTools] Step 5: Copy files to backup directory");
+            Debug.Log($"[PirateCatEditorTools] Step 4: Copy files to backup directory");
             
             CopyToBackup(version, hasResourceChanged);
             
@@ -267,11 +195,12 @@ public static class PirateCatEditorTools
     }
     
     /// <summary>
-    /// 更新 InnerResourceSourceUrl
+    /// 更新 InnerResourceSourceUrl（使用App版本号拼接CDN地址）
     /// </summary>
-    public static void UpdateInnerResourceSourceUrl(string version)
+    /// <param name="appVersion">App版本号（如 1.0.0）</param>
+    public static void UpdateInnerResourceSourceUrl(string appVersion)
     {
-        Debug.Log($"[PirateCatEditorTools] Update InnerResourceSourceUrl version to {version}");
+        Debug.Log($"[PirateCatEditorTools] Update InnerResourceSourceUrl with app version {appVersion}");
         
         var settings = AssetDatabase.LoadAssetAtPath<TEngineSettings>(TEngineGlobalSettingsPath);
         if (settings == null)
@@ -279,7 +208,7 @@ public static class PirateCatEditorTools
             throw new System.Exception($"Failed to load TEngineGlobalSettings from {TEngineGlobalSettingsPath}");
         }
         
-        string newUrl = $"{CDNBaseUrl}{version}/";
+        string newUrl = $"{CDNBaseUrl}{appVersion}/";
         var resourcesArea = settings.FrameworkGlobalSettings.ResourcesArea;
         
         // 使用反射或序列化方式修改（这里需要根据实际类型调整）
@@ -304,13 +233,14 @@ public static class PirateCatEditorTools
     }
     
     /// <summary>
-    /// 更新 MiniGameConfig 的 CDN 地址
+    /// 更新 MiniGameConfig 的 CDN 地址（使用App版本号拼接）
     /// </summary>
-    public static void UpdateMiniGameConfigCDN(string version)
+    /// <param name="appVersion">App版本号（如 1.0.0）</param>
+    public static void UpdateMiniGameConfigCDN(string appVersion)
     {
-        Debug.Log($"[PirateCatEditorTools] Update MiniGameConfig CDN version to {version}");
+        Debug.Log($"[PirateCatEditorTools] Update MiniGameConfig CDN with app version {appVersion}");
         
-        string newUrl = $"{CDNBaseUrl}{version}/";
+        string newUrl = $"{CDNBaseUrl}{appVersion}/";
         
         // 直接修改 YAML 文件，使用更精确的匹配
         if (!File.Exists(MiniGameConfigPath))

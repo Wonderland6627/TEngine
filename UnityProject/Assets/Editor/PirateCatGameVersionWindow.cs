@@ -6,7 +6,8 @@ using UnityEngine;
 /// </summary>
 public class PirateCatGameVersionWindow : EditorWindow
 {
-    private string version = "v0.1.7.2";
+    private string resourceVersion = "v0.1.7.2"; // 资源版本号
+    private string appVersion = "1.0.0"; // App版本号
     private bool hasResourceChanged = false;
     
     [MenuItem("PirateCat/打包工具")]
@@ -21,7 +22,7 @@ public class PirateCatGameVersionWindow : EditorWindow
     private void OnEnable()
     {
         // 加载当前版本号
-        LoadCurrentVersion();
+        LoadCurrentVersions();
     }
     
     private void OnGUI()
@@ -43,21 +44,51 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUILayout.LabelField("步骤1: 修改版本号", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
+        // App版本号
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("版本号:", GUILayout.Width(80));
-        version = EditorGUILayout.TextField(version);
+        EditorGUILayout.LabelField("App版本号:", GUILayout.Width(100));
+        appVersion = EditorGUILayout.TextField(appVersion);
         EditorGUILayout.EndHorizontal();
         
         EditorGUILayout.Space(5);
-        EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(version));
+        
+        // 资源版本号
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("资源版本号:", GUILayout.Width(100));
+        resourceVersion = EditorGUILayout.TextField(resourceVersion);
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(resourceVersion) || string.IsNullOrEmpty(appVersion));
         if (GUILayout.Button("确认并更新版本号", GUILayout.Height(30)))
         {
             if (EditorUtility.DisplayDialog("确认更新", 
-                $"确定要将版本号更新为 {version} 吗？\n\n这将更新以下文件：\n- YooAssetSettings.asset\n- TEngineGlobalSettings.asset\n- MiniGameConfig.asset", 
+                $"确定要更新版本号吗？\n\nApp版本号: {appVersion}\n资源版本号: {resourceVersion}\n\n这将更新以下文件：\n- BuildSettings (PlayerSettings.bundleVersion)\n- YooAssetSettings.asset\n- TEngineGlobalSettings.asset\n- MiniGameConfig.asset", 
                 "确定", "取消"))
             {
-                PirateCatEditorTools.UpdateVersion(version);
-                LoadCurrentVersion(); // 重新加载以显示更新后的值
+                bool resourceSuccess = PirateCatEditorTools.UpdateVersion(resourceVersion, appVersion);
+                bool appSuccess = PirateCatEditorTools.UpdateAppVersion(appVersion);
+                
+                if (resourceSuccess && appSuccess)
+                {
+                    EditorUtility.DisplayDialog("成功", 
+                        $"版本号更新成功！\n\nApp版本号: {appVersion}\n资源版本号: {resourceVersion}", 
+                        "确定");
+                }
+                else if (!resourceSuccess && !appSuccess)
+                {
+                    EditorUtility.DisplayDialog("错误", "资源版本号和App版本号更新都失败", "确定");
+                }
+                else if (!resourceSuccess)
+                {
+                    EditorUtility.DisplayDialog("部分成功", "App版本号更新成功，但资源版本号更新失败", "确定");
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("部分成功", "资源版本号更新成功，但App版本号更新失败", "确定");
+                }
+                
+                LoadCurrentVersions(); // 重新加载以显示更新后的值
             }
         }
         EditorGUI.EndDisabledGroup();
@@ -76,10 +107,10 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
         
         EditorGUILayout.Space(5);
-        EditorGUI.BeginDisabledGroup(!hasResourceChanged || string.IsNullOrEmpty(version));
+        EditorGUI.BeginDisabledGroup(!hasResourceChanged || string.IsNullOrEmpty(resourceVersion));
         if (GUILayout.Button("打开 AssetBundle Builder", GUILayout.Height(30)))
         {
-            PirateCatEditorTools.BuildBundle(version);
+            PirateCatEditorTools.BuildBundle(resourceVersion);
         }
         EditorGUI.EndDisabledGroup();
         
@@ -125,54 +156,19 @@ public class PirateCatGameVersionWindow : EditorWindow
         
         EditorGUILayout.Space(15);
         
-        // ========== 步骤4: 更新 project.config.json 和复制 cloudfunctions ==========
-        EditorGUILayout.LabelField("步骤4: 更新 project.config.json 和复制 cloudfunctions", EditorStyles.boldLabel);
+        // ========== 步骤4: 复制到备份目录 ==========
+        EditorGUILayout.LabelField("步骤4: 复制到备份目录", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
-        if (GUILayout.Button("更新配置并复制云函数", GUILayout.Height(30)))
-        {
-            if (PirateCatEditorTools.UpdateProjectConfigJson())
-            {
-                EditorUtility.DisplayDialog("成功", 
-                    "操作完成！\n\n" +
-                    "✓ project.config.json 已更新，已添加 cloudfunctionRoot 配置\n" +
-                    "✓ cloudfunctions 文件夹已复制到 WXExport/minigame/ 目录", 
-                    "确定");
-            }
-            else
-            {
-                EditorUtility.DisplayDialog("提示", "更新失败或文件不存在，请确保已完成微信小游戏转换（步骤3）", "确定");
-            }
-        }
-        
-        EditorGUILayout.Space(3);
-        GUIStyle helpStyle4 = new GUIStyle(GUI.skin.label)
-        {
-            fontSize = 10,
-            wordWrap = true,
-            normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
-        };
-        EditorGUILayout.LabelField("提示: 在完成微信转换后（步骤3），点击此按钮：", helpStyle4);
-        EditorGUILayout.LabelField("  • 更新 project.config.json，添加 cloudfunctionRoot 配置", helpStyle4);
-        EditorGUILayout.LabelField("  • 将项目根目录下的 cloudfunctions 文件夹复制到 WXExport/minigame/ 目录", helpStyle4);
-        
-        EditorGUILayout.EndVertical();
-        
-        EditorGUILayout.Space(15);
-        
-        // ========== 步骤5: 复制到备份目录 ==========
-        EditorGUILayout.LabelField("步骤5: 复制到备份目录", EditorStyles.boldLabel);
-        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        
-        EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(version));
+        EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(resourceVersion));
         if (GUILayout.Button("复制到 CDN_Backup", GUILayout.Height(30)))
         {
             if (EditorUtility.DisplayDialog("确认复制",
-                $"确定要将文件复制到备份目录吗？\n\n版本号: {version}\n" +
+                $"确定要将文件复制到备份目录吗？\n\n资源版本号: {resourceVersion}\n" +
                 $"资源修改: {(hasResourceChanged ? "是（将复制 StreamingAssets 和 bin.txt）" : "否（只复制 bin.txt）")}",
                 "确定", "取消"))
             {
-                string backupPath = System.IO.Path.Combine("CDN_Backup", "MiniGame", version);
+                string backupPath = System.IO.Path.Combine("CDN_Backup", "MiniGame", resourceVersion);
                 string fullPath = System.IO.Path.GetFullPath(backupPath);
                 if (System.IO.Directory.Exists(fullPath))
                 {
@@ -183,19 +179,19 @@ public class PirateCatGameVersionWindow : EditorWindow
                     EditorUtility.DisplayDialog("提示", $"目录不存在: {fullPath}", "确定");
                 }
                 
-                PirateCatEditorTools.CopyToBackupDirectory(version, hasResourceChanged);
+                PirateCatEditorTools.CopyToBackupDirectory(resourceVersion, hasResourceChanged);
             }
         }
         EditorGUI.EndDisabledGroup();
         
         EditorGUILayout.Space(3);
-        GUIStyle helpStyle5 = new GUIStyle(GUI.skin.label)
+        GUIStyle helpStyle4 = new GUIStyle(GUI.skin.label)
         {
             fontSize = 10,
             wordWrap = true,
             normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
         };
-        EditorGUILayout.LabelField("提示: 文件将从 WXExport/webgl/ 复制到 CDN_Backup/MiniGame/{版本号}/", helpStyle5);
+        EditorGUILayout.LabelField("提示: 文件将从 WXExport/webgl/ 复制到 CDN_Backup/MiniGame/{版本号}/", helpStyle4);
         
         EditorGUILayout.EndVertical();
         
@@ -206,7 +202,12 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUILayout.LabelField("当前配置:", EditorStyles.boldLabel);
         
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("YooAsset版本:", GUILayout.Width(120));
+        EditorGUILayout.LabelField("App版本号:", GUILayout.Width(120));
+        EditorGUILayout.LabelField(GetCurrentAppVersion());
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("资源版本号:", GUILayout.Width(120));
         EditorGUILayout.LabelField(GetCurrentYooAssetVersion());
         EditorGUILayout.EndHorizontal();
         
@@ -217,22 +218,26 @@ public class PirateCatGameVersionWindow : EditorWindow
     }
     
     /// <summary>
-    /// 加载当前版本号
+    /// 加载当前版本号（资源版本号和App版本号）
     /// </summary>
-    private void LoadCurrentVersion()
+    private void LoadCurrentVersions()
     {
         try
         {
+            // 加载资源版本号
             var settings = AssetDatabase.LoadAssetAtPath<YooAsset.YooAssetSettings>(
                 "Assets/TEngine/AssetSetting/Resources/YooAssetSettings.asset");
             if (settings != null)
             {
-                version = settings.BuildVersion;
+                resourceVersion = settings.BuildVersion;
             }
+            
+            // 加载App版本号
+            appVersion = PlayerSettings.bundleVersion;
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[PirateCatGameVersionWindow] Failed to load current version: {e.Message}");
+            Debug.LogWarning($"[PirateCatGameVersionWindow] Failed to load current versions: {e.Message}");
         }
     }
     
@@ -246,6 +251,21 @@ public class PirateCatGameVersionWindow : EditorWindow
             var settings = AssetDatabase.LoadAssetAtPath<YooAsset.YooAssetSettings>(
                 "Assets/TEngine/AssetSetting/Resources/YooAssetSettings.asset");
             return settings != null ? settings.BuildVersion : "未知";
+        }
+        catch
+        {
+            return "未知";
+        }
+    }
+    
+    /// <summary>
+    /// 获取当前 App 版本号
+    /// </summary>
+    private string GetCurrentAppVersion()
+    {
+        try
+        {
+            return PlayerSettings.bundleVersion;
         }
         catch
         {
