@@ -1,10 +1,7 @@
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using YooAsset;
-using YooAsset.Editor;
-using TEngine.Editor;
 
 /// <summary>
 /// 打包工具核心逻辑
@@ -35,9 +32,9 @@ public static class PirateCatEditorTools
             Debug.Log($"[PirateCatEditorTools] Step 1: Update resource version to {resourceVersion}");
             
             // 验证资源版本号格式
-            if (string.IsNullOrEmpty(resourceVersion) || !resourceVersion.StartsWith("v"))
+            if (string.IsNullOrEmpty(resourceVersion))
             {
-                EditorUtility.DisplayDialog("错误", "资源版本号必须以 'v' 开头（如 v0.1.7.3）", "确定");
+                EditorUtility.DisplayDialog("错误", "资源版本号不能为空", "确定");
                 return false;
             }
             
@@ -51,9 +48,9 @@ public static class PirateCatEditorTools
             // 更新 YooAssetSettings.asset 的 BuildVersion（使用资源版本号）
             UpdateYooAssetVersion(resourceVersion);
             
+            UpdateAppVersion(appVersion);
             // 更新 InnerResourceSourceUrl（使用App版本号拼接CDN地址）
             UpdateInnerResourceSourceUrl(appVersion);
-            
             // 更新 MiniGameConfig.asset 的 CDN（使用App版本号拼接CDN地址）
             UpdateMiniGameConfigCDN(appVersion);
             
@@ -73,31 +70,10 @@ public static class PirateCatEditorTools
     /// </summary>
     /// <param name="appVersion">App版本号（如 1.0.0）</param>
     /// <returns>是否成功</returns>
-    public static bool UpdateAppVersion(string appVersion)
+    public static void UpdateAppVersion(string appVersion)
     {
-        try
-        {
-            Debug.Log($"[PirateCatEditorTools] Update app version to {appVersion}");
-            
-            // 验证版本号格式
-            if (string.IsNullOrEmpty(appVersion))
-            {
-                EditorUtility.DisplayDialog("错误", "App版本号不能为空", "确定");
-                return false;
-            }
-            
-            // 更新 PlayerSettings.bundleVersion
-            PlayerSettings.bundleVersion = appVersion;
-            
-            Debug.Log($"[PirateCatEditorTools] App version updated successfully to {appVersion}");
-            return true;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[PirateCatEditorTools] Failed to update app version: {e.Message}\n{e.StackTrace}");
-            EditorUtility.DisplayDialog("错误", $"更新App版本号失败：{e.Message}", "确定");
-            return false;
-        }
+        PlayerSettings.bundleVersion = appVersion;
+        Debug.Log($"[PirateCatEditorTools] Update app version to {appVersion}");
     }
     
     /// <summary>
@@ -147,7 +123,6 @@ public static class PirateCatEditorTools
             return false;
         }
     }
-    
     
     /// <summary>
     /// 步骤4: 复制文件到 Backup 目录

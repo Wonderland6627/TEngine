@@ -1,5 +1,7 @@
+using System.IO;
 using UnityEditor;
 using UnityEngine;
+using YooAsset.Editor;
 
 /// <summary>
 /// 微信小游戏打包工具窗口（分步骤操作）
@@ -27,6 +29,18 @@ public class PirateCatGameVersionWindow : EditorWindow
     
     private void OnGUI()
     {
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+        if (GUILayout.Button("打开Bundle目录", EditorStyles.toolbarButton))
+        {
+            OpenDirectory(Path.GetFullPath(AssetBundleBuilderHelper.GetDefaultBuildOutputRoot()), "Bundle目录");
+        }
+        if (GUILayout.Button("打开CDN备份目录", EditorStyles.toolbarButton))
+        {
+            OpenDirectory(Path.GetFullPath(Path.Combine(Application.dataPath, "..", "CDN_Backup")), "CDN备份目录");
+        }
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+
         EditorGUILayout.Space(10);
         
         // 标题
@@ -66,26 +80,16 @@ public class PirateCatGameVersionWindow : EditorWindow
                 $"确定要更新版本号吗？\n\nApp版本号: {appVersion}\n资源版本号: {resourceVersion}\n\n这将更新以下文件：\n- BuildSettings (PlayerSettings.bundleVersion)\n- YooAssetSettings.asset\n- TEngineGlobalSettings.asset\n- MiniGameConfig.asset", 
                 "确定", "取消"))
             {
-                bool resourceSuccess = PirateCatEditorTools.UpdateVersion(resourceVersion, appVersion);
-                bool appSuccess = PirateCatEditorTools.UpdateAppVersion(appVersion);
-                
-                if (resourceSuccess && appSuccess)
+                bool success = PirateCatEditorTools.UpdateVersion(resourceVersion, appVersion);
+                if (success)
                 {
                     EditorUtility.DisplayDialog("成功", 
                         $"版本号更新成功！\n\nApp版本号: {appVersion}\n资源版本号: {resourceVersion}", 
                         "确定");
                 }
-                else if (!resourceSuccess && !appSuccess)
-                {
-                    EditorUtility.DisplayDialog("错误", "资源版本号和App版本号更新都失败", "确定");
-                }
-                else if (!resourceSuccess)
-                {
-                    EditorUtility.DisplayDialog("部分成功", "App版本号更新成功，但资源版本号更新失败", "确定");
-                }
                 else
                 {
-                    EditorUtility.DisplayDialog("部分成功", "资源版本号更新成功，但App版本号更新失败", "确定");
+                    EditorUtility.DisplayDialog("错误", "更新失败", "确定");
                 }
                 
                 LoadCurrentVersions(); // 重新加载以显示更新后的值
@@ -215,6 +219,18 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUILayout.LabelField("CDN地址:", GUILayout.Width(120));
         EditorGUILayout.LabelField(GetCurrentCDNUrl(), EditorStyles.wordWrappedLabel);
         EditorGUILayout.EndHorizontal();
+    }
+
+    private static void OpenDirectory(string fullPath, string label)
+    {
+        if (Directory.Exists(fullPath))
+        {
+            EditorUtility.RevealInFinder(fullPath);
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("提示", $"{label}不存在: {fullPath}", "确定");
+        }
     }
     
     /// <summary>
