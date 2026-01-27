@@ -143,100 +143,46 @@ namespace GameLogic
     partial class World
     {
         /// <summary>
-        /// Editor环境登录流程：调用getCode2Session获取token
+        /// 统一登录入口（使用平台登录管理器）
         /// </summary>
-        public async UniTask<bool> LoginEditor()
+        public async UniTask<bool> Login()
         {
-            Log.Info("[World] LoginEditor: Start editor platform login");
-            
-            // 调用getCode2Session接口，platform="Editor"
-            var loginRequest = new Dictionary<string, object>
+            // 检查是否需要登录
+            if (!NetManager.NeedLogin)
             {
-                { "platform", "Editor" },
-                { "code", "editor" }  // Editor环境下code可以是任意值
-            };
-            
-            var response = await NetManager.CallHttp<SessionData>("getCode2Session", loginRequest);
-            if (!response.IsSuccess || response.data == null)
-            {
-                Log.Error($"[World] LoginEditor failed: {response.ErrorMessage}");
-                return false;
-            }
-
-            // 保存token
-            NetManager.AuthToken = response.data.token;
-            Log.Info($"[World] LoginEditor success: openid={response.data.openid}, token saved");
-            
-            // 更新本地用户信息
-            if (!string.IsNullOrEmpty(response.data.openid))
-            {
-                var currentUserInfo = GameData.UserInfo;
-                currentUserInfo.openID = response.data.openid;
-                GameData.UserInfo = currentUserInfo;
+                Log.Info($"[World] Using cached token, remaining: {NetManager.GetTokenRemainingSeconds()}s");
+                return true;
             }
             
-            return true;
+            Log.Info("[World] Starting platform login");
+            bool success = await PlatformManager.Login();
+            if (success)
+            {
+                // 登录成功后，更新本地用户信息（从token中解析或从服务器获取）
+                await UpdateUserInfoFromLogin();
+            }
+            
+            return success;
         }
-
+        
         /// <summary>
-        /// 微信环境登录流程：WX.Login() -> getCode2Session -> 保存token
+        /// 登录成功后更新用户信息
         /// </summary>
-        public async UniTask<bool> LoginWeChat()
+        private async UniTask UpdateUserInfoFromLogin()
         {
-            Log.Info("[World] LoginWeChat: Start wechat login");
+            // 方式1: 从getCode2Session响应中获取openid（如果返回了）
+            // 方式2: 调用getUserWXContext获取（如果需要更多信息）
+            // 这里先尝试从登录响应中获取，如果没有则调用接口
             
-            // 步骤1: 调用WX.Login()获取code
-            string wxCode = null;
-            var loginTcs = new UniTaskCompletionSource<string>();
-            
-            WX.Login(new LoginOption()
-            {
-                success = (res) =>
-                {
-                    Log.Info($"[World] WX.Login success: code={res.code}");
-                    loginTcs.TrySetResult(res.code);
-                },
-                fail = (err) =>
-                {
-                    Log.Error($"[World] WX.Login failed: {err.ToJson()}");
-                    loginTcs.TrySetResult(null);
-                }
-            });
-            
-            wxCode = await loginTcs.Task;
-            if (string.IsNullOrEmpty(wxCode))
-            {
-                Log.Error("[World] LoginWeChat: Failed to get wx code");
-                return false;
-            }
-
-            // 步骤2: 调用getCode2Session接口获取token
-            var loginRequest = new Dictionary<string, object>
-            {
-                { "code", wxCode },
-                { "platform", "wechat" }  // 可选，默认就是wechat
-            };
-            
-            var response = await NetManager.CallHttp<SessionData>("getCode2Session", loginRequest);
-            if (!response.IsSuccess || response.data == null)
-            {
-                Log.Error($"[World] LoginWeChat: getCode2Session failed: {response.ErrorMessage}");
-                return false;
-            }
-
-            // 步骤3: 保存token
-            NetManager.AuthToken = response.data.token;
-            Log.Info($"[World] LoginWeChat success: openid={response.data.openid}, token saved");
-            
-            // 更新本地用户信息
-            if (!string.IsNullOrEmpty(response.data.openid))
+            // 暂时先调用getUserWXContext获取openid
+            var response = await NetManager.CallHttp<WXContextData>("getUserWXContext");
+            if (response.IsSuccess && response.data != null && !string.IsNullOrEmpty(response.data.openid))
             {
                 var currentUserInfo = GameData.UserInfo;
                 currentUserInfo.openID = response.data.openid;
                 GameData.UserInfo = currentUserInfo;
+                Log.Info($"[World] Updated user info from login: openid={response.data.openid}");
             }
-            
-            return true;
         }
     }
 

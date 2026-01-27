@@ -34,39 +34,26 @@ namespace GameLogic
         public async UniTaskVoid AsyncInit()
         {
             GameData.GuideFinish = false;
-#if UNITY_EDITOR
-            await LoginEditor();
-            await LoadConfig();
-            FetchUserGameInfo();
-#else
-            InitWX(async (success) =>
+            
+            // 统一登录流程（自动根据平台选择）
+            bool loginSuccess = await Login();
+            if (!loginSuccess)
             {
-                if (success)
-                {
-                    Log.Info($"[World] Init WX SDK success");
-                    // 微信环境：执行登录流程
-                    bool loginSuccess = await LoginWeChat();
-                    if (!loginSuccess)
-                    {
-                        Log.Error("[World] WeChat login failed");
-                        return;
-                    }
-                    await LoadConfig();
-                    // bool remoteLvlsCfgGetSuccess = await LoadRemoteLevelsConfig(); //加载远端关卡配置 如果有 则使用远端覆盖本地
-                    // Log.Info($"[World] LoadRemoteLevelsConfig success: {remoteLvlsCfgGetSuccess}");
-                    FetchUserGameInfo((success) => 
-                    {
-                        // 2021年后新版本必须通过用户主动触发获取用户信息
-                        // 这里不在启动时自动弹授权，改为：第一关胜利后若未获取到昵称再触发（见 UIGameOverWindow）
-                    });
-                    InitAds();
-                }
-                else
-                {
-                    Log.Error("[World] Init WX SDK failed");
-                }
+                Log.Error("[World] Login failed");
+                return;
+            }
+            
+            await LoadConfig();
+            FetchUserGameInfo((success) => 
+            {
+                // 2021年后新版本必须通过用户主动触发获取用户信息
+                // 这里不在启动时自动弹授权，改为：第一关胜利后若未获取到昵称再触发（见 UIGameOverWindow）
             });
+            
+#if !UNITY_EDITOR
+            InitAds();
 #endif
+            
             GameModule.UI.ShowUIAsync<UIMenuWindow>();
         }
 

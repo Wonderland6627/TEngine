@@ -149,18 +149,6 @@ namespace GameLogic.Network
         #region Token有效性检查
         
         /// <summary>
-        /// 检查是否有有效的Token（可直接使用，无需重新登录）
-        /// </summary>
-        public static bool HasValidToken
-        {
-            get
-            {
-                var state = GetTokenState();
-                return state == TokenState.Valid || state == TokenState.Expiring;
-            }
-        }
-        
-        /// <summary>
         /// 检查是否需要登录（无Token或Token已过期）
         /// </summary>
         public static bool NeedLogin
@@ -169,17 +157,6 @@ namespace GameLogic.Network
             {
                 var state = GetTokenState();
                 return state == TokenState.None || state == TokenState.Expired || state == TokenState.Invalid;
-            }
-        }
-        
-        /// <summary>
-        /// 检查Token是否即将过期（建议静默刷新）
-        /// </summary>
-        public static bool IsTokenExpiring
-        {
-            get
-            {
-                return GetTokenState() == TokenState.Expiring;
             }
         }
         
@@ -232,29 +209,6 @@ namespace GameLogic.Network
             long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             long remaining = expireTime.Value - now;
             return remaining > 0 ? remaining : 0;
-        }
-        
-        /// <summary>
-        /// 获取Token剩余有效时间的可读字符串
-        /// </summary>
-        public static string GetTokenRemainingTimeString()
-        {
-            long seconds = GetTokenRemainingSeconds();
-            if (seconds <= 0)
-            {
-                return "Expired";
-            }
-            
-            TimeSpan ts = TimeSpan.FromSeconds(seconds);
-            if (ts.TotalDays >= 1)
-            {
-                return $"{(int)ts.TotalDays}d {ts.Hours}h";
-            }
-            if (ts.TotalHours >= 1)
-            {
-                return $"{(int)ts.TotalHours}h {ts.Minutes}m";
-            }
-            return $"{ts.Minutes}m {ts.Seconds}s";
         }
         
         /// <summary>

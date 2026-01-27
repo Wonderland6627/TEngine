@@ -41,6 +41,9 @@ public partial class GameApp:Singleton<GameApp>
     private void StartGameLogic()
     {
         Log.Info("GameApp StartGameLogic");
+        
+        PlatformManager.Initialize();
+        PlatformManager.SetCurrentPlatform();
         NetManager.Initialize();
         World.Instance.AsyncInit();
     }
