@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using GameLogic.Network;
 using GameLogic.Network.Models;
 using TEngine;
+using static GameLogic.Network.Constants;
 
 namespace GameLogic
 {
@@ -46,9 +47,9 @@ namespace GameLogic
         /// <summary>
         /// 增加货币（通用方法）
         /// </summary>
-        /// <param name="currencyType">货币类型（使用 CurrencyType 常量）</param>
+        /// <param name="currencyType">货币类型（使用 Constants.CurrencyTypes 常量）</param>
         /// <param name="amount">增加的数量</param>
-        /// <param name="source">货币来源（使用 CurrencySource 常量）</param>
+        /// <param name="source">货币来源（使用 Constants.CurrencySource 常量）</param>
         /// <param name="metadata">额外元数据</param>
         /// <returns>更新后的货币数量</returns>
         public async UniTask<int> AddCurrency(string currencyType, int amount, string source, object metadata = null)
@@ -65,7 +66,7 @@ namespace GameLogic
             if (response.IsSuccess && response.data != null)
             {
                 // 更新本地货币
-                if (currencyType == CurrencyType.COIN)
+                if (currencyType == CurrencyTypes.COIN)
                 {
                     UpdateCoin(response.data.coin);
                     return response.data.coin;
@@ -83,7 +84,7 @@ namespace GameLogic
         /// <summary>
         /// 扣除货币（通用方法）
         /// </summary>
-        /// <param name="currencyType">货币类型（使用 CurrencyType 常量）</param>
+        /// <param name="currencyType">货币类型（使用 Constants.CurrencyTypes 常量）</param>
         /// <param name="amount">扣除的数量</param>
         /// <param name="reason">扣除原因</param>
         /// <returns>更新后的货币数量，失败返回-1</returns>
@@ -100,7 +101,7 @@ namespace GameLogic
             if (response.IsSuccess && response.data != null)
             {
                 // 更新本地货币
-                if (currencyType == CurrencyType.COIN)
+                if (currencyType == CurrencyTypes.COIN)
                 {
                     UpdateCoin(response.data.coin);
                     return response.data.coin;
@@ -120,12 +121,12 @@ namespace GameLogic
         /// 增加金币（便捷方法）
         /// </summary>
         /// <param name="amount">增加的数量</param>
-        /// <param name="source">金币来源（使用 CurrencySource 常量）</param>
+        /// <param name="source">金币来源（使用 Constants.CurrencySource 常量）</param>
         /// <param name="metadata">额外元数据</param>
         /// <returns>更新后的金币数量</returns>
         public async UniTask<int> AddCoin(int amount, string source, object metadata = null)
         {
-            return await AddCurrency(CurrencyType.COIN, amount, source, metadata);
+            return await AddCurrency(CurrencyTypes.COIN, amount, source, metadata);
         }
         
         /// <summary>
@@ -136,7 +137,7 @@ namespace GameLogic
         /// <returns>更新后的金币数量，失败返回-1</returns>
         public async UniTask<int> DeductCoin(int amount, string reason)
         {
-            return await DeductCurrency(CurrencyType.COIN, amount, reason);
+            return await DeductCurrency(CurrencyTypes.COIN, amount, reason);
         }
         
         /// <summary>

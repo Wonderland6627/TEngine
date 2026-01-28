@@ -330,7 +330,7 @@ namespace GameLogic.Network
                         Log.Error($"[NetManager] {msg}");
                         tcs.TrySetResult(new Response<T>
                         {
-                            code = ResponseCode.CLIENT_PARSE_ERROR,
+                            code = Constants.ResponseCode.CLIENT_PARSE_ERROR,
                             msg = msg,
                             data = default(T)
                         });
@@ -342,7 +342,7 @@ namespace GameLogic.Network
                     Log.Error($"[NetManager] {msg}");
                     tcs.TrySetResult(new Response<T>
                     {
-                        code = ResponseCode.ERROR,
+                        code = Constants.ResponseCode.ERROR,
                         msg = msg,
                         data = default(T)
                     });
@@ -382,7 +382,7 @@ namespace GameLogic.Network
             if (Application.internetReachability == NetworkReachability.NotReachable)
             {
                 Log.Warning("[NetManager] No network connection");
-                return new Response<T> { code = ResponseCode.CLIENT_NO_NETWORK, msg = "No network connection", data = default(T) };
+                return new Response<T> { code = Constants.ResponseCode.CLIENT_NO_NETWORK, msg = "No network connection", data = default(T) };
             }
             
             // 从路由字典查找接口路径
@@ -390,7 +390,7 @@ namespace GameLogic.Network
             {
                 var msg = $"Unknown API: {apiName}";
                 Log.Error($"[NetManager] {msg}");
-                return new Response<T> { code = ResponseCode.CLIENT_UNKNOWN_API, msg = msg, data = default(T) };
+                return new Response<T> { code = Constants.ResponseCode.CLIENT_UNKNOWN_API, msg = msg, data = default(T) };
             }
 
             // 构建完整URL
@@ -440,7 +440,7 @@ namespace GameLogic.Network
             
             // 所有重试都失败
             Log.Error($"[NetManager] HTTP request failed after {retryCount + 1} attempts: {lastError}");
-            return new Response<T> { code = ResponseCode.CLIENT_REQUEST_FAILED, msg = lastError ?? "Request failed", data = default(T) };
+            return new Response<T> { code = Constants.ResponseCode.CLIENT_REQUEST_FAILED, msg = lastError ?? "Request failed", data = default(T) };
         }
         
         /// <summary>
@@ -478,7 +478,7 @@ namespace GameLogic.Network
                 }
                 
                 Log.Error($"[NetManager] HTTP error: {request.error}");
-                return new Response<T> { code = ResponseCode.ERROR, msg = request.error, data = default(T) };
+                return new Response<T> { code = Constants.ResponseCode.ERROR, msg = request.error, data = default(T) };
             }
 
             string responseJson = downloadHandler.text;
