@@ -281,7 +281,11 @@ namespace GameLogic.Network
             { "getUserGameInfoV2", "/api/minigame/getUserGameInfoV2" },
             { "setUserGameInfoV2", "/api/minigame/setUserGameInfoV2" },
             { "getUserRankListV2", "/api/minigame/getUserRankListV2" },
-            { "getLevelsConfigV2", "/api/minigame/getLevelsConfigV2" }
+            { "getLevelsConfigV2", "/api/minigame/getLevelsConfigV2" },
+            { "addCurrency", "/api/minigame/addCurrency" },
+            { "deductCurrency", "/api/minigame/deductCurrency" },
+            { "addCoin", "/api/minigame/addCoin" },
+            { "deductCoin", "/api/minigame/deductCoin" }
         };
 
         /// <summary>

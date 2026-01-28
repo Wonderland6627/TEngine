@@ -13,6 +13,7 @@ namespace GameLogic.Network
         public string nickName = "";
         public string avatarUrl = "";
         public string openID = "";
+        public int coin = 0;  // 金币（懒加载，老用户可能不存在，视为0）
     }
 }
 

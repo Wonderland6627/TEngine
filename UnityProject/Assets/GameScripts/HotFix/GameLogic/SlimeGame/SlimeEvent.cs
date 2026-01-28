@@ -17,6 +17,8 @@ namespace GameLogic
         public static string OnKnownTutorial = "OnKnownTutorial";
         
         public static string OnAdsResultReceived = "OnAdsResultReceived";
+        
+        public static string OnCoinChanged = "OnCoinChanged";  // 金币变化事件
     }
 
     // 广告类型枚举
