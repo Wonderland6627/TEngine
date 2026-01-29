@@ -42,6 +42,7 @@ namespace TEngine.Editor.UI
                 }
                 strFile.Append("using UnityEngine;\n");
                 strFile.Append("using UnityEngine.UI;\n");
+                strFile.Append("using TMPro;\n");
                 strFile.Append("using TEngine;\n\n");
                 nameSpace = string.IsNullOrEmpty(nameSpace) ? SettingsUtils.GetUINameSpace() : nameSpace;
                 strFile.Append($"namespace {nameSpace}\n");

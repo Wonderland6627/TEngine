@@ -182,6 +182,7 @@ namespace GameLogic
             if (toggleDebugWindowCount < 5) return;
             toggleDebugWindowCount = 0;
             GameModule.Debugger.ActiveWindow = !GameModule.Debugger.ActiveWindow;
+            GameModule.UI.ShowUIAsync<UIDebugWindow>();
         }
 
         private int toggleShowAdsCount = 0;
