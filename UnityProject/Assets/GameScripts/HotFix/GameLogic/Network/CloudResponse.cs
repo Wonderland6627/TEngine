@@ -27,7 +27,7 @@ namespace GameLogic.Network
         /// <summary>
         /// 是否成功
         /// </summary>
-        public bool IsSuccess => code == Constants.ResponseCode.SUCCESS;
+        public bool IsSuccess => code == ResponseCode.SUCCESS;
 
         /// <summary>
         /// 错误消息（失败时返回）
@@ -42,7 +42,7 @@ namespace GameLogic.Network
         /// <summary>
         /// 是否为未授权错误（需要重新登录）
         /// </summary>
-        public bool IsUnauthorized => code == Constants.ResponseCode.UNAUTHORIZED;
+        public bool IsUnauthorized => code == ResponseCode.UNAUTHORIZED;
     }
 }
 

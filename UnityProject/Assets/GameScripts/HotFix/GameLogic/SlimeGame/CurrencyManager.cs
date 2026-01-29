@@ -1,9 +1,8 @@
 using System;
 using Cysharp.Threading.Tasks;
+using GameBase;
 using GameLogic.Network;
-using GameLogic.Network.Models;
 using TEngine;
-using static GameLogic.Network.Constants;
 
 namespace GameLogic
 {
