@@ -113,5 +113,31 @@ namespace GameLogic
         /// </summary>
         public const string ACHIEVEMENT = "achievement";
     }
+
+    /// <summary>
+    /// 体力值来源枚举（对应服务端 constants.js -> ENERGY_SOURCE）
+    /// </summary>
+    public static class EnergySource
+    {
+        /// <summary>
+        /// 每日登录赠送（对应服务端 ENERGY_SOURCE.DAILY_LOGIN）
+        /// </summary>
+        public const string DAILY_LOGIN = "daily_login";
+        
+        /// <summary>
+        /// 看广告（对应服务端 ENERGY_SOURCE.AD_REWARD）
+        /// </summary>
+        public const string AD_REWARD = "ad_reward";
+        
+        /// <summary>
+        /// 开宝箱（对应服务端 ENERGY_SOURCE.CHEST_REWARD）
+        /// </summary>
+        public const string CHEST_REWARD = "chest_reward";
+        
+        /// <summary>
+        /// 进入关卡消耗（对应服务端 ENERGY_SOURCE.LEVEL_CONSUME）
+        /// </summary>
+        public const string LEVEL_CONSUME = "level_consume";
+    }
 }
 

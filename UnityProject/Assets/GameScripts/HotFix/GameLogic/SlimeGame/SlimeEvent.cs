@@ -19,6 +19,10 @@ namespace GameLogic
         public static string OnAdsResultReceived = "OnAdsResultReceived";
         
         public static string OnCoinChanged = "OnCoinChanged";  // 金币变化事件
+        
+        public static string OnEnergyChanged = "OnEnergyChanged";  // 体力值变化事件
+        
+        public static string OnEnergyNotEnough = "OnEnergyNotEnough";  // 体力值不足事件
     }
 
     // 广告类型枚举
