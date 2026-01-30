@@ -5,6 +5,7 @@ using GameBase;
 using GameLogic;
 using GameLogic.Network;
 using TEngine;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// 游戏App。
@@ -45,6 +46,7 @@ public partial class GameApp:Singleton<GameApp>
         PlatformManager.Initialize();
         PlatformManager.SetCurrentPlatform();
         NetManager.Initialize();
+        NetManager.SyncServerTime().Forget();
         World.Instance.AsyncInit();
     }
     

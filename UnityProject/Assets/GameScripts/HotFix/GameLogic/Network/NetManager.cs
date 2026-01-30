@@ -52,6 +52,7 @@ namespace GameLogic.Network
         private static string _authToken = null;
         private static long? _cachedTokenExpireTime = null;     // 缓存的Token过期时间（Unix时间戳）
         private static ServerType _currentServerType = ServerType.Production;
+        private static long _serverTimeOffset = 0;
 
         /// <summary>
         /// 服务器地址配置（根据需要修改这里的地址）
@@ -61,6 +62,17 @@ namespace GameLogic.Network
             { ServerType.Dev, "http://localhost:3000" },
             { ServerType.Production, "https://express-slime-216111-7-1352845565.sh.run.tcloudbase.com" }
         };
+
+        /// <summary>
+        /// 获取当前服务器时间
+        /// </summary>
+        public static DateTime ServerTime
+        {
+            get
+            {
+                return DateTime.UtcNow.AddMilliseconds(_serverTimeOffset);
+            }
+        }
 
         /// <summary>
         /// 当前服务器类型
@@ -276,6 +288,7 @@ namespace GameLogic.Network
         // API路由字典：接口名 -> HTTP端点路径
         private static readonly Dictionary<string, string> ApiRouteMap = new Dictionary<string, string>
         {
+            { "getServerTime", "/api/time" },
             { "getCode2Session", "/api/minigame/getCode2Session" },
             { "getUserWXContext", "/api/minigame/getUserWXContext" },
             { "getUserGameInfoV2", "/api/minigame/getUserGameInfoV2" },
@@ -287,6 +300,28 @@ namespace GameLogic.Network
             { "addCoin", "/api/minigame/addCoin" },
             { "deductCoin", "/api/minigame/deductCoin" }
         };
+
+        /// <summary>
+        /// 同步服务器时间
+        /// </summary>
+        public static async UniTask SyncServerTime()
+        {
+            try 
+            {
+                var response = await CallHttpData<ServerTimeData>("getServerTime");
+                if (response != null)
+                {
+                    long serverTime = response.timestamp;
+                    long clientTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    _serverTimeOffset = serverTime - clientTime;
+                    Log.Info($"[NetManager] Server time synced: {ServerTime} (offset: {_serverTimeOffset}ms)");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[NetManager] SyncServerTime failed: {e.Message}");
+            }
+        }
 
         /// <summary>
         /// 调用云函数（通用方法）
@@ -523,5 +558,6 @@ namespace GameLogic.Network
 
         #endregion
     }
+
 }
 
