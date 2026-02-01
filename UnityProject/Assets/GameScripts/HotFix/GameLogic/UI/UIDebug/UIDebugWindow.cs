@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using TEngine;
 
@@ -11,6 +12,9 @@ namespace GameLogic
         protected override void OnCreate()
         {
             base.OnCreate();
+
+            m_tmpCoin.text = World.Instance.GameData.Coin.ToString();
+
             EventTriggerListener.Get(m_imgClose.gameObject).OnClick = go =>
             {
                 Close();
@@ -30,13 +34,13 @@ namespace GameLogic
             m_tmpCoin.text = coin.ToString();
         }
 
-        private void OnAddCoin()
+        private async void OnAddCoin()
         {
-            CurrencyManager.Instance.AddCoin(100, "debug_add_coin");
+            await World.Instance.GameData.AddCoin(100, "debug_add_coin");
         }
-        private void OnDeductCoin()
+        private async void OnDeductCoin()
         {
-            CurrencyManager.Instance.DeductCoin(100, "debug_deduct_coin");
+            await World.Instance.GameData.DeductCoin(100, "debug_deduct_coin");
         }
 
         protected override void OnDestroy()

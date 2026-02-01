@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -277,6 +277,8 @@ namespace TEngine
                 BindMemberProperty();
                 RegisterEvent();
                 OnCreate();
+                
+                AttachUIFlag();
             }
         }
 

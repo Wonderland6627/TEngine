@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -537,6 +537,46 @@ namespace TEngine
                 {
                     UnityEngine.Object.Destroy(icon.gameObject);
                 }
+            }
+        }
+
+        #endregion
+
+        #region UIFlag
+
+        /// <summary>
+        /// 挂载UIFlag组件用于debug
+        /// </summary>
+        protected void AttachUIFlag()
+        {
+#if !UNITY_EDITOR
+            return;
+#endif
+
+            if (gameObject == null)
+            {
+                return;
+            }
+            
+            var existingFlag = gameObject.GetComponent<UIFlag>();
+            if (existingFlag != null)
+            {
+                UnityEngine.Object.DestroyImmediate(existingFlag);
+            }
+            
+            UIFlag flag = null;
+            if (Type == UIType.Window)
+            {
+                flag = gameObject.AddComponent<UIWindowFlag>();
+            }
+            else if (Type == UIType.Widget)
+            {
+                flag = gameObject.AddComponent<UIWidgetFlag>();
+            }
+            
+            if (flag != null)
+            {
+                flag.uiName = GetType().Name;
             }
         }
 

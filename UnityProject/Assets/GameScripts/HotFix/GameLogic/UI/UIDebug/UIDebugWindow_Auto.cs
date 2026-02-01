@@ -23,9 +23,9 @@ namespace GameLogic
 			m_imgPopupBG = FindChildComponent<Image>("Content/m_imgPopupBG");
 			m_imgClose = FindChildComponent<Image>("Content/m_imgPopupBG/m_imgClose");
 			m_textTitle = FindChildComponent<Text>("Content/m_imgPopupBG/m_textTitle");
-			m_btnAddCoin = FindChildComponent<Button>("Content/Scroll View/Viewport/Content/GameObject/m_btnAddCoin");
-			m_btnDeductCoin = FindChildComponent<Button>("Content/Scroll View/Viewport/Content/GameObject/m_btnDeductCoin");
-			m_tmpCoin = FindChildComponent<TextMeshProUGUI>("Content/Scroll View/Viewport/Content/GameObject/m_tmpCoin");
+			m_btnAddCoin = FindChildComponent<Button>("Content/Scroll View/Viewport/Content/Coin/m_btnAddCoin");
+			m_btnDeductCoin = FindChildComponent<Button>("Content/Scroll View/Viewport/Content/Coin/m_btnDeductCoin");
+			m_tmpCoin = FindChildComponent<TextMeshProUGUI>("Content/Scroll View/Viewport/Content/Coin/m_tmpCoin");
 		}
 		#endregion
 	}

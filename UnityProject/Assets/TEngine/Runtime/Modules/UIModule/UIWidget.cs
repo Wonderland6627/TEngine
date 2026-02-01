@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TEngine
@@ -218,6 +218,8 @@ namespace TEngine
             OnCreate();
             OnRefresh();
             IsPrepare = true;
+            
+            AttachUIFlag();
 
             if (!visible)
             {

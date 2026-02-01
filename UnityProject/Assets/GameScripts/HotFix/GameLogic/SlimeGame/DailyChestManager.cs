@@ -35,7 +35,7 @@ namespace GameLogic
             await NetManager.SyncServerTime();
             if (IsTodayClaimed()) return false;
             var today = GetServerDate();
-            var newCoin = await CurrencyManager.Instance.AddCoin(amount, CurrencySource.DAILY_CHECKIN, metadata);
+            var newCoin = await World.Instance.GameData.AddCoin(amount, CurrencySource.DAILY_CHECKIN, metadata);
             PlayerPrefs.SetString(KEY_LAST_DATE, today);
             PlayerPrefs.Save();
             return true;

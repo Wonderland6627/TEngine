@@ -1,4 +1,6 @@
 using System;
+using Cysharp.Threading.Tasks;
+using GameLogic.Network;
 using TEngine;
 
 namespace GameLogic
@@ -25,6 +27,7 @@ namespace GameLogic
         private const string Enable_Sound_Key = "slime_enable_sound";
         private const string Enable_Vibration_Key = "slime_enable_vibration";
         private const string Request_User_Info_Date_Key = "slime_request_userinfo_date";
+        private const string Coin_Key = "slime_coin";
 
         private UserInfo _userInfo = new();
         public UserInfo UserInfo
@@ -94,11 +97,18 @@ namespace GameLogic
             }
         }
 
+        private int _coin = 0;
+        /// <summary>
+        /// 当前金币数量
+        /// </summary>
+        public int Coin => _coin;
+
         public SlimeGameData()
         {
             _progressLevelID = PlayerPrefs.GetInt(Progress_Level_ID_Key, 0);
             _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
             _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
+            _coin = PlayerPrefs.GetInt(Coin_Key, 0);
             LoadUserInfo();
             Log.Info($"[SlimeGameData] init data: {this.ToJson()}");
         }
@@ -139,6 +149,77 @@ namespace GameLogic
             string today = DateTime.Now.ToString("yyyyMMdd");
             PlayerPrefs.SetString(Request_User_Info_Date_Key, today);
             Log.Info($"[SlimeGameData] MarkRequestedUserInfoToday: [{today}]");
+        }
+
+        /// <summary>
+        /// 更新金币数量（从服务器数据同步）
+        /// </summary>
+        /// <param name="coin">金币数量</param>
+        public void UpdateCoin(int coin)
+        {
+            if (_coin == coin) return;
+            
+            _coin = coin;
+            PlayerPrefs.SetInt(Coin_Key, _coin);
+            PlayerPrefs.Save();
+            GameEvent.Send(SlimeEvent.OnCoinChanged, _coin);
+            Log.Info($"[SlimeGameData] Update coin: {_coin}");
+        }
+
+        /// <summary>
+        /// 增加金币（调用服务器接口）
+        /// </summary>
+        /// <param name="amount">增加的数量</param>
+        /// <param name="source">金币来源（使用 Constants.CurrencySource 常量）</param>
+        /// <param name="metadata">额外元数据</param>
+        /// <returns>更新后的金币数量</returns>
+        public async UniTask<int> AddCoin(int amount, string source, object metadata = null)
+        {
+            var request = new
+            {
+                currencyType = CurrencyTypes.COIN,
+                amount = amount,
+                source = source,
+                metadata = metadata
+            };
+            
+            var response = await NetManager.CallHttp<AddCurrencyResponse>("addCurrency", request);
+            
+            if (!response.IsSuccess || response.data == null)
+            {
+                Log.Error($"[SlimeGameData] Add coin failed: {response.msg}");
+                return _coin;
+            }
+            
+            UpdateCoin(response.data.coin);
+            return _coin;
+        }
+
+        /// <summary>
+        /// 扣除金币（调用服务器接口）
+        /// </summary>
+        /// <param name="amount">扣除的数量</param>
+        /// <param name="reason">扣除原因</param>
+        /// <returns>更新后的金币数量，失败返回-1</returns>
+        public async UniTask<int> DeductCoin(int amount, string reason)
+        {
+            var request = new
+            {
+                currencyType = CurrencyTypes.COIN,
+                amount = amount,
+                reason = reason
+            };
+            
+            var response = await NetManager.CallHttp<DeductCurrencyResponse>("deductCurrency", request);
+            
+            if (!response.IsSuccess || response.data == null)
+            {
+                Log.Error($"[SlimeGameData] Deduct coin failed: {response.msg}");
+                return -1;
+            }
+            
+            UpdateCoin(response.data.coin);
+            return _coin;
         }
     }
 

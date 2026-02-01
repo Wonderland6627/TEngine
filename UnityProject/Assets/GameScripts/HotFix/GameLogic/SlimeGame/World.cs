@@ -54,7 +54,7 @@ namespace GameLogic
             InitAds();
 #endif
             
-            GameModule.UI.ShowUIAsync<UIMenuWindow>();
+            GameModule.UI.ShowUIAsync<UIMainWindow>();
         }
 
         public override void OnUpdate()

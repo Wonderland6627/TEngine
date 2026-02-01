@@ -64,13 +64,24 @@ namespace GameLogic.Network
         };
 
         /// <summary>
-        /// 获取当前服务器时间
+        /// 获取当前服务器时间（UTC时间）
         /// </summary>
         public static DateTime ServerTime
         {
             get
             {
                 return DateTime.UtcNow.AddMilliseconds(_serverTimeOffset);
+            }
+        }
+
+        /// <summary>
+        /// 获取当前服务器时间（本地时区）
+        /// </summary>
+        public static DateTime ServerTimeLocal
+        {
+            get
+            {
+                return ServerTime.ToLocalTime();
             }
         }
 
@@ -314,7 +325,7 @@ namespace GameLogic.Network
                     long serverTime = response.timestamp;
                     long clientTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                     _serverTimeOffset = serverTime - clientTime;
-                    Log.Info($"[NetManager] Server time synced: {ServerTime} (offset: {_serverTimeOffset}ms)");
+                    Log.Info($"[NetManager] Server time synced - UTC: {ServerTime:yyyy/MM/dd HH:mm:ss}, Local: {ServerTimeLocal:yyyy/MM/dd HH:mm:ss} (offset: {_serverTimeOffset}ms)");
                 }
             }
             catch (Exception e)
@@ -474,7 +485,7 @@ namespace GameLogic.Network
             }
             
             // 所有重试都失败
-            Log.Error($"[NetManager] HTTP request failed after {retryCount + 1} attempts: {lastError}");
+            Log.Error($"[NetManager] HTTP request failed with url: {url} after {retryCount + 1} attempts: {lastError}");
             return new Response<T> { code = ResponseCode.CLIENT_REQUEST_FAILED, msg = lastError ?? "Request failed", data = default(T) };
         }
         

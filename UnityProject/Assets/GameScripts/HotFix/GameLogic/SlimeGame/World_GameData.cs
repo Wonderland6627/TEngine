@@ -211,6 +211,7 @@ namespace GameLogic
             curUserInfo.avatarUrl = userInfo.avatarUrl;
             GameData.UserInfo = curUserInfo;
             GameData.SetProgressLevelID(userInfo.progressLevelID);
+            GameData.UpdateCoin(userInfo.coin);
             callback?.Invoke(true);
             Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
         }
