@@ -46,9 +46,9 @@ MonoBehaviour:
       componentName: Transform
     - uiElementRegex: m_rect
       componentName: RectTransform
-    - uiElementRegex: m_text
+    - uiElementRegex: m_txt
       componentName: Text
-    - uiElementRegex: m_richText
+    - uiElementRegex: m_richTxt
       componentName: RichTextItem
     - uiElementRegex: m_btn
       componentName: Button

@@ -9,7 +9,7 @@ namespace TEngine.Editor.UI
     {
         private const string Gap = "/";
 
-        [MenuItem("GameObject/ScriptGenerator/UIProperty", priority = 41)]
+        [MenuItem("GameObject/ScriptGenerator/UIProperty", priority = 42)]
         public static void MemberProperty()
         {
             Generate(false);
@@ -21,16 +21,54 @@ namespace TEngine.Editor.UI
             Generate(false, true);
         }
 
-        [MenuItem("GameObject/ScriptGenerator/UIPropertyAndListener", priority = 42)]
+        [MenuItem("GameObject/ScriptGenerator/UIPropertyAndListener", priority = 44)]
         public static void MemberPropertyAndListener()
         {
             Generate(true);
         }
 
-        [MenuItem("GameObject/ScriptGenerator/UIPropertyAndListener - UniTask", priority = 44)]
+        [MenuItem("GameObject/ScriptGenerator/UIPropertyAndListener - UniTask", priority = 45)]
         public static void MemberPropertyAndListenerUniTask()
         {
             Generate(true, true);
+        }
+
+        [MenuItem("GameObject/ScriptGenerator/复制生成的UIWidget代码", priority = 41)]
+        public static void GenerateWidgetProperty()
+        {
+            GenerateWidget();
+        }
+
+        private static void GenerateWidget()
+        {
+            var root = Selection.activeTransform;
+            if (root != null)
+            {
+                StringBuilder strVar = new StringBuilder();
+                StringBuilder strBind = new StringBuilder();
+                StringBuilder strOnCreate = new StringBuilder();
+                StringBuilder strCallback = new StringBuilder();
+                Ergodic(root, root, ref strVar, ref strBind, ref strOnCreate, ref strCallback, false);
+                StringBuilder strFile = new StringBuilder();
+                var widgetName = root.name.Replace("m_item", "UI");
+                strFile.Append("#region 脚本工具生成的代码 === 复制开始 ===\n");
+                strFile.Append("\tpartial class " + widgetName + " : UIWidget\n");
+                strFile.Append("\t{\n");
+                strFile.Append(strVar);
+                strFile.Append("\n");
+                strFile.Append("\t\tprotected override void ScriptGenerator()\n");
+                strFile.Append("\t\t{\n");
+                strFile.Append(strBind);
+                strFile.Append(strOnCreate);
+                strFile.Append("\t\t}\n");
+                strFile.Append("\t}\n");
+                strFile.Append("#endregion === 复制结束 ===");
+
+                TextEditor te = new TextEditor();
+                te.text = strFile.ToString();
+                te.SelectAll();
+                te.Copy();
+            }
         }
 
         private static void Generate(bool includeListener, bool isUniTask = false)
