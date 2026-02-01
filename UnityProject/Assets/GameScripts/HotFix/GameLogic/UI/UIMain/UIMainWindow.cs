@@ -10,6 +10,7 @@ namespace GameLogic
     partial class UIMainWindow
     {
         private UILevelView levelView;
+        private UIMainBottomTab currentSelectedTab;
 
         protected override void OnCreate()
         {
@@ -17,11 +18,38 @@ namespace GameLogic
 
             levelView = CreateWidget<UILevelView>(m_itemLevelView);
             
-            m_txtVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}";
-
-            GameEvent.AddEventListener<UserInfo>(SlimeEvent.OnUserInfoUpdate, OnUserInfoUpdate);
+            InitBottomTabs();
             
+            m_txtVersion.text = $"Version: {GameModule.Resource.GetPackageVersion()} {World.Instance.GameData.UserInfo.nickName}";
+            GameEvent.AddEventListener<UserInfo>(SlimeEvent.OnUserInfoUpdate, OnUserInfoUpdate);
             GameModule.Audio.Play(TEngine.AudioType.Music, "BGM", true, 0.5f, true);
+        }
+
+        private void InitBottomTabs()
+        {
+            var atlasTab = CreateWidget<UIMainBottomTab>(m_itemBottomTab_Atlas);
+            var levelTab = CreateWidget<UIMainBottomTab>(m_itemBottomTab_Level);
+            var lotteryTab = CreateWidget<UIMainBottomTab>(m_itemBottomTab_Lottery);
+
+            levelTab.bindedWidget = levelView;
+            levelTab.onClick = SwitchBottomTab;
+            atlasTab.onClick = SwitchBottomTab;
+            lotteryTab.onClick = SwitchBottomTab;
+
+            SwitchBottomTab(levelTab);
+        }
+
+        private void SwitchBottomTab(UIMainBottomTab tab)
+        {
+            if (tab == currentSelectedTab) return;
+
+            if (currentSelectedTab != null)
+            {
+                currentSelectedTab.SetSelected(false);
+            }
+
+            currentSelectedTab = tab;
+            currentSelectedTab.SetSelected(true);
         }
 
         private void OnUserInfoUpdate(UserInfo userInfo)
