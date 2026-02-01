@@ -70,6 +70,8 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 21300000, guid: eb44604909a93324b850bd2e820631db, type: 3}
+    - {fileID: 21300000, guid: feb8874e0655bd94095d29e6b9eac9ae, type: 3}
+    - {fileID: 21300000, guid: 2fe3d95fd1c9cfd41b19e471d1eb2fcd, type: 3}
     - {fileID: 21300000, guid: b5d118be01527da4b8aa0e0177a8f691, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
@@ -77,10 +79,14 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: eb44604909a93324b850bd2e820631db, type: 3}
+  - {fileID: 21300000, guid: feb8874e0655bd94095d29e6b9eac9ae, type: 3}
   - {fileID: 21300000, guid: b5d118be01527da4b8aa0e0177a8f691, type: 3}
+  - {fileID: 21300000, guid: 2fe3d95fd1c9cfd41b19e471d1eb2fcd, type: 3}
   m_PackedSpriteNamesToIndex:
   - Level1_10
+  - level_1
   - lobby_bg
+  - level_2
   m_RenderDataMap: {}
   m_Tag: UIRaw_Atlas_Level
   m_IsVariant: 0
