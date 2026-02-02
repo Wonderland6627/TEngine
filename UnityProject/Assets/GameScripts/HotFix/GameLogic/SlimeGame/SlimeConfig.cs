@@ -6,20 +6,32 @@ using UnityEngine;
 
 namespace GameLogic
 {
-    public class SlimeConfigReader<T> where T : SlimeConfig
+    /// <summary>
+    /// 配置读取器（泛型参数T直接表示实际存储的类型）
+    /// 支持两种用法：
+    /// - SlimeConfigReader&lt;List&lt;LevelConfig&gt;&gt; - 加载数组配置
+    /// - SlimeConfigReader&lt;EnergyConfig&gt; - 加载单个对象配置
+    /// </summary>
+    public class SlimeConfigReader<T>
     {
-        public List<T> configs { get; protected set; }
+        public T Value { get; protected set; }
 
         public async UniTask LoadLocalConfig(string jsonPath)
         {
             var res = await GameModule.Resource.LoadAssetAsync<TextAsset>(jsonPath);
+            if (res == null)
+            {
+                Log.Warning($"[SlimeConfigReader] Config file not found: {jsonPath}");
+                return;
+            }
+
             var json = res.text;
-            configs = Utility.Json.ToObject<List<T>>(json);
+            Value = Utility.Json.ToObject<T>(json);
         }
 
-        public void SetConfigs(List<T> configs)
+        public void SetValue(T value)
         {
-            this.configs = configs;
+            Value = value;
         }
     }
 
@@ -121,5 +133,28 @@ namespace GameLogic
 
         // 特殊效果
         OccupyRandomCastle = 13,        // 随机占领一个未被占领的城堡
+    }
+
+    //===================================================================================
+
+    public class EnergyConfig : SlimeConfig
+    {
+        public int energyMax { get; set; }                    // 体力最大值
+        public int dailyLoginReward { get; set; }             // 每日登录奖励
+        public int levelConsume { get; set; }                 // 关卡消耗
+        public AdReward adReward { get; set; }                // 广告奖励
+        public ChestReward chestReward { get; set; }          // 宝箱奖励
+
+        public class AdReward
+        {
+            public int min { get; set; }
+            public int max { get; set; }
+        }
+
+        public class ChestReward
+        {
+            public int min { get; set; }
+            public int max { get; set; }
+        }
     }
 }

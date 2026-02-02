@@ -10,8 +10,9 @@ namespace GameLogic
 {
     public partial class World
     {
-        public SlimeConfigReader<LevelConfig> levelReader { get; private set; }
-        public SlimeConfigReader<UnitConfig> unitReader { get; private set; }
+        public SlimeConfigReader<List<LevelConfig>> levelReader { get; private set; }
+        public SlimeConfigReader<List<UnitConfig>> unitReader { get; private set; }
+        public SlimeConfigReader<EnergyConfig> energyReader { get; private set; }
         
         public GameConfig gameConfig { get; private set; }
 
@@ -20,14 +21,16 @@ namespace GameLogic
         
         private async UniTask LoadConfig()
         {
-            levelReader = new();
+            levelReader = new SlimeConfigReader<List<LevelConfig>>();
             await levelReader.LoadLocalConfig("levels");
-            unitReader = new();
+            unitReader = new SlimeConfigReader<List<UnitConfig>>();
             await unitReader.LoadLocalConfig("units");
+            energyReader = new SlimeConfigReader<EnergyConfig>();
+            await energyReader.LoadLocalConfig("energy_config");
             
             await LoadGameConfig();
         }
-        
+
         // 加载游戏配置
         private async UniTask LoadGameConfig()
         {
@@ -66,7 +69,7 @@ namespace GameLogic
                         if (levelsArray != null && levelsArray.Length > 0)
                         {
                             Log.Info($"[World] LoadRemoteLevelsConfig success: {levelsArray.Length} levels");
-                            levelReader.SetConfigs(levelsArray.ToList());
+                            levelReader.SetValue(levelsArray.ToList());
                             return true;
                         }
                     }
@@ -89,18 +92,18 @@ namespace GameLogic
 
         public List<LevelConfig> GetAllLevels()
         {
-            return levelReader.configs;
+            return levelReader.Value;
         }
 
         public LevelConfig GetLevel(int levelId)
         {
-            if (levelReader.configs == null ||
-                levelReader.configs.Count == 0)
+            var configs = levelReader.Value;
+            if (configs == null || configs.Count == 0)
             {
                 return null;
             }
 
-            return levelReader.configs.Find(level => level.levelId == levelId);
+            return configs.Find(level => level.levelId == levelId);
         }
 
         public LevelConfig GetCurrentLevel()
@@ -120,13 +123,18 @@ namespace GameLogic
 
         public UnitConfig GetUnitConfig(UnitType unitType)
         {
-            if (unitReader.configs == null ||
-                unitReader.configs.Count == 0)
+            var configs = unitReader.Value;
+            if (configs == null || configs.Count == 0)
             {
                 return null;
             }
 
-            return unitReader.configs.Find(unit => unit.unitType == (int)unitType);
+            return configs.Find(unit => unit.unitType == (int)unitType);
+        }
+
+        public EnergyConfig GetEnergyConfig()
+        {
+            return energyReader.Value;
         }
     }
 }
