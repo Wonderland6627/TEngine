@@ -36,11 +36,11 @@ namespace GameLogic
 
         private async void OnAddCoin()
         {
-            await World.Instance.GameData.AddCoin(100, "debug_add_coin");
+            await World.Instance.AddCoin(100, "debug_add_coin");
         }
         private async void OnDeductCoin()
         {
-            await World.Instance.GameData.DeductCoin(100, "debug_deduct_coin");
+            await World.Instance.DeductCoin(100, "debug_deduct_coin");
         }
 
         protected override void OnDestroy()

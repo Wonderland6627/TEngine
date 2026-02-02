@@ -212,6 +212,7 @@ namespace GameLogic
             GameData.UserInfo = curUserInfo;
             GameData.SetProgressLevelID(userInfo.progressLevelID);
             GameData.UpdateCoin(userInfo.coin);
+            GameData.UpdateEnergy(userInfo.energy);
             callback?.Invoke(true);
             Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
         }

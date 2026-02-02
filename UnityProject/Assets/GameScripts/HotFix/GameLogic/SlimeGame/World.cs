@@ -46,6 +46,10 @@ namespace GameLogic
             await LoadConfig();
             FetchUserGameInfo((success) => 
             {
+                if (!success) return;
+                
+                CheckDailyLoginReward().Forget();
+                
                 // 2021年后新版本必须通过用户主动触发获取用户信息
                 // 这里不在启动时自动弹授权，改为：第一关胜利后若未获取到昵称再触发（见 UIGameOverWindow）
             });
@@ -66,6 +70,19 @@ namespace GameLogic
 
         public void StartGame(int levelId)
         {
+            StartGameAsync(levelId).Forget();
+        }
+
+        private async UniTaskVoid StartGameAsync(int levelId)
+        {
+            // 检查体力值
+            bool hasEnergy = await TryConsumeEnergy();
+            if (!hasEnergy)
+            {
+                Log.Warning($"[World] StartGame failed: energy not enough");
+                return;
+            }
+
             playingLevelId = levelId;
             aiPlayerExeTimer = GameModule.Timer.AddTimer(ExecuteAI, 5f, true);
             isPlaying = true;
