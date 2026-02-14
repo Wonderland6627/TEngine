@@ -7,12 +7,6 @@ using WeChatWASM;
 
 namespace GameLogic
 {
-
-    public class Road
-    {
-        public List<BaseCastle> points; //限制points的长度为2
-    }
-
     public partial class World : BaseLogicSys<World>
     {
         public List<BaseCastle> castles = new List<BaseCastle>();

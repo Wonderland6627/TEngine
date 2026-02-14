@@ -9,6 +9,11 @@ using System.Collections;
 
 namespace GameLogic
 {
+    public class Road
+    {
+        public List<BaseCastle> points; //限制points的长度为2
+    }
+
     [Window(UILayer.UI, fullScreen: true)]
     partial class UIGameWindow
     {
