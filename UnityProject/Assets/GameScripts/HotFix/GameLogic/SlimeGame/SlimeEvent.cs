@@ -23,6 +23,8 @@ namespace GameLogic
         public static string OnEnergyChanged = "OnEnergyChanged";  // 体力值变化事件
         
         public static string OnEnergyNotEnough = "OnEnergyNotEnough";  // 体力值不足事件
+        
+        public static string OnProgressLevelIDChanged = "OnProgressLevelIDChanged";  // 通关进度变化事件
     }
 
     // 广告类型枚举

@@ -132,9 +132,16 @@ namespace GameLogic
             UserInfo = info;
         }
 
+        /// <summary>
+        /// 更新已通关最高关卡ID（只增不减）
+        /// </summary>
         public void SetProgressLevelID(int levelID)
         {
-            ProgressLevelID = Math.Max(ProgressLevelID, levelID);
+            int newValue = Math.Max(ProgressLevelID, levelID);
+            if (newValue == ProgressLevelID) return;
+            
+            ProgressLevelID = newValue;
+            GameEvent.Send(SlimeEvent.OnProgressLevelIDChanged, newValue);
         }
 
         /// <summary>

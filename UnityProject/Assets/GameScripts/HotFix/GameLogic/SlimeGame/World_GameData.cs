@@ -217,27 +217,30 @@ namespace GameLogic
             Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
         }
 
-        public async void UpdateGameLevel(int progressLevelID)
+        public async void UpdateGameLevel(int clearedLevelID)
         {
-            if (progressLevelID <= GameData.ProgressLevelID)
+            if (clearedLevelID <= GameData.ProgressLevelID)
             {
-                Log.Info($"[World] UpdateGameLevel: progressLevelID is less than or equal to current progressLevelID: {progressLevelID}");
+                Log.Info($"[World] UpdateGameLevel: clearedLevelID({clearedLevelID}) <= current ProgressLevelID({GameData.ProgressLevelID}), skip");
                 return;
             }
 
+            // 立即更新本地进度，确保 UI 能及时刷新
+            GameData.SetProgressLevelID(clearedLevelID);
+
             var paramDict = new Dictionary<string, object> 
             {
-                 { "progressLevelID", progressLevelID }
+                 { "progressLevelID", clearedLevelID }
             };
             var response = await NetManager.CallHttp<object>("setUserGameInfoV2", paramDict);
             if (response.IsSuccess)
             {
-                Log.Info($"[World] SetUserGameInfo success: {response.msg}");
+                Log.Info($"[World] SetUserGameInfo success: clearedLevelID={clearedLevelID}");
             }
 
             var kvDataList = new List<KVData>
             {
-                new() { key = "progressLevelID", value = progressLevelID.ToString() }
+                new() { key = "progressLevelID", value = clearedLevelID.ToString() }
             };
             var nickName = GameData.UserInfo.nickName;
             var avatarUrl = GameData.UserInfo.avatarUrl;
@@ -251,7 +254,7 @@ namespace GameLogic
             var msgData = new
             {
                 type = "setUserRecord",
-                score = progressLevelID,
+                score = clearedLevelID,
             };
             WX.GetOpenDataContext().PostMessage(msgData.ToJson());
         }

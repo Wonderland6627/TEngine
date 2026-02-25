@@ -48,6 +48,7 @@ namespace GameLogic.Editor
         public static void ClearLocalCache()
         {
             PlayerPrefs.DeleteAll();
+            Debug.Log("[GameConfigEditor] PlayerPrefs cleared");
         }
     }
 }

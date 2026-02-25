@@ -9,7 +9,6 @@ namespace GameLogic
 	partial class UILevelView
 	{
 		private int selectLevelId = -1;
-		private int cachedLevelId = -1;
 
 		protected override void OnCreate()
 		{
@@ -18,6 +17,7 @@ namespace GameLogic
 			
 			int nextLevelId = GetNextLevelId();
 			RefreshLevelPreview(nextLevelId);
+			GameEvent.AddEventListener<int>(SlimeEvent.OnProgressLevelIDChanged, OnProgressLevelIDChanged);
 			EventTriggerListener.Get(m_btnRank).OnClick = go =>
 			{
 				GameModule.UI.ShowUIAsync<UIRankWindow>();
@@ -47,7 +47,6 @@ namespace GameLogic
 				}
 
 				World.Instance.StartGame(selectLevelId);
-				cachedLevelId = GetNextLevelId();
 				Log.Info($"[UILevelView] on click start game [{selectLevelId}]");
 			};
 		}
@@ -55,13 +54,24 @@ namespace GameLogic
 		protected override void OnSetVisible(bool visible)
 		{
 			base.OnSetVisible(visible);
-			if (visible)
-			{
-				int nextLevelId = GetNextLevelId();
-				Log.Info($"[UILevelView] OnSetVisible nextLevelId [{nextLevelId}] cachedLevelId [{cachedLevelId}]");
-				if (nextLevelId == cachedLevelId) return;
-				RefreshLevelPreview(nextLevelId);
-			}
+			if (!visible) return;
+			
+			int nextLevelId = GetNextLevelId();
+			Log.Info($"[UILevelView] OnSetVisible nextLevelId [{nextLevelId}]");
+			RefreshLevelPreview(nextLevelId);
+		}
+
+		private void OnProgressLevelIDChanged(int newProgressLevelID)
+		{
+			int nextLevelId = GetNextLevelId();
+			Log.Info($"[UILevelView] OnProgressLevelIDChanged: progress={newProgressLevelID}, refreshing to level {nextLevelId}");
+			RefreshLevelPreview(nextLevelId);
+		}
+
+		protected override void OnDestroy()
+		{
+			GameEvent.RemoveEventListener<int>(SlimeEvent.OnProgressLevelIDChanged, OnProgressLevelIDChanged);
+			base.OnDestroy();
 		}
 
 		private void OnLevelNextClick(bool isNext)
