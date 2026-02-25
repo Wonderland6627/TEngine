@@ -49,6 +49,9 @@ namespace GameLogic
         }
 
         private int _progressLevelID = 0;
+        /// <summary>
+        /// 已通关解锁的最高关卡ID
+        /// </summary>
         public int ProgressLevelID
         {
             get => _progressLevelID;
