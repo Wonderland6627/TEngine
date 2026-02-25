@@ -110,7 +110,14 @@ namespace GameLogic.Network
         /// </summary>
         public static void Initialize()
         {
-            _currentServerType = (ServerType)PlayerPrefs.GetInt(KEY_SERVER_TYPE, (int)ServerType.Production);
+            // Editor 构建默认连测试服，真机/微信开发者工具默认连正式服
+            // PlayerPrefs 保存 Debug 面板中的手动切换值，优先级高于默认值
+#if UNITY_EDITOR
+            ServerType defaultServerType = ServerType.Dev;
+#else
+            ServerType defaultServerType = ServerType.Production;
+#endif
+            _currentServerType = (ServerType)PlayerPrefs.GetInt(KEY_SERVER_TYPE, (int)defaultServerType);
             Log.Info($"[NetManager] Initialized with server: {_currentServerType} ({ServerBaseUrl})");
 
             // 注册调试器服务器切换功能
