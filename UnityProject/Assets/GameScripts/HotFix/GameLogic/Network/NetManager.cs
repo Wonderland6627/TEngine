@@ -15,8 +15,9 @@ namespace GameLogic.Network
     /// </summary>
     public enum ServerType
     {
-        Dev,        // 开发环境
-        Production  // 生产环境
+        Local,      // 本地服
+        Dev,       // 测试服
+        Production  // 正式服
     }
 
     /// <summary>
@@ -55,11 +56,12 @@ namespace GameLogic.Network
         private static long _serverTimeOffset = 0;
 
         /// <summary>
-        /// 服务器地址配置（根据需要修改这里的地址）
+        /// 服务器地址配置
         /// </summary>
         private static readonly Dictionary<ServerType, string> ServerUrls = new Dictionary<ServerType, string>
         {
-            { ServerType.Dev, "http://localhost:3000" },
+            { ServerType.Local, "http://localhost:3000" },
+            { ServerType.Dev, "https://express-slime-dev-216111-7-1352845565.sh.run.tcloudbase.com" },
             { ServerType.Production, "https://express-slime-216111-7-1352845565.sh.run.tcloudbase.com" }
         };
 
@@ -110,8 +112,8 @@ namespace GameLogic.Network
         /// </summary>
         public static void Initialize()
         {
-            // Editor 构建默认连测试服，真机/微信开发者工具默认连正式服
-            // PlayerPrefs 保存 Debug 面板中的手动切换值，优先级高于默认值
+            // 默认选服：Editor→测试服，Release包→正式服
+            // PlayerPrefs 保存手动切换值，优先级高于默认值
 #if UNITY_EDITOR
             ServerType defaultServerType = ServerType.Dev;
 #else
