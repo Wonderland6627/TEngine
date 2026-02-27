@@ -14,11 +14,13 @@ namespace GameLogic
 		{
 			base.OnCreate();
 			Log.Info($"[UILevelView] OnCreate");
+
+			m_txtEnergy.text = $"x{World.Instance.energyReader.Value.levelConsume}";
 			
 			int nextLevelId = GetNextLevelId();
 			RefreshLevelPreview(nextLevelId);
-			GameEvent.AddEventListener<int>(SlimeEvent.OnProgressLevelIDChanged, OnProgressLevelIDChanged);
-			EventTriggerListener.Get(m_btnRank).OnClick = go =>
+
+			EventTriggerListener.Get(m_itemRank).OnClick = go =>
 			{
 				GameModule.UI.ShowUIAsync<UIRankWindow>();
 			};
@@ -49,6 +51,8 @@ namespace GameLogic
 				World.Instance.StartGame(selectLevelId);
 				Log.Info($"[UILevelView] on click start game [{selectLevelId}]");
 			};
+
+			GameEvent.AddEventListener<int>(SlimeEvent.OnProgressLevelIDChanged, OnProgressLevelIDChanged);
 		}
 
 		protected override void OnSetVisible(bool visible)
@@ -114,9 +118,9 @@ namespace GameLogic
 	{
 		private Image m_imgBG;
 		private Button m_btnSettings;
-		private Button m_btnRank;
+		private GameObject m_itemRank;
 		private Button m_btnRule;
-		private Button m_btnCheckIn;
+		private GameObject m_itemCheckIn;
 		private Image m_imgLevelPreviewContent;
 		private Image m_imgLevelPreviewBG;
 		private Image m_imgLevelPreview;
@@ -126,13 +130,19 @@ namespace GameLogic
 		private Image m_imgLevelBG;
 		private Text m_txtLevel;
 		private Button m_btnStart;
+		private Text m_txtStart;
+		private Text m_txtEnergy;
+		private GameObject m_itemLevelReward_1;
+		private GameObject m_itemLevelReward_2;
+		private GameObject m_itemLevelReward_3;
+
 		protected override void ScriptGenerator()
 		{
 			m_imgBG = FindChildComponent<Image>("m_imgBG");
 			m_btnSettings = FindChildComponent<Button>("layoutLeft/m_btnSettings");
-			m_btnRank = FindChildComponent<Button>("layoutLeft/m_btnRank");
+			m_itemRank = FindChild("layoutLeft/m_itemRank").gameObject;
 			m_btnRule = FindChildComponent<Button>("layoutRight/m_btnRule");
-			m_btnCheckIn = FindChildComponent<Button>("layoutRight/m_btnCheckIn");
+			m_itemCheckIn = FindChild("layoutRight/m_itemCheckIn").gameObject;
 			m_imgLevelPreviewContent = FindChildComponent<Image>("m_imgLevelPreviewContent");
 			m_imgLevelPreviewBG = FindChildComponent<Image>("m_imgLevelPreviewContent/m_imgLevelPreviewBG");
 			m_imgLevelPreview = FindChildComponent<Image>("m_imgLevelPreviewContent/m_imgLevelPreview");
@@ -142,6 +152,11 @@ namespace GameLogic
 			m_imgLevelBG = FindChildComponent<Image>("m_imgLevelPreviewContent/m_imgLevelBG");
 			m_txtLevel = FindChildComponent<Text>("m_imgLevelPreviewContent/m_imgLevelBG/m_txtLevel");
 			m_btnStart = FindChildComponent<Button>("m_btnStart");
+			m_txtStart = FindChildComponent<Text>("m_btnStart/m_txtStart");
+			m_txtEnergy = FindChildComponent<Text>("m_btnStart/m_txtEnergy");
+			m_itemLevelReward_1 = FindChild("layoutBottom/m_itemLevelReward_1").gameObject;
+			m_itemLevelReward_2 = FindChild("layoutBottom/m_itemLevelReward_2").gameObject;
+			m_itemLevelReward_3 = FindChild("layoutBottom/m_itemLevelReward_3").gameObject;
 		}
 	}
 #endregion === 复制结束 ===

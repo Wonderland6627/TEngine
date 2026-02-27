@@ -22,7 +22,8 @@ namespace GameLogic
             _energyItem = CreateWidget<UIResourceItem>(m_itemResourceEnergy);
             _energyItem.Init(
                 SlimeEvent.OnEnergyChanged,
-                () => World.Instance.GameData.Energy
+                () => World.Instance.GameData.Energy,
+                (value) => $"{value}/{World.Instance.energyReader.Value.energyMax}"
             );
         }
     }

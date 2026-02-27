@@ -543,7 +543,7 @@ GameObject:
   - component: {fileID: 3931087656448342598}
   - component: {fileID: 8646985797225014276}
   m_Layer: 5
-  m_Name: txtNum
+  m_Name: m_txtEnergy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2235,7 +2235,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5757457723928133949, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Name
-      value: m_btnLevelReward_1
+      value: m_itemLevelReward_1
       objectReference: {fileID: 0}
     - target: {fileID: 7490130292812307587, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Text
@@ -2661,7 +2661,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7367936039928093591, guid: 77e83104c639fac46a3193d582d3c937, type: 3}
       propertyPath: m_Name
-      value: m_textStart
+      value: m_txtStart
       objectReference: {fileID: 0}
     - target: {fileID: 9086058227616476455, guid: 77e83104c639fac46a3193d582d3c937, type: 3}
       propertyPath: m_Text
@@ -2921,7 +2921,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5757457723928133949, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Name
-      value: m_btnLevelReward_3
+      value: m_itemLevelReward_3
       objectReference: {fileID: 0}
     - target: {fileID: 7490130292812307587, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Text
@@ -3031,7 +3031,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5757457723928133949, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Name
-      value: m_btnLevelReward_2
+      value: m_itemLevelReward_2
       objectReference: {fileID: 0}
     - target: {fileID: 7490130292812307587, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Text
@@ -3141,7 +3141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5757457723928133949, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Name
-      value: m_btnRank
+      value: m_itemRank
       objectReference: {fileID: 0}
     - target: {fileID: 6723434803492643441, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_IsActive
@@ -3255,7 +3255,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5757457723928133949, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Name
-      value: m_btnCheckIn
+      value: m_itemCheckIn
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
