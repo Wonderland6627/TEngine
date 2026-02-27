@@ -1,15 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using TEngine;
 using UnityEngine;
 using UnityEngine.UI;
+
 namespace GameLogic
 {
     public partial class UIResourcesBar
     {
+        private UIResourceItem _coinItem;
+        private UIResourceItem _energyItem;
+
         protected override void OnCreate()
         {
             base.OnCreate();
+
+            _coinItem = CreateWidget<UIResourceItem>(m_itemResourceCoin);
+            _coinItem.Init(
+                SlimeEvent.OnCoinChanged,
+                () => World.Instance.GameData.Coin
+            );
+
+            _energyItem = CreateWidget<UIResourceItem>(m_itemResourceEnergy);
+            _energyItem.Init(
+                SlimeEvent.OnEnergyChanged,
+                () => World.Instance.GameData.Energy
+            );
         }
     }
 

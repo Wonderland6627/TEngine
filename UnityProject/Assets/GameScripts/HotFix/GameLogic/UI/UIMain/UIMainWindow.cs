@@ -10,12 +10,14 @@ namespace GameLogic
     partial class UIMainWindow
     {
         private UILevelView levelView;
+        private UIResourcesBar resourcesBar;
         private UIMainBottomTab currentSelectedTab;
 
         protected override void OnCreate()
         {
             base.OnCreate();
 
+            resourcesBar = CreateWidget<UIResourcesBar>(m_rectResourcesBar.gameObject);
             levelView = CreateWidget<UILevelView>(m_itemLevelView);
             
             InitBottomTabs();
