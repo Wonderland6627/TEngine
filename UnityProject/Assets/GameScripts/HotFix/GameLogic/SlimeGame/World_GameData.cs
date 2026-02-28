@@ -217,30 +217,14 @@ namespace GameLogic
             Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
         }
 
-        public async void UpdateGameLevel(int clearedLevelID)
+        /// <summary>
+        /// 更新微信排行榜（WX 开放数据域 + 云存储）
+        /// </summary>
+        public void UpdateWXLeaderboard(int levelId)
         {
-            if (clearedLevelID <= GameData.ProgressLevelID)
-            {
-                Log.Info($"[World] UpdateGameLevel: clearedLevelID({clearedLevelID}) <= current ProgressLevelID({GameData.ProgressLevelID}), skip");
-                return;
-            }
-
-            // 立即更新本地进度，确保 UI 能及时刷新
-            GameData.SetProgressLevelID(clearedLevelID);
-
-            var paramDict = new Dictionary<string, object> 
-            {
-                 { "progressLevelID", clearedLevelID }
-            };
-            var response = await NetManager.CallHttp<object>("setUserGameInfoV2", paramDict);
-            if (response.IsSuccess)
-            {
-                Log.Info($"[World] SetUserGameInfo success: clearedLevelID={clearedLevelID}");
-            }
-
             var kvDataList = new List<KVData>
             {
-                new() { key = "progressLevelID", value = clearedLevelID.ToString() }
+                new() { key = "progressLevelID", value = levelId.ToString() }
             };
             var nickName = GameData.UserInfo.nickName;
             var avatarUrl = GameData.UserInfo.avatarUrl;
@@ -254,9 +238,11 @@ namespace GameLogic
             var msgData = new
             {
                 type = "setUserRecord",
-                score = clearedLevelID,
+                score = levelId,
             };
             WX.GetOpenDataContext().PostMessage(msgData.ToJson());
+
+            Log.Info($"[World] UpdateWXLeaderboard: levelId={levelId}");
         }
 
         // 排行榜查询缓存：每1分钟只真正查询一次

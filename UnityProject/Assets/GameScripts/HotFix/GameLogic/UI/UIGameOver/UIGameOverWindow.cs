@@ -154,7 +154,7 @@ namespace GameLogic
 			if (m_RewardClaimed) return;
 			m_RewardClaimed = true;
 
-			bool success = await World.Instance.ClaimLevelReward(m_RewardResult, watchedAd);
+			bool success = await World.Instance.ClaimLevelReward(m_RewardResult.levelId, watchedAd);
 			if (success)
 			{
 				var summary = m_RewardResult.SumByType(watchedAd);

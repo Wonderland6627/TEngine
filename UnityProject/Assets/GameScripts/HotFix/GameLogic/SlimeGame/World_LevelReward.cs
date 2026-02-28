@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using GameLogic.Network;
 using TEngine;
 
 namespace GameLogic
@@ -12,7 +13,7 @@ namespace GameLogic
     public partial class World
     {
         /// <summary>
-        /// 计算关卡通关奖励（纯计算，不发放）
+        /// 计算关卡通关奖励（纯计算，不发放，用于 UI 预览）
         /// </summary>
         public LevelRewardResult CalculateLevelReward(int levelId, bool isFirstClear)
         {
@@ -84,52 +85,38 @@ namespace GameLogic
         }
 
         /// <summary>
-        /// 领取关卡通关奖励（实际发放，调用服务端接口）
+        /// 领取关卡通关奖励（服务端统一结算，一次 HTTP 请求）
+        /// 服务端根据 levelId 和 progressLevelID 自行判断 isFirstClear 并用公式计算奖励
         /// </summary>
-        public async UniTask<bool> ClaimLevelReward(LevelRewardResult result, bool watchedAd)
+        public async UniTask<bool> ClaimLevelReward(int levelId, bool watchedAd)
         {
-            if (result == null)
+            var request = new
             {
-                Log.Error("[World] ClaimLevelReward failed: result is null");
+                levelId = levelId,
+                watchedAd = watchedAd,
+            };
+
+            var response = await NetManager.CallHttp<ClaimLevelRewardResponse>("claimLevelReward", request);
+            if (!response.IsSuccess || response.data == null)
+            {
+                Log.Error($"[World] ClaimLevelReward failed: {response.ErrorMessage}");
                 return false;
             }
 
-            var rewards = result.GetClaimableRewards(watchedAd);
-            bool allSuccess = true;
+            // 刷新本地用户数据（coin/energy/progressLevelID）
+            FetchUserGameInfo();
 
-            foreach (var item in rewards)
+            // 首通时更新微信排行榜
+            if (response.data.isFirstClear)
             {
-                bool ok = await DispatchRewardItem(item);
-                if (!ok) allSuccess = false;
+                UpdateWXLeaderboard(levelId);
             }
 
-            if (allSuccess)
-            {
-                GameEvent.Send(SlimeEvent.OnLevelRewardClaimed, result);
-                Log.Info($"[World] ClaimLevelReward success: level={result.levelId}, watchedAd={watchedAd}");
-            }
+            GameEvent.Send(SlimeEvent.OnLevelRewardClaimed, response.data);
+            Log.Info($"[World] ClaimLevelReward success: level={levelId}, watchedAd={watchedAd}, " +
+                     $"isFirstClear={response.data.isFirstClear}, rewards count={response.data.rewards?.Count ?? 0}");
 
-            return allSuccess;
-        }
-
-        /// <summary>
-        /// 按 type 分发单个奖励项（扩展新货币类型只需加 case）
-        /// </summary>
-        private async UniTask<bool> DispatchRewardItem(RewardItem item)
-        {
-            switch (item.type)
-            {
-                case CurrencyTypes.COIN:
-                    await AddCoin(item.amount, item.source);
-                    return true;
-
-                case "energy":
-                    return await UpdateEnergyOnServer(item.amount, item.source);
-
-                default:
-                    Log.Warning($"[World] DispatchRewardItem: unknown reward type '{item.type}'");
-                    return false;
-            }
+            return true;
         }
     }
 }

@@ -141,13 +141,6 @@ namespace GameLogic
             if (!allOccupied) return;
 
             UnitType winUnitType = unitTypes[0];
-            if (winUnitType == UnitType.Player)
-            {
-                if (GameData.ProgressLevelID < playingLevelId)
-                {
-                    World.Instance.UpdateGameLevel(playingLevelId);
-                }
-            }
 
             PauseGame();
             GameEvent.Send(SlimeEvent.OnGameOver, new GameOverParam() { winUnitType = winUnitType });
