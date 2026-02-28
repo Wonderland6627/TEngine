@@ -319,7 +319,8 @@ namespace GameLogic.Network
             { "deductCurrency", "/api/minigame/deductCurrency" },
             { "addCoin", "/api/minigame/addCoin" },
             { "deductCoin", "/api/minigame/deductCoin" },
-            { "updateEnergy", "/api/minigame/updateEnergy" }
+            { "updateEnergy", "/api/minigame/updateEnergy" },
+            { "claimLevelReward", "/api/minigame/claimLevelReward" },
         };
 
         /// <summary>
