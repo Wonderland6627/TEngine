@@ -13,6 +13,7 @@ namespace GameLogic
         public SlimeConfigReader<List<LevelConfig>> levelReader { get; private set; }
         public SlimeConfigReader<List<UnitConfig>> unitReader { get; private set; }
         public SlimeConfigReader<EnergyConfig> energyReader { get; private set; }
+        public SlimeConfigReader<LevelRewardFormulaConfig> levelRewardReader { get; private set; }
         
         public GameConfig gameConfig { get; private set; }
 
@@ -27,6 +28,8 @@ namespace GameLogic
             await unitReader.LoadLocalConfig("units");
             energyReader = new SlimeConfigReader<EnergyConfig>();
             await energyReader.LoadLocalConfig("energy_config");
+            levelRewardReader = new SlimeConfigReader<LevelRewardFormulaConfig>();
+            await levelRewardReader.LoadLocalConfig("level_reward_config");
             
             await LoadGameConfig();
         }
@@ -135,6 +138,11 @@ namespace GameLogic
         public EnergyConfig GetEnergyConfig()
         {
             return energyReader.Value;
+        }
+
+        public LevelRewardFormulaConfig GetLevelRewardConfig()
+        {
+            return levelRewardReader.Value;
         }
     }
 }

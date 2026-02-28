@@ -137,6 +137,79 @@ namespace GameLogic
 
     //===================================================================================
 
+    /// <summary>
+    /// 通关奖励公式参数配置（公式驱动，无需逐关配置）
+    /// coinReward = floor(baseCoin + coinPerLevel * (levelId - 1))
+    /// firstClearCoin = floor(coinReward * firstClearMultiplier)
+    /// energyReturn = floor(levelConsume * energyReturnRate)
+    /// adBonusCoin = coinReward * (adMultiplier - 1)
+    /// </summary>
+    public class LevelRewardFormulaConfig : SlimeConfig
+    {
+        public int baseCoin { get; set; }
+        public int coinPerLevel { get; set; }
+        public float firstClearMultiplier { get; set; }
+        public float energyReturnRate { get; set; }
+        public int adMultiplier { get; set; }
+    }
+
+    /// <summary>
+    /// 通用奖励项（可扩展，未来新增货币类型只需加 type 枚举值）
+    /// </summary>
+    public class RewardItem
+    {
+        public string type { get; set; }    // CurrencyTypes.COIN / "energy" / ...
+        public int amount { get; set; }
+        public string source { get; set; }  // CurrencySource / EnergySource
+    }
+
+    /// <summary>
+    /// 关卡通关奖励计算结果
+    /// </summary>
+    public class LevelRewardResult
+    {
+        public int levelId;
+        public bool isFirstClear;
+        public List<RewardItem> baseRewards = new();
+        public List<RewardItem> firstClearRewards = new();
+        public List<RewardItem> adBonusRewards = new();
+
+        /// <summary>
+        /// 获取最终可领取的奖励列表
+        /// </summary>
+        public List<RewardItem> GetClaimableRewards(bool watchedAd)
+        {
+            var result = new List<RewardItem>(baseRewards);
+            if (isFirstClear)
+            {
+                result.AddRange(firstClearRewards);
+            }
+            if (watchedAd)
+            {
+                result.AddRange(adBonusRewards);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 按 type 汇总奖励数量（用于UI展示）
+        /// </summary>
+        public Dictionary<string, int> SumByType(bool watchedAd)
+        {
+            var dict = new Dictionary<string, int>();
+            foreach (var item in GetClaimableRewards(watchedAd))
+            {
+                if (dict.ContainsKey(item.type))
+                    dict[item.type] += item.amount;
+                else
+                    dict[item.type] = item.amount;
+            }
+            return dict;
+        }
+    }
+
+    //===================================================================================
+
     public class EnergyConfig : SlimeConfig
     {
         public int energyMax { get; set; }                    // 体力最大值

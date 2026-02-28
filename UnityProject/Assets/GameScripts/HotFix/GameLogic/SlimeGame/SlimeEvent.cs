@@ -25,13 +25,16 @@ namespace GameLogic
         public static string OnEnergyNotEnough = "OnEnergyNotEnough";  // 体力值不足事件
         
         public static string OnProgressLevelIDChanged = "OnProgressLevelIDChanged";  // 通关进度变化事件
+        
+        public static string OnLevelRewardClaimed = "OnLevelRewardClaimed";  // 通关奖励领取完成事件
     }
 
     // 广告类型枚举
     public enum AdsType
     {
-        Reward,     // 锦囊奖励广告
+        Reward,                // 锦囊奖励广告
         RefreshRewardsList,    // 刷新按钮广告
+        LevelRewardDouble,     // 通关奖励翻倍广告
     }
     
     // 广告事件参数

@@ -138,6 +138,11 @@ namespace GameLogic
         /// 进入关卡消耗（对应服务端 ENERGY_SOURCE.LEVEL_CONSUME）
         /// </summary>
         public const string LEVEL_CONSUME = "level_consume";
+        
+        /// <summary>
+        /// 通关体力返还（对应服务端 ENERGY_SOURCE.LEVEL_REWARD）
+        /// </summary>
+        public const string LEVEL_REWARD = "level_reward";
     }
 }
 

@@ -15,7 +15,7 @@ namespace GameLogic
 			base.OnCreate();
 			Log.Info($"[UILevelView] OnCreate");
 
-			m_txtEnergy.text = $"x{World.Instance.energyReader.Value.levelConsume}";
+			m_txtEnergy.text = $"x{World.Instance.GetEnergyConfig().levelConsume}";
 			
 			int nextLevelId = GetNextLevelId();
 			RefreshLevelPreview(nextLevelId);
