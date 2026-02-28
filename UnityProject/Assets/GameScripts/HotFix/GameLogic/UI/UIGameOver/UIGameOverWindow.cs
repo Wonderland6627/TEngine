@@ -32,7 +32,6 @@ namespace GameLogic
 			}
 
 			bool isWin = m_Param.IsWin();
-
 			if (isWin)
 			{
 				TryRequestUserInfo();
@@ -42,7 +41,7 @@ namespace GameLogic
 			Color winColor = new Color32(0, 200, 255, 255);
 			Color defeatColor = new Color32(175, 175, 175, 255);
 
-			m_textResult.text = isWin ? "胜 利" : "失 败";
+			m_txtResult.text = isWin ? "恭 喜 获 得" : "惜 败";
 			m_imgGameResultBG.color = isWin ? winColor : defeatColor;
 			Animator gameResultAnim = m_imgGameResultBG.GetComponent<Animator>();
 			gameResultAnim.enabled = !isWin;
@@ -108,9 +107,6 @@ namespace GameLogic
 				rewardText += "  (首通奖励!)";
 			}
 
-			// 更新结果文本，显示奖励信息
-			m_textResult.text = "胜 利\n" + rewardText;
-
 			Log.Info($"[UIGameOverWindow] ShowRewardInfo: {rewardText}");
 		}
 
@@ -170,7 +166,7 @@ namespace GameLogic
 				{
 					claimedText += "  (翻倍!)";
 				}
-				m_textResult.text = claimedText;
+				m_txtResult.text = claimedText;
 
 				Log.Info($"[UIGameOverWindow] Reward claimed: coin={totalCoin}, energy={totalEnergy}, ad={watchedAd}");
 			}
