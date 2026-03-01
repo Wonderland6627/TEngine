@@ -7,6 +7,8 @@ namespace GameLogic.Network
     /// </summary>
     public class EditorPlatformAdapter : IPlatformAdapter
     {
+        private const string PREF_KEY = "EditorIdentityKey";
+        
         public string PlatformName => "Editor";
         
         public bool RequiresSDKInit => false;
@@ -18,8 +20,12 @@ namespace GameLogic.Network
         
         public UniTask<string> GetLoginCode()
         {
-            // Editor环境下code可以是任意值
-            return UniTask.FromResult("editor");
+#if UNITY_EDITOR
+            var editorCode = UnityEditor.EditorPrefs.GetString(PREF_KEY, "");
+            if (string.IsNullOrEmpty(editorCode)) editorCode = "default";
+            return UniTask.FromResult(editorCode);
+#endif
+            return UniTask.FromResult("default");
         }
     }
 }

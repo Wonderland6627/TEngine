@@ -115,7 +115,7 @@ namespace GameLogic.Network
             // 默认选服：Editor→测试服，Release包→正式服
             // PlayerPrefs 保存手动切换值，优先级高于默认值
 #if UNITY_EDITOR
-            ServerType defaultServerType = ServerType.Dev;
+            ServerType defaultServerType = ServerType.Local;
 #else
             ServerType defaultServerType = ServerType.Production;
 #endif
