@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "key": "coin",
+    "name": "金币",
+    "desc": "通用货币，用于商店购买和升级",
+    "iconPath": "Assets/AssetRaw/UIRaw/Atlas/Common/icon_coin.png",
+    "category": "currency"
+  },
+  {
+    "id": 2,
+    "key": "energy",
+    "name": "体力",
+    "desc": "进入关卡所需的资源",
+    "iconPath": "Assets/AssetRaw/UIRaw/Atlas/Common/icon_energy.png",
+    "category": "resource"
+  },
+  {
+    "id": 3,
+    "key": "diamond",
+    "name": "钻石",
+    "desc": "高级货币，用于特殊购买",
+    "iconPath": "Assets/AssetRaw/UIRaw/Atlas/Common/icon_diamond.png",
+    "category": "currency"
+  }
+]

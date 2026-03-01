@@ -10,31 +10,39 @@ namespace GameLogic
 {
     public partial class World
     {
-        public SlimeConfigReader<List<LevelConfig>> levelReader { get; private set; }
-        public SlimeConfigReader<List<UnitConfig>> unitReader { get; private set; }
+        // ========== 列表型配置（使用 SlimeListConfigReader 获得通用查询能力） ==========
+        public SlimeListConfigReader<LevelConfig> levelReader { get; private set; }
+        public SlimeListConfigReader<UnitConfig> unitReader { get; private set; }
+        public SlimeListConfigReader<ItemConfig> itemReader { get; private set; }
+
+        // ========== 单对象型配置 ==========
         public SlimeConfigReader<EnergyConfig> energyReader { get; private set; }
         public SlimeConfigReader<LevelRewardFormulaConfig> levelRewardReader { get; private set; }
         
         public GameConfig gameConfig { get; private set; }
 
-        // 游戏配置资源路径
         private const string GAME_CONFIG_PATH = "Assets/AssetRaw/Configs/GameConfig.asset";
         
         private async UniTask LoadConfig()
         {
-            levelReader = new SlimeConfigReader<List<LevelConfig>>();
+            levelReader = new SlimeListConfigReader<LevelConfig>();
             await levelReader.LoadLocalConfig("levels");
-            unitReader = new SlimeConfigReader<List<UnitConfig>>();
+
+            unitReader = new SlimeListConfigReader<UnitConfig>();
             await unitReader.LoadLocalConfig("units");
+
+            itemReader = new SlimeListConfigReader<ItemConfig>();
+            await itemReader.LoadLocalConfig("items");
+
             energyReader = new SlimeConfigReader<EnergyConfig>();
             await energyReader.LoadLocalConfig("energy_config");
+
             levelRewardReader = new SlimeConfigReader<LevelRewardFormulaConfig>();
             await levelRewardReader.LoadLocalConfig("level_reward_config");
             
             await LoadGameConfig();
         }
         
-        // 加载游戏配置
         private async UniTask LoadGameConfig()
         {
             try
@@ -93,56 +101,32 @@ namespace GameLogic
             }
         }
 
-        public List<LevelConfig> GetAllLevels()
-        {
-            return levelReader.Value;
-        }
+        // ========== Level 查询 ==========
 
-        public LevelConfig GetLevel(int levelId)
-        {
-            var configs = levelReader.Value;
-            if (configs == null || configs.Count == 0)
-            {
-                return null;
-            }
+        public List<LevelConfig> GetAllLevels() => levelReader.GetAll();
 
-            return configs.Find(level => level.levelId == levelId);
-        }
+        public LevelConfig GetLevel(int levelId) => levelReader.FindById(l => l.levelId, levelId);
 
-        public LevelConfig GetCurrentLevel()
-        {
-            return GetLevel(playingLevelId);
-        }
+        public LevelConfig GetCurrentLevel() => GetLevel(playingLevelId);
 
-        public LevelConfig.Config GetCurrentLevelConfig()
-        {
-            var currentLevel = GetLevel(playingLevelId);
-            if (currentLevel == null)
-            {
-                return null;
-            }
-            return currentLevel.config;
-        }
+        public LevelConfig.Config GetCurrentLevelConfig() => GetCurrentLevel()?.config;
 
-        public UnitConfig GetUnitConfig(UnitType unitType)
-        {
-            var configs = unitReader.Value;
-            if (configs == null || configs.Count == 0)
-            {
-                return null;
-            }
+        // ========== Unit 查询 ==========
 
-            return configs.Find(unit => unit.unitType == (int)unitType);
-        }
+        public UnitConfig GetUnitConfig(UnitType unitType) => unitReader.Find(u => u.unitType == (int)unitType);
 
-        public EnergyConfig GetEnergyConfig()
-        {
-            return energyReader.Value;
-        }
+        // ========== Item 查询 ==========
 
-        public LevelRewardFormulaConfig GetLevelRewardConfig()
-        {
-            return levelRewardReader.Value;
-        }
+        public ItemConfig GetItemByKey(string key) => itemReader.FindById(i => i.key, key);
+
+        public ItemConfig GetItemById(int id) => itemReader.FindById(i => i.id, id);
+
+        public List<ItemConfig> GetItemsByCategory(string category) => itemReader.FindAll(i => i.category == category);
+
+        // ========== 单对象配置直接获取 ==========
+
+        public EnergyConfig GetEnergyConfig() => energyReader.Value;
+
+        public LevelRewardFormulaConfig GetLevelRewardConfig() => levelRewardReader.Value;
     }
 }

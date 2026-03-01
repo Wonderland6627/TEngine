@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityToolbarExtender;
@@ -24,6 +25,10 @@ namespace TEngine.Editor
         static EditorIdentityKey()
         {
             _identityKey = EditorPrefs.GetString(PREF_KEY, "");
+            if (string.IsNullOrEmpty(_identityKey))
+            {
+                _identityKey = DateTime.Now.ToString("yyyyMMddHHmmss");
+            }
             ToolbarExtender.RightToolbarGUI.Add(OnToolbarGUI);
         }
 

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using TEngine;
 using UnityEngine;
@@ -33,6 +35,38 @@ namespace GameLogic
         {
             Value = value;
         }
+    }
+
+    /// <summary>
+    /// 列表配置读取器，提供通用的按条件查询能力
+    /// 用法：SlimeListConfigReader&lt;LevelConfig&gt; 等价于 SlimeConfigReader&lt;List&lt;LevelConfig&gt;&gt; + 查询方法
+    /// </summary>
+    public class SlimeListConfigReader<TItem> : SlimeConfigReader<List<TItem>>
+    {
+        public List<TItem> GetAll()
+        {
+            return Value;
+        }
+
+        public TItem Find(Func<TItem, bool> predicate)
+        {
+            if (Value == null || Value.Count == 0) return default;
+            return Value.Find(item => predicate(item));
+        }
+
+        public List<TItem> FindAll(Func<TItem, bool> predicate)
+        {
+            if (Value == null || Value.Count == 0) return new List<TItem>();
+            return Value.FindAll(item => predicate(item));
+        }
+
+        public TItem FindById<TKey>(Func<TItem, TKey> keySelector, TKey id)
+        {
+            if (Value == null || Value.Count == 0) return default;
+            return Value.Find(item => EqualityComparer<TKey>.Default.Equals(keySelector(item), id));
+        }
+
+        public int Count => Value?.Count ?? 0;
     }
 
     public abstract class SlimeConfig {}
@@ -229,5 +263,20 @@ namespace GameLogic
             public int min { get; set; }
             public int max { get; set; }
         }
+    }
+
+    //===================================================================================
+
+    /// <summary>
+    /// 道具/资源配置（对应 items.json）
+    /// </summary>
+    public class ItemConfig : SlimeConfig
+    {
+        public int id { get; set; }
+        public string key { get; set; }           // 唯一标识，如 "coin"、"energy"
+        public string name { get; set; }           // 中文名
+        public string desc { get; set; }           // 描述
+        public string iconPath { get; set; }       // 图标路径
+        public string category { get; set; }       // 分类: currency / resource
     }
 }
