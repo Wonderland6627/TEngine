@@ -187,14 +187,11 @@ namespace GameLogic
         public int adMultiplier { get; set; }
     }
 
-    /// <summary>
-    /// 通用奖励项（可扩展，未来新增货币类型只需加 type 枚举值）
-    /// </summary>
     public class RewardItem
     {
-        public string type { get; set; }    // CurrencyTypes.COIN / "energy" / ...
+        public ResourceType resourceType { get; set; }
         public int amount { get; set; }
-        public string source { get; set; }  // CurrencySource / EnergySource
+        public string source { get; set; }
     }
 
     /// <summary>
@@ -226,17 +223,17 @@ namespace GameLogic
         }
 
         /// <summary>
-        /// 按 type 汇总奖励数量（用于UI展示）
+        /// 按 ResourceType 汇总奖励数量（用于UI展示）
         /// </summary>
-        public Dictionary<string, int> SumByType(bool watchedAd)
+        public Dictionary<ResourceType, int> SumByType(bool watchedAd)
         {
-            var dict = new Dictionary<string, int>();
+            var dict = new Dictionary<ResourceType, int>();
             foreach (var item in GetClaimableRewards(watchedAd))
             {
-                if (dict.ContainsKey(item.type))
-                    dict[item.type] += item.amount;
+                if (dict.ContainsKey(item.resourceType))
+                    dict[item.resourceType] += item.amount;
                 else
-                    dict[item.type] = item.amount;
+                    dict[item.resourceType] = item.amount;
             }
             return dict;
         }
@@ -265,18 +262,4 @@ namespace GameLogic
         }
     }
 
-    //===================================================================================
-
-    /// <summary>
-    /// 道具/资源配置（对应 items.json）
-    /// </summary>
-    public class ItemConfig : SlimeConfig
-    {
-        public int id { get; set; }
-        public string key { get; set; }           // 唯一标识，如 "coin"、"energy"
-        public string name { get; set; }           // 中文名
-        public string desc { get; set; }           // 描述
-        public string iconPath { get; set; }       // 图标路径
-        public string category { get; set; }       // 分类: currency / resource
-    }
 }

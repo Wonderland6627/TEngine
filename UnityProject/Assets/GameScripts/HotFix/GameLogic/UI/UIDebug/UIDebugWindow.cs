@@ -27,25 +27,27 @@ namespace GameLogic
             {
                 OnDeductCoin();
             };
-            GameEvent.AddEventListener<int>(SlimeEvent.OnCoinChanged, OnCoinChanged);
+            GameEvent.AddEventListener<ResourceChangedParam>(SlimeEvent.OnResourceChanged, OnResourceChanged);
         }
-        private void OnCoinChanged(int coin)
+
+        private void OnResourceChanged(ResourceChangedParam param)
         {
-            m_tmpCoin.text = coin.ToString();
+            if (param.resourceType != ResourceType.Coin) return;
+            m_tmpCoin.text = param.newValue.ToString();
         }
 
         private async void OnAddCoin()
         {
-            await World.Instance.AddCoin(100, "debug_add_coin");
+            await World.Instance.UpdateResource(ResourceType.Coin, 100, "debug_add_coin");
         }
         private async void OnDeductCoin()
         {
-            await World.Instance.DeductCoin(100, "debug_deduct_coin");
+            await World.Instance.UpdateResource(ResourceType.Coin, -100, "debug_deduct_coin");
         }
 
         protected override void OnDestroy()
         {
-            GameEvent.RemoveEventListener<int>(SlimeEvent.OnCoinChanged, OnCoinChanged);
+            GameEvent.RemoveEventListener<ResourceChangedParam>(SlimeEvent.OnResourceChanged, OnResourceChanged);
             base.OnDestroy();
         }
     }

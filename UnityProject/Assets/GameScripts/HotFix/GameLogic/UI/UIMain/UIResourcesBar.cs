@@ -15,13 +15,13 @@ namespace GameLogic
 
             _coinItem = CreateWidget<UIResourceItem>(m_itemResourceCoin);
             _coinItem.Init(
-                SlimeEvent.OnCoinChanged,
+                ResourceType.Coin,
                 () => World.Instance.GameData.Coin
             );
 
             _energyItem = CreateWidget<UIResourceItem>(m_itemResourceEnergy);
             _energyItem.Init(
-                SlimeEvent.OnEnergyChanged,
+                ResourceType.Energy,
                 () => World.Instance.GameData.Energy,
                 (value) => $"{value}/{World.Instance.energyReader.Value.energyMax}"
             );

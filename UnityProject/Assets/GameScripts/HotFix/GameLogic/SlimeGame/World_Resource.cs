@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameLogic.Network;
 using TEngine;
@@ -6,15 +7,43 @@ using TEngine;
 namespace GameLogic
 {
     /// <summary>
-    /// 体力值管理（World 的部分类）
-    /// 负责每日登录奖励检查、进入关卡前的体力检查
+    /// 统一资源管理（World 的部分类）
+    /// 替代原 World_Currency + World_Energy
     /// </summary>
     public partial class World
     {
         private const string Last_Daily_Energy_Reward_Date_Key = "slime_last_daily_energy_reward_date";
 
         /// <summary>
-        /// 检查并处理每日登录奖励（登录后调用）
+        /// 通用资源增减（调用服务器接口）
+        /// </summary>
+        /// <param name="type">资源类型</param>
+        /// <param name="change">变化量（正数增加，负数扣除）</param>
+        /// <param name="source">来源（ResourceSource 常量）</param>
+        /// <returns>更新后的值，失败返回 -1</returns>
+        public async UniTask<int> UpdateResource(ResourceType type, int change, string source)
+        {
+            var request = new
+            {
+                resourceType = (int)type,
+                change = change,
+                source = source
+            };
+
+            var response = await NetManager.CallHttp<UpdateResourceResponse>("updateResource", request);
+
+            if (!response.IsSuccess || response.data == null)
+            {
+                Log.Error($"[World] UpdateResource failed: type={type}, change={change}, err={response.ErrorMessage}");
+                return -1;
+            }
+
+            GameData.UpdateResource(type, response.data.value);
+            return response.data.value;
+        }
+
+        /// <summary>
+        /// 检查并处理每日登录体力奖励
         /// </summary>
         public async UniTask CheckDailyLoginReward()
         {
@@ -25,10 +54,8 @@ namespace GameLogic
                 return;
             }
 
-            // 确保服务器时间已同步
             await NetManager.SyncServerTime();
 
-            // 获取本地存储的上次领取日期
             string lastRewardDateStr = PlayerPrefs.GetString(Last_Daily_Energy_Reward_Date_Key, "");
             DateTime? lastRewardDate = null;
             if (!string.IsNullOrEmpty(lastRewardDateStr) && DateTime.TryParse(lastRewardDateStr, out DateTime parsedDate))
@@ -38,14 +65,12 @@ namespace GameLogic
 
             DateTime today = NetManager.ServerTime.ToLocalTime().Date;
 
-            // 检查是否需要奖励
             if (lastRewardDate != null && lastRewardDate.Value >= today)
             {
                 Log.Info("[World] Same day reward already claimed, skip daily login reward");
                 return;
             }
 
-            // 计算奖励数量（赠满上限为止）
             int currentEnergy = GameData.Energy;
             int rewardAmount = config.dailyLoginReward;
             int maxEnergy = config.energyMax;
@@ -54,17 +79,14 @@ namespace GameLogic
             if (actualReward <= 0)
             {
                 Log.Info($"[World] Energy already at max ({currentEnergy}/{maxEnergy}), skip daily login reward");
-                // 保存日期，避免同一天重复检查
                 PlayerPrefs.SetString(Last_Daily_Energy_Reward_Date_Key, today.ToString("yyyy-MM-dd"));
                 PlayerPrefs.Save();
                 return;
             }
 
-            // 调用服务端接口校验
-            bool success = await UpdateEnergyOnServer(actualReward, EnergySource.DAILY_LOGIN);
-            if (success)
+            int result = await UpdateResource(ResourceType.Energy, actualReward, ResourceSource.DAILY_LOGIN);
+            if (result >= 0)
             {
-                // 保存领取日期
                 PlayerPrefs.SetString(Last_Daily_Energy_Reward_Date_Key, today.ToString("yyyy-MM-dd"));
                 PlayerPrefs.Save();
                 Log.Info($"[World] Daily login reward success: +{actualReward}");
@@ -74,7 +96,6 @@ namespace GameLogic
         /// <summary>
         /// 尝试消耗体力（进入关卡前调用）
         /// </summary>
-        /// <returns>是否成功消耗</returns>
         public async UniTask<bool> TryConsumeEnergy()
         {
             var config = GetEnergyConfig();
@@ -87,46 +108,20 @@ namespace GameLogic
             int consumeAmount = config.levelConsume;
             int currentEnergy = GameData.Energy;
 
-            // 客户端判断体力是否足够
             if (currentEnergy < consumeAmount)
             {
                 Log.Warning($"[World] Energy not enough: {currentEnergy} < {consumeAmount}");
-                GameEvent.Send(SlimeEvent.OnEnergyNotEnough, consumeAmount);
+                GameEvent.Send(SlimeEvent.OnResourceNotEnough, ResourceType.Energy);
                 return false;
             }
 
-            // 调用服务端接口校验
-            bool success = await UpdateEnergyOnServer(-consumeAmount, EnergySource.LEVEL_CONSUME);
-            if (success)
+            int result = await UpdateResource(ResourceType.Energy, -consumeAmount, ResourceSource.LEVEL_CONSUME);
+            if (result >= 0)
             {
                 Log.Info($"[World] Consume energy success: -{consumeAmount}");
+                return true;
             }
-            return success;
-        }
-
-        /// <summary>
-        /// 调用服务端接口更新体力值
-        /// </summary>
-        /// <param name="change">体力值变化量（正数为增加，负数为消耗）</param>
-        /// <param name="source">来源（EnergySource 常量）</param>
-        /// <returns>是否成功</returns>
-        private async UniTask<bool> UpdateEnergyOnServer(int change, string source)
-        {
-            var request = new { change = change, source = source };
-            var response = await NetManager.CallHttp<UpdateEnergyResponse>("updateEnergy", request);
-
-            if (!response.IsSuccess || response.data == null)
-            {
-                Log.Error($"[World] Update energy failed: {response.ErrorMessage}");
-                return false;
-            }
-
-            // 更新本地体力值
-            GameData.UpdateEnergy(response.data.energy);
-            Log.Info($"[World] Update energy success: {change} ({source}), new energy: {response.data.energy}");
-            return true;
+            return false;
         }
     }
 }
-
-

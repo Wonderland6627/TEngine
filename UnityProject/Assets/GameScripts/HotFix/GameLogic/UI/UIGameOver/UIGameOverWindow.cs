@@ -94,13 +94,13 @@ namespace GameLogic
 			if (m_RewardResult == null) return;
 
 			var summary = m_RewardResult.SumByType(false);
-			summary.TryGetValue(CurrencyTypes.COIN, out int totalCoin);
-			summary.TryGetValue("energy", out int totalEnergy);
+			summary.TryGetValue(ResourceType.Coin, out int totalCoin);
+			summary.TryGetValue(ResourceType.Energy, out int totalEnergy);
 
-			string rewardText = $"金币 +{totalCoin}";
+			string rewardText = $"{ResourceDef.GetName(ResourceType.Coin)} +{totalCoin}";
 			if (totalEnergy > 0)
 			{
-				rewardText += $"  体力 +{totalEnergy}";
+				rewardText += $"  {ResourceDef.GetName(ResourceType.Energy)} +{totalEnergy}";
 			}
 			if (m_RewardResult.isFirstClear)
 			{
@@ -154,13 +154,13 @@ namespace GameLogic
 			if (success)
 			{
 				var summary = m_RewardResult.SumByType(watchedAd);
-				summary.TryGetValue(CurrencyTypes.COIN, out int totalCoin);
-				summary.TryGetValue("energy", out int totalEnergy);
+				summary.TryGetValue(ResourceType.Coin, out int totalCoin);
+				summary.TryGetValue(ResourceType.Energy, out int totalEnergy);
 
-				string claimedText = $"胜 利\n获得 金币 +{totalCoin}";
+				string claimedText = $"胜 利\n获得 {ResourceDef.GetName(ResourceType.Coin)} +{totalCoin}";
 				if (totalEnergy > 0)
 				{
-					claimedText += $"  体力 +{totalEnergy}";
+					claimedText += $"  {ResourceDef.GetName(ResourceType.Energy)} +{totalEnergy}";
 				}
 				if (watchedAd)
 				{

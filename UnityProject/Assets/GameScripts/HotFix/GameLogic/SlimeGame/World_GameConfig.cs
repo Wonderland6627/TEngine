@@ -13,7 +13,6 @@ namespace GameLogic
         // ========== 列表型配置（使用 SlimeListConfigReader 获得通用查询能力） ==========
         public SlimeListConfigReader<LevelConfig> levelReader { get; private set; }
         public SlimeListConfigReader<UnitConfig> unitReader { get; private set; }
-        public SlimeListConfigReader<ItemConfig> itemReader { get; private set; }
 
         // ========== 单对象型配置 ==========
         public SlimeConfigReader<EnergyConfig> energyReader { get; private set; }
@@ -30,9 +29,6 @@ namespace GameLogic
 
             unitReader = new SlimeListConfigReader<UnitConfig>();
             await unitReader.LoadLocalConfig("units");
-
-            itemReader = new SlimeListConfigReader<ItemConfig>();
-            await itemReader.LoadLocalConfig("items");
 
             energyReader = new SlimeConfigReader<EnergyConfig>();
             await energyReader.LoadLocalConfig("energy_config");
@@ -114,14 +110,6 @@ namespace GameLogic
         // ========== Unit 查询 ==========
 
         public UnitConfig GetUnitConfig(UnitType unitType) => unitReader.Find(u => u.unitType == (int)unitType);
-
-        // ========== Item 查询 ==========
-
-        public ItemConfig GetItemByKey(string key) => itemReader.FindById(i => i.key, key);
-
-        public ItemConfig GetItemById(int id) => itemReader.FindById(i => i.id, id);
-
-        public List<ItemConfig> GetItemsByCategory(string category) => itemReader.FindAll(i => i.category == category);
 
         // ========== 单对象配置直接获取 ==========
 

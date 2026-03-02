@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TEngine;
 
 namespace GameLogic
@@ -25,8 +26,7 @@ namespace GameLogic
         private const string Enable_Sound_Key = "slime_enable_sound";
         private const string Enable_Vibration_Key = "slime_enable_vibration";
         private const string Request_User_Info_Date_Key = "slime_request_userinfo_date";
-        private const string Coin_Key = "slime_coin";
-        private const string Energy_Key = "slime_energy";
+        private const string Resources_Key_Prefix = "slime_res_";
 
         private UserInfo _userInfo = new();
         public UserInfo UserInfo
@@ -99,25 +99,62 @@ namespace GameLogic
             }
         }
 
-        private int _coin = 0;
-        /// <summary>
-        /// 当前金币数量
-        /// </summary>
-        public int Coin => _coin;
+        // ========== 统一资源存储 ==========
+        private readonly Dictionary<ResourceType, int> _resources = new();
 
-        private int _energy = 150; // 默认体力值
         /// <summary>
-        /// 当前体力值
+        /// 获取指定资源的当前值
         /// </summary>
-        public int Energy => _energy;
+        public int GetResource(ResourceType type)
+        {
+            return _resources.TryGetValue(type, out int value) ? value : 0;
+        }
+
+        /// <summary>
+        /// 更新资源值（从服务器数据同步），发送变化事件
+        /// </summary>
+        public void UpdateResource(ResourceType type, int newValue)
+        {
+            int oldValue = GetResource(type);
+            if (oldValue == newValue) return;
+            
+            _resources[type] = newValue;
+            PlayerPrefs.SetInt(Resources_Key_Prefix + (int)type, newValue);
+            PlayerPrefs.Save();
+            
+            int change = newValue - oldValue;
+            GameEvent.Send(SlimeEvent.OnResourceChanged, new ResourceChangedParam(type, change, newValue));
+            Log.Info($"[SlimeGameData] Update resource {type}: {oldValue} -> {newValue} (change: {change})");
+        }
+
+        /// <summary>
+        /// 批量更新所有资源（从服务器拉取后同步）
+        /// </summary>
+        public void UpdateAllResources(Dictionary<ResourceType, int> resources)
+        {
+            foreach (var kvp in resources)
+            {
+                UpdateResource(kvp.Key, kvp.Value);
+            }
+        }
+
+        // 便捷属性
+        public int Coin => GetResource(ResourceType.Coin);
+        public int Energy => GetResource(ResourceType.Energy);
+        public int Diamond => GetResource(ResourceType.Diamond);
 
         public SlimeGameData()
         {
             _progressLevelID = PlayerPrefs.GetInt(Progress_Level_ID_Key, 0);
             _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
             _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
-            _coin = PlayerPrefs.GetInt(Coin_Key, 0);
-            _energy = PlayerPrefs.GetInt(Energy_Key, 150); // 默认150
+
+            foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+            {
+                int defaultValue = type == ResourceType.Energy ? 150 : 0;
+                _resources[type] = PlayerPrefs.GetInt(Resources_Key_Prefix + (int)type, defaultValue);
+            }
+
             LoadUserInfo();
             Log.Info($"[SlimeGameData] init data: {this.ToJson()}");
         }
@@ -165,36 +202,6 @@ namespace GameLogic
             string today = DateTime.Now.ToString("yyyyMMdd");
             PlayerPrefs.SetString(Request_User_Info_Date_Key, today);
             Log.Info($"[SlimeGameData] MarkRequestedUserInfoToday: [{today}]");
-        }
-
-        /// <summary>
-        /// 更新金币数量（从服务器数据同步）
-        /// </summary>
-        /// <param name="coin">金币数量</param>
-        public void UpdateCoin(int coin)
-        {
-            if (_coin == coin) return;
-            
-            _coin = coin;
-            PlayerPrefs.SetInt(Coin_Key, _coin);
-            PlayerPrefs.Save();
-            GameEvent.Send(SlimeEvent.OnCoinChanged, _coin);
-            Log.Info($"[SlimeGameData] Update coin: {_coin}");
-        }
-
-        /// <summary>
-        /// 更新体力值（从服务器数据同步）
-        /// </summary>
-        /// <param name="energy">体力值</param>
-        public void UpdateEnergy(int energy)
-        {
-            if (_energy == energy) return;
-            
-            _energy = energy;
-            PlayerPrefs.SetInt(Energy_Key, _energy);
-            PlayerPrefs.Save();
-            GameEvent.Send(SlimeEvent.OnEnergyChanged, _energy);
-            Log.Info($"[SlimeGameData] Update energy: {_energy}");
         }
     }
 

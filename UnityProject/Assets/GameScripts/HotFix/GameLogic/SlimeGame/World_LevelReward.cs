@@ -8,7 +8,6 @@ namespace GameLogic
 {
     /// <summary>
     /// 关卡通关奖励（World 的部分类）
-    /// 公式驱动：所有奖励基于 levelId 自动计算，无需逐关配置
     /// </summary>
     public partial class World
     {
@@ -35,9 +34,9 @@ namespace GameLogic
             int coinReward = (int)Math.Floor(rewardConfig.baseCoin + rewardConfig.coinPerLevel * (levelId - 1.0));
             result.baseRewards.Add(new RewardItem
             {
-                type = CurrencyTypes.COIN,
+                resourceType = ResourceType.Coin,
                 amount = coinReward,
-                source = CurrencySource.LEVEL_REWARD,
+                source = ResourceSource.LEVEL_REWARD,
             });
 
             // energyReturn = floor(levelConsume * energyReturnRate)
@@ -46,9 +45,9 @@ namespace GameLogic
             {
                 result.baseRewards.Add(new RewardItem
                 {
-                    type = "energy",
+                    resourceType = ResourceType.Energy,
                     amount = energyReturn,
-                    source = EnergySource.LEVEL_REWARD,
+                    source = ResourceSource.LEVEL_REWARD,
                 });
             }
 
@@ -58,9 +57,9 @@ namespace GameLogic
                 int firstClearCoin = (int)Math.Floor(coinReward * rewardConfig.firstClearMultiplier);
                 result.firstClearRewards.Add(new RewardItem
                 {
-                    type = CurrencyTypes.COIN,
+                    resourceType = ResourceType.Coin,
                     amount = firstClearCoin,
-                    source = CurrencySource.FIRST_CLEAR,
+                    source = ResourceSource.FIRST_CLEAR,
                 });
             }
 
@@ -70,9 +69,9 @@ namespace GameLogic
             {
                 result.adBonusRewards.Add(new RewardItem
                 {
-                    type = CurrencyTypes.COIN,
+                    resourceType = ResourceType.Coin,
                     amount = adBonusCoin,
-                    source = CurrencySource.LEVEL_REWARD,
+                    source = ResourceSource.LEVEL_REWARD,
                 });
             }
 
@@ -85,8 +84,7 @@ namespace GameLogic
         }
 
         /// <summary>
-        /// 领取关卡通关奖励（服务端统一结算，一次 HTTP 请求）
-        /// 服务端根据 levelId 和 progressLevelID 自行判断 isFirstClear 并用公式计算奖励
+        /// 领取关卡通关奖励（服务端统一结算）
         /// </summary>
         public async UniTask<bool> ClaimLevelReward(int levelId, bool watchedAd)
         {
@@ -103,10 +101,8 @@ namespace GameLogic
                 return false;
             }
 
-            // 刷新本地用户数据（coin/energy/progressLevelID）
             FetchUserGameInfo();
 
-            // 首通时更新微信排行榜
             if (response.data.isFirstClear)
             {
                 UpdateWXLeaderboard(levelId);

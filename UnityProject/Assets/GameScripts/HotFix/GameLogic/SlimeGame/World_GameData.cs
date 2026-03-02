@@ -211,8 +211,18 @@ namespace GameLogic
             curUserInfo.avatarUrl = userInfo.avatarUrl;
             GameData.UserInfo = curUserInfo;
             GameData.SetProgressLevelID(userInfo.progressLevelID);
-            GameData.UpdateCoin(userInfo.coin);
-            GameData.UpdateEnergy(userInfo.energy);
+            
+            // 同步资源数据
+            if (userInfo.resources != null)
+            {
+                foreach (var kvp in userInfo.resources)
+                {
+                    if (int.TryParse(kvp.Key, out int typeId) && System.Enum.IsDefined(typeof(ResourceType), typeId))
+                    {
+                        GameData.UpdateResource((ResourceType)typeId, kvp.Value);
+                    }
+                }
+            }
             callback?.Invoke(true);
             Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
         }

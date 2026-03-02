@@ -18,15 +18,30 @@ namespace GameLogic
         
         public static string OnAdsResultReceived = "OnAdsResultReceived";
         
-        public static string OnCoinChanged = "OnCoinChanged";  // 金币变化事件
+        public static string OnResourceChanged = "OnResourceChanged";
         
-        public static string OnEnergyChanged = "OnEnergyChanged";  // 体力值变化事件
+        public static string OnResourceNotEnough = "OnResourceNotEnough";
         
-        public static string OnEnergyNotEnough = "OnEnergyNotEnough";  // 体力值不足事件
+        public static string OnProgressLevelIDChanged = "OnProgressLevelIDChanged";
         
-        public static string OnProgressLevelIDChanged = "OnProgressLevelIDChanged";  // 通关进度变化事件
-        
-        public static string OnLevelRewardClaimed = "OnLevelRewardClaimed";  // 通关奖励领取完成事件
+        public static string OnLevelRewardClaimed = "OnLevelRewardClaimed";
+    }
+
+    /// <summary>
+    /// 资源变化事件参数
+    /// </summary>
+    public class ResourceChangedParam
+    {
+        public ResourceType resourceType;
+        public int change;
+        public int newValue;
+
+        public ResourceChangedParam(ResourceType resourceType, int change, int newValue)
+        {
+            this.resourceType = resourceType;
+            this.change = change;
+            this.newValue = newValue;
+        }
     }
 
     // 广告类型枚举

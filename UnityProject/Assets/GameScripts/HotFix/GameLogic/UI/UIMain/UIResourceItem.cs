@@ -7,7 +7,7 @@ namespace GameLogic
 {
     public partial class UIResourceItem
     {
-        private string _bindEvent;
+        private ResourceType _resourceType;
         private Func<int> _valueGetter;
         private Func<int, string> _formatter;
 
@@ -17,19 +17,22 @@ namespace GameLogic
         }
 
         /// <summary>
-        /// 初始化资源项，注入数据绑定
+        /// 初始化资源项，绑定指定 ResourceType 的变化事件
         /// </summary>
-        /// <param name="eventName">监听的数据变化事件</param>
-        /// <param name="valueGetter">获取当前值的回调</param>
-        /// <param name="formatter">数值格式化（可选，默认 ToString）</param>
-        public void Init(string eventName, Func<int> valueGetter, Func<int, string> formatter = null)
+        public void Init(ResourceType resourceType, Func<int> valueGetter, Func<int, string> formatter = null)
         {
-            _bindEvent = eventName;
+            _resourceType = resourceType;
             _valueGetter = valueGetter;
             _formatter = formatter;
 
             RefreshDisplay(_valueGetter());
-            GameEvent.AddEventListener<int>(_bindEvent, RefreshDisplay);
+            GameEvent.AddEventListener<ResourceChangedParam>(SlimeEvent.OnResourceChanged, OnResourceChanged);
+        }
+
+        private void OnResourceChanged(ResourceChangedParam param)
+        {
+            if (param.resourceType != _resourceType) return;
+            RefreshDisplay(param.newValue);
         }
 
         private void RefreshDisplay(int value)
@@ -39,8 +42,7 @@ namespace GameLogic
 
         protected override void OnDestroy()
         {
-            if (_bindEvent != null)
-                GameEvent.RemoveEventListener<int>(_bindEvent, RefreshDisplay);
+            GameEvent.RemoveEventListener<ResourceChangedParam>(SlimeEvent.OnResourceChanged, OnResourceChanged);
             base.OnDestroy();
         }
     }

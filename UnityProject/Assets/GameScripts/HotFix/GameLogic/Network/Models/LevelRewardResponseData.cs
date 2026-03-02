@@ -13,7 +13,7 @@ namespace GameLogic.Network
     [Serializable]
     public class RewardItemData
     {
-        public string type;
+        public int resourceType;
         public int amount;
         public string source;
     }
