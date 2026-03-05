@@ -195,7 +195,7 @@ namespace GameLogic
             m_Castles.Clear();
             foreach (var config in castles)
             {
-                var castle = await CreateWidgetByPathAsync<BaseCastle>(m_tfCastleContainer, "Assets/AssetRaw/UI/InGame/Castle.prefab");
+                var castle = await CreateWidgetByPathAsync<BaseCastle>(m_tfCastleContainer, "Assets/AssetRaw/Prefabs/UI/UIGame/Castle.prefab");
                 castle.ID = config.id;
                 castle.gameObject.name = $"Castle_{config.id}";
                 castle.castleType = (CastleType)config.castleType;
@@ -240,7 +240,7 @@ namespace GameLogic
                     }
                 };
 
-                var roadIns = await CreateWidgetByPathAsync<BaseRoad>(m_tfCastleContainer, "Assets/AssetRaw/UI/InGame/Road.prefab");
+                var roadIns = await CreateWidgetByPathAsync<BaseRoad>(m_tfCastleContainer, "Assets/AssetRaw/Prefabs/UI/UIGame/Road.prefab");
                 roadIns.transform.SetParent(m_tfRoadContainer);
                 roadIns.gameObject.name = $"Road_{config.startCastleId}_{config.endCastleId}";
                 roadIns.data = roadData;

@@ -2,13 +2,13 @@
   {
     "unitType": "0",
     "unitImageName": "Unit_Player",
-    "unitPrefabPath": "Assets/AssetRaw/UI/InGame/Unit_Player.prefab",
+    "unitPrefabPath": "Assets/AssetRaw/Prefabs/UI/Units/Unit_Blue_1.prefab",
     "moveDuration": 7.5
   },
   {
     "unitType": "1",
     "unitImageName": "Enemy_1",
-    "unitPrefabPath": "Assets/AssetRaw/UI/InGame/Unit_Enemy_1.prefab",
+    "unitPrefabPath": "Assets/AssetRaw/Prefabs/UI/Units/Unit_Red_1.prefab",
     "moveDuration": 7.5
   }
 ]
