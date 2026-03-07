@@ -7,19 +7,13 @@ namespace TEngine.Editor
     {
         private static string ConfigRoot => Application.dataPath + @"/../../Configs/GameConfig";
 
-        [MenuItem("TEngine/Tools/Luban 转表 (JSON)")]
-        public static void BuildLubanJson()
-        {
-            Application.OpenURL(ConfigRoot + @"/gen_code_bin_to_project.bat");
-        }
-
-        [MenuItem("TEngine/Tools/Luban 转表 (Binary)")]
-        public static void BuildLubanBin()
+        [MenuItem("TEngine/Tools/Luban 转表")]
+        public static void BuildLubanLazyLoad()
         {
             Application.OpenURL(ConfigRoot + @"/gen_code_bin_to_project_lazyload.bat");
         }
 
-        [MenuItem("TEngine/Tools/Luban 转表服务端 (JSON)")]
+        [MenuItem("TEngine/Tools/Luban 转表服务端")]
         public static void BuildLubanServerJson()
         {
             Application.OpenURL(ConfigRoot + @"/gen_code_bin_to_server.bat");

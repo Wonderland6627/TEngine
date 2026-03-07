@@ -8,7 +8,6 @@
 //------------------------------------------------------------------------------
 
 using Luban;
-using SimpleJSON;
 
 
 namespace GameConfig.item
@@ -18,16 +17,15 @@ public partial class TbItem
     private readonly System.Collections.Generic.Dictionary<int, item.Item> _dataMap;
     private readonly System.Collections.Generic.List<item.Item> _dataList;
     
-    public TbItem(JSONNode _buf)
+    public TbItem(ByteBuf _buf)
     {
-        int count = _buf.Count;
-        _dataMap = new System.Collections.Generic.Dictionary<int, item.Item>(count);
-        _dataList = new System.Collections.Generic.List<item.Item>(count);
-        
-        foreach(JSONNode _ele in _buf.Children)
+        int n = _buf.ReadSize();
+        _dataMap = new System.Collections.Generic.Dictionary<int, item.Item>(n);
+        _dataList = new System.Collections.Generic.List<item.Item>(n);
+        for(int i = n ; i > 0 ; --i)
         {
             item.Item _v;
-            { if(!_ele.IsObject) { throw new SerializationException(); }  _v = global::GameConfig.item.Item.DeserializeItem(_ele);  }
+            _v = global::GameConfig.item.Item.DeserializeItem(_buf);
             _dataList.Add(_v);
             _dataMap.Add(_v.Id, _v);
         }
