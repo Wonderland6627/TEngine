@@ -37,6 +37,28 @@ namespace GameLogic
             await levelRewardReader.LoadLocalConfig("level_reward_config");
             
             await LoadGameConfig();
+            
+            TestLubanConfig();
+        }
+
+        /// <summary>
+        /// 测试 Luban 配置表加载（验证 JSON 模式是否正常工作）。
+        /// </summary>
+        private void TestLubanConfig()
+        {
+            try
+            {
+                var tbItem = ConfigSystem.Instance.Tables.TbItem;
+                var item = tbItem.GetOrDefault(10000);
+                if (item != null)
+                    Log.Info($"[ConfigSystem] TbItem loaded OK, id={item.Id}, name={item.Name}, price={item.Price}");
+                else
+                    Log.Error("[ConfigSystem] TbItem load FAILED: id=10000 not found");
+            }
+            catch (System.Exception e)
+            {
+                Log.Error($"[ConfigSystem] TbItem load EXCEPTION: {e.Message}");
+            }
         }
         
         private async UniTask LoadGameConfig()

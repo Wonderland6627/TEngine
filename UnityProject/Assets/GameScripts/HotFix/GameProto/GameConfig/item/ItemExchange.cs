@@ -8,19 +8,20 @@
 //------------------------------------------------------------------------------
 
 using Luban;
+using SimpleJSON;
 
 
 namespace GameConfig.item
 {
 public sealed partial class ItemExchange : Luban.BeanBase
 {
-    public ItemExchange(ByteBuf _buf) 
+    public ItemExchange(JSONNode _buf) 
     {
-        Id = _buf.ReadInt();
-        Num = _buf.ReadInt();
+        { if(!_buf["id"].IsNumber) { throw new SerializationException(); }  Id = _buf["id"]; }
+        { if(!_buf["num"].IsNumber) { throw new SerializationException(); }  Num = _buf["num"]; }
     }
 
-    public static ItemExchange DeserializeItemExchange(ByteBuf _buf)
+    public static ItemExchange DeserializeItemExchange(JSONNode _buf)
     {
         return new item.ItemExchange(_buf);
     }

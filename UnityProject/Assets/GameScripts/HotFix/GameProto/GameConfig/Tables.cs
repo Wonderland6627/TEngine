@@ -8,51 +8,24 @@
 //------------------------------------------------------------------------------
 
 using Luban;
+using SimpleJSON;
 
 namespace GameConfig
 {
 public partial class Tables
 {
-    #region The Tables
+    public item.TbItem TbItem {get; }
 
-    private item.TbItem m_TbItem;
-    public item.TbItem TbItem 
+    public Tables(System.Func<string, JSONNode> loader)
     {
-        get
-        {
-            if (m_TbItem == null)
-            {
-                m_TbItem = new item.TbItem(defaultLoader("item_tbitem"));
-                m_TbItem.ResolveRef(this);
-            }
-            return m_TbItem;
-        }
-        set
-        {
-            m_TbItem = value;
-            m_TbItem.ResolveRef(this);
-        }
-    }
-
-    #endregion
-
-    System.Func<string, ByteBuf> defaultLoader;
-
-    public Tables(System.Func<string, ByteBuf> loader)
-    {
-        SetDefaultLoader(loader);
-        Init();
+        TbItem = new item.TbItem(loader("item_tbitem"));
+        ResolveRef();
     }
     
-    public void SetDefaultLoader(System.Func<string, ByteBuf> loader)
+    private void ResolveRef()
     {
-        defaultLoader = null;
-        defaultLoader = loader;
+        TbItem.ResolveRef(this);
     }
-
-    //public partial void Init();
-
-    public void Init(){}
 }
 
 }

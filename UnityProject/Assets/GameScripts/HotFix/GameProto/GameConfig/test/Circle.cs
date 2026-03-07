@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 
 using Luban;
+using SimpleJSON;
 
 
 namespace GameConfig.test
@@ -17,12 +18,12 @@ namespace GameConfig.test
 /// </summary>
 public sealed partial class Circle : Shape
 {
-    public Circle(ByteBuf _buf)  : base(_buf) 
+    public Circle(JSONNode _buf)  : base(_buf) 
     {
-        Radius = _buf.ReadFloat();
+        { if(!_buf["radius"].IsNumber) { throw new SerializationException(); }  Radius = _buf["radius"]; }
     }
 
-    public static Circle DeserializeCircle(ByteBuf _buf)
+    public static Circle DeserializeCircle(JSONNode _buf)
     {
         return new test.Circle(_buf);
     }

@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 
 using Luban;
+using SimpleJSON;
 
 
 namespace GameConfig.test
@@ -17,13 +18,13 @@ namespace GameConfig.test
 /// </summary>
 public sealed partial class Rectangle : Shape
 {
-    public Rectangle(ByteBuf _buf)  : base(_buf) 
+    public Rectangle(JSONNode _buf)  : base(_buf) 
     {
-        Width = _buf.ReadFloat();
-        Height = _buf.ReadFloat();
+        { if(!_buf["width"].IsNumber) { throw new SerializationException(); }  Width = _buf["width"]; }
+        { if(!_buf["height"].IsNumber) { throw new SerializationException(); }  Height = _buf["height"]; }
     }
 
-    public static Rectangle DeserializeRectangle(ByteBuf _buf)
+    public static Rectangle DeserializeRectangle(JSONNode _buf)
     {
         return new test.Rectangle(_buf);
     }

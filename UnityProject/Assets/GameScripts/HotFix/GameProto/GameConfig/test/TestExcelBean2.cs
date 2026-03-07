@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 
 using Luban;
+using SimpleJSON;
 
 
 namespace GameConfig.test
@@ -17,14 +18,14 @@ namespace GameConfig.test
 /// </summary>
 public sealed partial class TestExcelBean2 : Luban.BeanBase
 {
-    public TestExcelBean2(ByteBuf _buf) 
+    public TestExcelBean2(JSONNode _buf) 
     {
-        Y1 = _buf.ReadInt();
-        Y2 = _buf.ReadString();
-        Y3 = _buf.ReadFloat();
+        { if(!_buf["y1"].IsNumber) { throw new SerializationException(); }  Y1 = _buf["y1"]; }
+        { if(!_buf["y2"].IsString) { throw new SerializationException(); }  Y2 = _buf["y2"]; }
+        { if(!_buf["y3"].IsNumber) { throw new SerializationException(); }  Y3 = _buf["y3"]; }
     }
 
-    public static TestExcelBean2 DeserializeTestExcelBean2(ByteBuf _buf)
+    public static TestExcelBean2 DeserializeTestExcelBean2(JSONNode _buf)
     {
         return new test.TestExcelBean2(_buf);
     }

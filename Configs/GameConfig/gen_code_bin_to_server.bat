@@ -4,13 +4,13 @@ echo %CD%
 set WORKSPACE=../../
 set LUBAN_DLL=%WORKSPACE%/Tools/Luban/Luban.dll
 set CONF_ROOT=.
-set DATA_OUTPATH=%WORKSPACE%/Server/GameConfig 
-set CODE_OUTPATH=%WORKSPACE%/Server/Hotfix/Config/GameConfig
+set DATA_OUTPATH=%WORKSPACE%/../piratecat_slime_express/config/luban/data
+set CODE_OUTPATH=%WORKSPACE%/../piratecat_slime_express/config/luban/gen
 
 dotnet %LUBAN_DLL% ^
-    -t server^
-    -c cs-bin ^
-    -d bin^
+    -t server ^
+    -c javascript-json ^
+    -d json ^
     --conf %CONF_ROOT%\luban.conf ^
     -x outputCodeDir=%CODE_OUTPATH% ^
     -x outputDataDir=%DATA_OUTPATH% 
