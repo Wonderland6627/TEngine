@@ -33,6 +33,27 @@ public partial class Tables
             m_TbItem.ResolveRef(this);
         }
     }
+    /// <summary>
+    /// 角色单位
+    /// </summary>
+    private unit.TbUnit m_TbUnit;
+    public unit.TbUnit TbUnit 
+    {
+        get
+        {
+            if (m_TbUnit == null)
+            {
+                m_TbUnit = new unit.TbUnit(defaultLoader("unit_tbunit"));
+                m_TbUnit.ResolveRef(this);
+            }
+            return m_TbUnit;
+        }
+        set
+        {
+            m_TbUnit = value;
+            m_TbUnit.ResolveRef(this);
+        }
+    }
 
     #endregion
 

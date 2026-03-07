@@ -9,26 +9,26 @@
 
 
 
-namespace GameConfig.item
+namespace GameConfig
 { 
     public enum EQuality
     {
         /// <summary>
-        /// 最差品质
+        /// 普通
         /// </summary>
         WHITE = 1,
         /// <summary>
-        /// 蓝色的
+        /// 稀有
         /// </summary>
         BLUE = 2,
         /// <summary>
-        /// 紫色的
+        /// 史诗
         /// </summary>
         PURPLE = 3,
         /// <summary>
-        /// 最高品质
+        /// 传说
         /// </summary>
-        RED = 4,
+        ORANGE = 4,
     }
 
 } 
