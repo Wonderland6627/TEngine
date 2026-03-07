@@ -79,7 +79,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: b94d2c4b07318704f8574301f026dca8, type: 3}
   - {fileID: 21300000, guid: e56b52ee1b0410348ae256e34a005cc7, type: 3}
   m_PackedSpriteNamesToIndex:
-  - icon_gift_opened
+  - icon_gift01_opened
   - icon_gift01
   m_RenderDataMap: {}
   m_Tag: UIRaw_Atlas_UIMain

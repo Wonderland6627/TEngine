@@ -9,6 +9,7 @@ namespace GameLogic
 	partial class UILevelView
 	{
 		private int selectLevelId = -1;
+		private UIDailyChestBtn dailyChestBtn;
 
 		protected override void OnCreate()
 		{
@@ -16,6 +17,7 @@ namespace GameLogic
 			Log.Info($"[UILevelView] OnCreate");
 
 			m_txtEnergy.text = $"x{World.Instance.GetEnergyConfig().levelConsume}";
+			dailyChestBtn = CreateWidget<UIDailyChestBtn>(m_itemDailyChestBtn);
 			
 			int nextLevelId = GetNextLevelId();
 			RefreshLevelPreview(nextLevelId);
@@ -97,6 +99,8 @@ namespace GameLogic
 			m_imgLevelPrevious.gameObject.SetActive(previewLevelId > 1);
 			m_imgLevelNext.gameObject.SetActive(previewLevelId < World.Instance.GetAllLevels().Count);
 
+			dailyChestBtn?.RefreshState();
+
 			Log.Info($"[UILevelView] refresh level preview [{previewLevelId}] progresslvid [{progressLevelID}] islocked [{isLocked}]");
 		}
 		
@@ -120,7 +124,7 @@ namespace GameLogic
 		private Button m_btnSettings;
 		private GameObject m_itemRank;
 		private Button m_btnRule;
-		private GameObject m_itemCheckIn;
+		private GameObject m_itemDailyChestBtn;
 		private Image m_imgLevelPreviewContent;
 		private Image m_imgLevelPreviewBG;
 		private Image m_imgLevelPreview;
@@ -142,7 +146,7 @@ namespace GameLogic
 			m_btnSettings = FindChildComponent<Button>("layoutLeft/m_btnSettings");
 			m_itemRank = FindChild("layoutLeft/m_itemRank").gameObject;
 			m_btnRule = FindChildComponent<Button>("layoutRight/m_btnRule");
-			m_itemCheckIn = FindChild("layoutRight/m_itemCheckIn").gameObject;
+			m_itemDailyChestBtn = FindChild("layoutRight/m_itemDailyChestBtn").gameObject;
 			m_imgLevelPreviewContent = FindChildComponent<Image>("m_imgLevelPreviewContent");
 			m_imgLevelPreviewBG = FindChildComponent<Image>("m_imgLevelPreviewContent/m_imgLevelPreviewBG");
 			m_imgLevelPreview = FindChildComponent<Image>("m_imgLevelPreviewContent/m_imgLevelPreview");

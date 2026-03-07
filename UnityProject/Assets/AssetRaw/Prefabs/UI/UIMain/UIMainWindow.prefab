@@ -3255,7 +3255,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5757457723928133949, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
       propertyPath: m_Name
-      value: m_itemCheckIn
+      value: m_itemDailyChestBtn
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a3780ad09a73b8c41bac494e58e4d3fc, type: 3}
