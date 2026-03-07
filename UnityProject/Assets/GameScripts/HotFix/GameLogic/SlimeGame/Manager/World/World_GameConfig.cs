@@ -48,10 +48,10 @@ namespace GameLogic
         {
             try
             {
-                var tbItem = ConfigSystem.Instance.Tables.TbItem;
-                var item = tbItem.GetOrDefault(10000);
+                var tbItem = ConfigSystem.Instance.Tables.TbUnit;
+                var item = tbItem.GetOrDefault(1001);
                 if (item != null)
-                    Log.Info($"[ConfigSystem] TbItem loaded OK, id={item.Id}, name={item.Name}, price={item.Price}");
+                    Log.Info($"[ConfigSystem] TbItem loaded OK, {item.ToString()}");
                 else
                     Log.Error("[ConfigSystem] TbItem load FAILED: id=10000 not found");
             }

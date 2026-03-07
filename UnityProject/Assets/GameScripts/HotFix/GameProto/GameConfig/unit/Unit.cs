@@ -21,6 +21,7 @@ public sealed partial class Unit : Luban.BeanBase
         Desc = _buf.ReadString();
         UnitRace = (unit.EUnitRace)_buf.ReadInt();
         Quality = (EQuality)_buf.ReadInt();
+        ImgPath = _buf.ReadString();
     }
 
     public static Unit DeserializeUnit(ByteBuf _buf)
@@ -48,6 +49,10 @@ public sealed partial class Unit : Luban.BeanBase
     /// 稀有度
     /// </summary>
     public readonly EQuality Quality;
+    /// <summary>
+    /// 图片路径
+    /// </summary>
+    public readonly string ImgPath;
    
     public const int __ID__ = -518455346;
     public override int GetTypeId() => __ID__;
@@ -64,6 +69,7 @@ public sealed partial class Unit : Luban.BeanBase
         + "desc:" + Desc + ","
         + "unitRace:" + UnitRace + ","
         + "quality:" + Quality + ","
+        + "imgPath:" + ImgPath + ","
         + "}";
     }
 }

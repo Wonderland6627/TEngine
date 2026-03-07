@@ -73,6 +73,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: d9fe29297b30b314581c0312b450a172, type: 3}
     - {fileID: 21300000, guid: f09c815303e14c247a970605d833baa4, type: 3}
     - {fileID: 21300000, guid: 8dda1c908c1d5e242831924d235f07bb, type: 3}
+    - {fileID: 21300000, guid: f2a1831df0b1de947b83efe4827ec66b, type: 3}
     - {fileID: 21300000, guid: 805e79f8ca4f6d846bc89e943301dc72, type: 3}
     - {fileID: 21300000, guid: 246f69a92692e1a4bb73817e55cabcb3, type: 3}
     - {fileID: 21300000, guid: 79ef3ff2a53af7c4687cfafc807a71da, type: 3}
@@ -81,7 +82,6 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 4d4e86de66d56c548b53f096cbbe927a, type: 3}
     - {fileID: 21300000, guid: 95c9ad914518c1d46bd3b04fceff26aa, type: 3}
     - {fileID: 21300000, guid: 17761a0fce763d64885fdb8f806ab052, type: 3}
-    - {fileID: 21300000, guid: f2a1831df0b1de947b83efe4827ec66b, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
@@ -102,7 +102,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 17761a0fce763d64885fdb8f806ab052, type: 3}
   m_PackedSpriteNamesToIndex:
   - Unit_Blue_1_Hurt_3
-  - Unit_Blue
+  - Unit_1001
   - Unit_Pink
   - Unit_Blue_1_Hurt_1
   - Castle_Red
@@ -111,7 +111,7 @@ SpriteAtlas:
   - Castle_Free
   - Unit_Blue_1_Happy_2
   - Unit_Blue_1_Hurt_2
-  - Unit_Red
+  - Unit_1002
   - Unit_Green
   - Unit_Purple
   m_RenderDataMap: {}
