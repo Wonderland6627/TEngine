@@ -10,31 +10,28 @@
 using Luban;
 
 
-namespace GameConfig.item
+namespace GameConfig.common
 {
-public sealed partial class ItemExchange : Luban.BeanBase
+/// <summary>
+/// 整数范围
+/// </summary>
+public sealed partial class IntRange : Luban.BeanBase
 {
-    public ItemExchange(ByteBuf _buf) 
+    public IntRange(ByteBuf _buf) 
     {
-        Id = _buf.ReadInt();
-        Num = _buf.ReadInt();
+        Min = _buf.ReadInt();
+        Max = _buf.ReadInt();
     }
 
-    public static ItemExchange DeserializeItemExchange(ByteBuf _buf)
+    public static IntRange DeserializeIntRange(ByteBuf _buf)
     {
-        return new item.ItemExchange(_buf);
+        return new common.IntRange(_buf);
     }
 
-    /// <summary>
-    /// 道具id
-    /// </summary>
-    public readonly int Id;
-    /// <summary>
-    /// 道具数量
-    /// </summary>
-    public readonly int Num;
+    public readonly int Min;
+    public readonly int Max;
    
-    public const int __ID__ = 1814660465;
+    public const int __ID__ = -751013039;
     public override int GetTypeId() => __ID__;
 
     public  void ResolveRef(Tables tables)
@@ -44,8 +41,8 @@ public sealed partial class ItemExchange : Luban.BeanBase
     public override string ToString()
     {
         return "{ "
-        + "id:" + Id + ","
-        + "num:" + Num + ","
+        + "min:" + Min + ","
+        + "max:" + Max + ","
         + "}";
     }
 }

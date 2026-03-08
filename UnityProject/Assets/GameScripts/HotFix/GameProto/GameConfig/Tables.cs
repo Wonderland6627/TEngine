@@ -18,14 +18,14 @@ public partial class Tables
     /// <summary>
     /// 角色单位
     /// </summary>
-    private unit.TbUnit m_TbUnit;
-    public unit.TbUnit TbUnit 
+    private TbUnit m_TbUnit;
+    public TbUnit TbUnit 
     {
         get
         {
             if (m_TbUnit == null)
             {
-                m_TbUnit = new unit.TbUnit(defaultLoader("unit_tbunit"));
+                m_TbUnit = new TbUnit(defaultLoader("tbunit"));
                 m_TbUnit.ResolveRef(this);
             }
             return m_TbUnit;
@@ -34,6 +34,27 @@ public partial class Tables
         {
             m_TbUnit = value;
             m_TbUnit.ResolveRef(this);
+        }
+    }
+    /// <summary>
+    /// 全局配置
+    /// </summary>
+    private TbGlobalConfig m_TbGlobalConfig;
+    public TbGlobalConfig TbGlobalConfig 
+    {
+        get
+        {
+            if (m_TbGlobalConfig == null)
+            {
+                m_TbGlobalConfig = new TbGlobalConfig(defaultLoader("tbglobalconfig"));
+                m_TbGlobalConfig.ResolveRef(this);
+            }
+            return m_TbGlobalConfig;
+        }
+        set
+        {
+            m_TbGlobalConfig = value;
+            m_TbGlobalConfig.ResolveRef(this);
         }
     }
 

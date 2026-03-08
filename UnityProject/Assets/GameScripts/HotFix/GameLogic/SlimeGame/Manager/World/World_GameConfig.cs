@@ -54,6 +54,12 @@ namespace GameLogic
                     Log.Info($"[ConfigSystem] TbItem loaded OK, {item.ToString()}");
                 else
                     Log.Error("[ConfigSystem] TbItem load FAILED: id=10000 not found");
+
+                var globalConfig = ConfigSystem.Instance.Tables.TbGlobalConfig;
+                if (globalConfig != null)
+                    Log.Info($"[ConfigSystem] TbGlobalConfig loaded OK, {globalConfig.Data.ToString()}");
+                else
+                    Log.Error("[ConfigSystem] TbGlobalConfig load FAILED: not found");
             }
             catch (System.Exception e)
             {

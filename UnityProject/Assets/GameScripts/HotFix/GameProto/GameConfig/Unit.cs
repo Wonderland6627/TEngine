@@ -10,7 +10,7 @@
 using Luban;
 
 
-namespace GameConfig.unit
+namespace GameConfig
 {
 public sealed partial class Unit : Luban.BeanBase
 {
@@ -26,7 +26,7 @@ public sealed partial class Unit : Luban.BeanBase
 
     public static Unit DeserializeUnit(ByteBuf _buf)
     {
-        return new unit.Unit(_buf);
+        return new Unit(_buf);
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public sealed partial class Unit : Luban.BeanBase
     /// </summary>
     public readonly string ImgPath;
    
-    public const int __ID__ = -518455346;
+    public const int __ID__ = 2641316;
     public override int GetTypeId() => __ID__;
 
     public  void ResolveRef(Tables tables)
