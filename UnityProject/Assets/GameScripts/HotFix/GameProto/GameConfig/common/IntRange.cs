@@ -28,7 +28,13 @@ public sealed partial class IntRange : Luban.BeanBase
         return new common.IntRange(_buf);
     }
 
+    /// <summary>
+    /// 最小值
+    /// </summary>
     public readonly int Min;
+    /// <summary>
+    /// 最大值
+    /// </summary>
     public readonly int Max;
    
     public const int __ID__ = -751013039;

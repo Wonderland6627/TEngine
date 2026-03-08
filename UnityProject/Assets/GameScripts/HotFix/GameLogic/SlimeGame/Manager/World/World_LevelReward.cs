@@ -16,13 +16,7 @@ namespace GameLogic
         /// </summary>
         public LevelRewardResult CalculateLevelReward(int levelId, bool isFirstClear)
         {
-            var rewardConfig = GetLevelRewardConfig();
-            var energyConfig = GetEnergyConfig();
-            if (rewardConfig == null || energyConfig == null)
-            {
-                Log.Error("[World] CalculateLevelReward failed: config is null");
-                return null;
-            }
+            var gc = GlobalConfig;
 
             var result = new LevelRewardResult
             {
@@ -31,7 +25,8 @@ namespace GameLogic
             };
 
             // coinReward = floor(baseCoin + coinPerLevel * (levelId - 1))
-            int coinReward = (int)Math.Floor(rewardConfig.baseCoin + rewardConfig.coinPerLevel * (levelId - 1.0));
+            int baseCoin = ResourceDef.GetDefaultValue(ResourceType.Coin);
+            int coinReward = (int)Math.Floor(baseCoin + gc.CoinPerLevel * (levelId - 1.0));
             result.baseRewards.Add(new RewardItem
             {
                 resourceType = ResourceType.Coin,
@@ -40,7 +35,7 @@ namespace GameLogic
             });
 
             // energyReturn = floor(levelConsume * energyReturnRate)
-            int energyReturn = (int)Math.Floor(energyConfig.levelConsume * rewardConfig.energyReturnRate);
+            int energyReturn = (int)Math.Floor(gc.LevelEnergyConsume * (double)gc.EnergyReturnRate);
             if (energyReturn > 0)
             {
                 result.baseRewards.Add(new RewardItem
@@ -54,7 +49,7 @@ namespace GameLogic
             // firstClearCoin = floor(coinReward * firstClearMultiplier)
             if (isFirstClear)
             {
-                int firstClearCoin = (int)Math.Floor(coinReward * rewardConfig.firstClearMultiplier);
+                int firstClearCoin = (int)Math.Floor(coinReward * (double)gc.FirstClearMultiplier);
                 result.firstClearRewards.Add(new RewardItem
                 {
                     resourceType = ResourceType.Coin,
@@ -64,7 +59,7 @@ namespace GameLogic
             }
 
             // adBonusCoin = coinReward * (adMultiplier - 1)
-            int adBonusCoin = coinReward * (rewardConfig.adMultiplier - 1);
+            int adBonusCoin = (int)(coinReward * (gc.AdMultiplier - 1));
             if (adBonusCoin > 0)
             {
                 result.adBonusRewards.Add(new RewardItem

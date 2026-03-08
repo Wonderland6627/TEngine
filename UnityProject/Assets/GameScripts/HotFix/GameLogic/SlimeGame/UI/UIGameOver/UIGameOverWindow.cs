@@ -99,8 +99,7 @@ namespace GameLogic
 		{
 			m_txtEncourage.text = EncourageTexts[Random.Range(0, EncourageTexts.Length)];
 
-			var energyConfig = World.Instance.GetEnergyConfig();
-			int energyCost = energyConfig?.levelConsume ?? 0;
+			int energyCost = ConfigSystem.Instance.Tables.TbGlobalConfig.LevelEnergyConsume;
 			m_txtTryAgain.text = "再来一局";
 			m_txtEnergy.text = energyCost > 0 ? $"-{energyCost}" : "";
 

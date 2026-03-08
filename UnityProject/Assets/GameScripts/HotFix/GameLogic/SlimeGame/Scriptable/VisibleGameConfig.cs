@@ -6,7 +6,7 @@ namespace GameLogic
     /// 游戏配置
     /// 统一管理游戏内的各种参数配置
     /// </summary>
-    public class GameConfig : ScriptableObject
+    public class VisibleGameConfig : ScriptableObject
     {
         [Header("消失效果配置")]
         [Tooltip("连锁消除间隔时间曲线\nX轴：0=第一个单位，1=最后一个单位\nY轴：间隔时间（秒），建议范围0.02-0.15")]

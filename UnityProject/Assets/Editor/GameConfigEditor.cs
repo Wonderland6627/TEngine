@@ -13,7 +13,7 @@ namespace GameLogic.Editor
         {
             // 检查配置是否已存在
             string configPath = "Assets/AssetRaw/Configs/GameConfig.asset";
-            GameConfig config = AssetDatabase.LoadAssetAtPath<GameConfig>(configPath);
+            VisibleGameConfig config = AssetDatabase.LoadAssetAtPath<VisibleGameConfig>(configPath);
             
             if (config != null)
             {
@@ -23,7 +23,7 @@ namespace GameLogic.Editor
             }
             
             // 创建配置实例
-            config = ScriptableObject.CreateInstance<GameConfig>();
+            config = ScriptableObject.CreateInstance<VisibleGameConfig>();
             
             // 确保目录存在
             string directory = System.IO.Path.GetDirectoryName(configPath);

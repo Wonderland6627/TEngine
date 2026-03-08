@@ -64,7 +64,10 @@ public class LubanConfigViewer : OdinMenuEditorWindow
             if (view == null) continue;
 
             _tableViews[prop.Name] = view;
-            tree.Add($"{prop.Name}  ({view.Count})", view);
+            string label = view.IsSingleton
+                ? $"{prop.Name}  (单例)"
+                : $"{prop.Name}  ({view.Count})";
+            tree.Add(label, view);
         }
 
         return tree;
@@ -142,11 +145,12 @@ public class LubanConfigViewer : OdinMenuEditorWindow
         SirenixEditorGUI.BeginBox();
         {
             EditorGUILayout.LabelField(view.Name, EditorStyles.boldLabel);
-            EditorGUILayout.LabelField(
-                filteredCount == view.Count
+            string desc = view.IsSingleton
+                ? "单例配置 (mode=one)"
+                : filteredCount == view.Count
                     ? $"共 {view.Count} 条记录"
-                    : $"筛选 {filteredCount} / {view.Count} 条记录",
-                EditorStyles.miniLabel);
+                    : $"筛选 {filteredCount} / {view.Count} 条记录";
+            EditorGUILayout.LabelField(desc, EditorStyles.miniLabel);
         }
         SirenixEditorGUI.EndBox();
     }
@@ -179,9 +183,11 @@ public class LubanConfigViewer : OdinMenuEditorWindow
 
     private void DrawRecord(RecordViewData record, int index, TableViewData view)
     {
-        string title = view.PrimaryKeyField != null
-            ? $"#{index}  {view.PrimaryKeyField.Name} = {record.PrimaryKeyValue}"
-            : $"#{index}";
+        string title = view.IsSingleton
+            ? view.Name
+            : view.PrimaryKeyField != null
+                ? $"#{index}  {view.PrimaryKeyField.Name} = {record.PrimaryKeyValue}"
+                : $"#{index}";
 
         SirenixEditorGUI.BeginBox();
         {
@@ -354,14 +360,29 @@ public class LubanConfigViewer : OdinMenuEditorWindow
     private static TableViewData BuildTableView(string propName, object tableInstance)
     {
         var tableType = tableInstance.GetType();
+
+        // 多记录表：DataList
         var dataListProp = tableType.GetProperty("DataList");
-        if (dataListProp == null) return null;
+        if (dataListProp != null && dataListProp.GetValue(tableInstance) is IList dataList)
+            return BuildMultiRecordView(propName, dataList, dataListProp.PropertyType);
 
-        if (!(dataListProp.GetValue(tableInstance) is IList dataList)) return null;
+        // 单例表（mode=one）：Data
+        var dataProp = tableType.GetProperty("Data");
+        if (dataProp != null)
+        {
+            var data = dataProp.GetValue(tableInstance);
+            if (data != null)
+                return BuildSingletonView(propName, data);
+        }
 
+        return null;
+    }
+
+    private static TableViewData BuildMultiRecordView(string propName, IList dataList, Type listType)
+    {
         Type recordType = null;
-        if (dataListProp.PropertyType.IsGenericType)
-            recordType = dataListProp.PropertyType.GetGenericArguments()[0];
+        if (listType.IsGenericType)
+            recordType = listType.GetGenericArguments()[0];
 
         var fields = recordType?.GetFields(BindingFlags.Public | BindingFlags.Instance);
         FieldInfo primaryKey = null;
@@ -399,7 +420,40 @@ public class LubanConfigViewer : OdinMenuEditorWindow
             Name = propName,
             Count = dataList.Count,
             Records = records,
-            PrimaryKeyField = primaryKey
+            PrimaryKeyField = primaryKey,
+            IsSingleton = false
+        };
+    }
+
+    private static TableViewData BuildSingletonView(string propName, object data)
+    {
+        var fields = data.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+        var fieldValues = new List<FieldViewData>();
+        foreach (var f in fields)
+        {
+            if (IsRefField(f)) continue;
+            fieldValues.Add(new FieldViewData
+            {
+                Name = f.Name,
+                Value = f.GetValue(data),
+                FieldType = f.FieldType
+            });
+        }
+
+        var record = new RecordViewData
+        {
+            Instance = data,
+            Fields = fieldValues,
+            PrimaryKeyValue = null
+        };
+
+        return new TableViewData
+        {
+            Name = propName,
+            Count = 1,
+            Records = new List<RecordViewData> { record },
+            PrimaryKeyField = null,
+            IsSingleton = true
         };
     }
 
@@ -459,6 +513,7 @@ public class LubanConfigViewer : OdinMenuEditorWindow
         public int Count;
         public List<RecordViewData> Records;
         public FieldInfo PrimaryKeyField;
+        public bool IsSingleton;
     }
 
     private class RecordViewData

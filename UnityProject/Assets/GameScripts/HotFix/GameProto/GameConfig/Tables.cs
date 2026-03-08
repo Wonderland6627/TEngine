@@ -57,6 +57,27 @@ public partial class Tables
             m_TbGlobalConfig.ResolveRef(this);
         }
     }
+    /// <summary>
+    /// 资源表
+    /// </summary>
+    private TbResource m_TbResource;
+    public TbResource TbResource 
+    {
+        get
+        {
+            if (m_TbResource == null)
+            {
+                m_TbResource = new TbResource(defaultLoader("tbresource"));
+                m_TbResource.ResolveRef(this);
+            }
+            return m_TbResource;
+        }
+        set
+        {
+            m_TbResource = value;
+            m_TbResource.ResolveRef(this);
+        }
+    }
 
     #endregion
 

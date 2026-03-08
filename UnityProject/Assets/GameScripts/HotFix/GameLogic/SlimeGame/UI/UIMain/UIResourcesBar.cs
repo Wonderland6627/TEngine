@@ -23,7 +23,7 @@ namespace GameLogic
             _energyItem.Init(
                 ResourceType.Energy,
                 () => World.Instance.GameData.Energy,
-                (value) => $"{value}/{World.Instance.energyReader.Value.energyMax}"
+                (value) => $"{value}/{ConfigSystem.Instance.Tables.TbGlobalConfig.EnergyMax}"
             );
         }
     }

@@ -16,10 +16,8 @@ public sealed partial class GlobalConfig : Luban.BeanBase
 {
     public GlobalConfig(ByteBuf _buf) 
     {
-        BaseCoin = _buf.ReadInt();
-        BaseEnery = _buf.ReadInt();
         EnergyMax = _buf.ReadInt();
-        LevelEneryConsume = _buf.ReadInt();
+        LevelEnergyConsume = _buf.ReadInt();
         CoinPerLevel = _buf.ReadInt();
         FirstClearMultiplier = _buf.ReadFloat();
         EnergyReturnRate = _buf.ReadFloat();
@@ -33,21 +31,13 @@ public sealed partial class GlobalConfig : Luban.BeanBase
     }
 
     /// <summary>
-    /// 基础金币值
-    /// </summary>
-    public readonly int BaseCoin;
-    /// <summary>
-    /// 基础体力值
-    /// </summary>
-    public readonly int BaseEnery;
-    /// <summary>
     /// 体力上限
     /// </summary>
     public readonly int EnergyMax;
     /// <summary>
     /// 推关消耗体力
     /// </summary>
-    public readonly int LevelEneryConsume;
+    public readonly int LevelEnergyConsume;
     /// <summary>
     /// 每关递增金币
     /// </summary>
@@ -80,10 +70,8 @@ public sealed partial class GlobalConfig : Luban.BeanBase
     public override string ToString()
     {
         return "{ "
-        + "baseCoin:" + BaseCoin + ","
-        + "baseEnery:" + BaseEnery + ","
         + "energyMax:" + EnergyMax + ","
-        + "levelEneryConsume:" + LevelEneryConsume + ","
+        + "levelEnergyConsume:" + LevelEnergyConsume + ","
         + "coinPerLevel:" + CoinPerLevel + ","
         + "firstClearMultiplier:" + FirstClearMultiplier + ","
         + "energyReturnRate:" + EnergyReturnRate + ","

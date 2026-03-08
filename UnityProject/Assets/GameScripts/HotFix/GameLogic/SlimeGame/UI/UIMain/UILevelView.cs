@@ -16,7 +16,7 @@ namespace GameLogic
 			base.OnCreate();
 			Log.Info($"[UILevelView] OnCreate");
 
-			m_txtEnergy.text = $"x{World.Instance.GetEnergyConfig().levelConsume}";
+			m_txtEnergy.text = $"x{ConfigSystem.Instance.Tables.TbGlobalConfig.LevelEnergyConsume}";
 			dailyChestBtn = CreateWidget<UIDailyChestBtn>(m_itemDailyChestBtn);
 			
 			int nextLevelId = GetNextLevelId();

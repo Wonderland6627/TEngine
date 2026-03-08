@@ -31,21 +31,13 @@ public partial class TbGlobalConfig
 
 
     /// <summary>
-    /// 基础金币值
-    /// </summary>
-     public int BaseCoin => _data.BaseCoin;
-    /// <summary>
-    /// 基础体力值
-    /// </summary>
-     public int BaseEnery => _data.BaseEnery;
-    /// <summary>
     /// 体力上限
     /// </summary>
      public int EnergyMax => _data.EnergyMax;
     /// <summary>
     /// 推关消耗体力
     /// </summary>
-     public int LevelEneryConsume => _data.LevelEneryConsume;
+     public int LevelEnergyConsume => _data.LevelEnergyConsume;
     /// <summary>
     /// 每关递增金币
     /// </summary>

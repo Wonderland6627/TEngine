@@ -35,10 +35,10 @@ namespace GameLogic
             await NetManager.SyncServerTime();
             if (IsTodayClaimed()) return false;
 
-            var config = World.Instance.GetEnergyConfig();
-            if (config?.chestReward == null) return false;
+            var chestReward = ConfigSystem.Instance.Tables.TbGlobalConfig.DailyChestEnergyReward;
+            if (chestReward == null) return false;
 
-            int amount = UnityEngine.Random.Range(config.chestReward.min, config.chestReward.max + 1);
+            int amount = UnityEngine.Random.Range(chestReward.Min, chestReward.Max + 1);
             var today = GetServerDate();
             await World.Instance.UpdateResource(ResourceType.Coin, amount, ResourceSource.DAILY_CHECKIN);
             PlayerPrefs.SetString(KEY_LAST_DATE, today);

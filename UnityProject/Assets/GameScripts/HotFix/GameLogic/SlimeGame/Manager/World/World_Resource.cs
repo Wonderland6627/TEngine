@@ -47,13 +47,6 @@ namespace GameLogic
         /// </summary>
         public async UniTask CheckDailyLoginReward()
         {
-            var config = GetEnergyConfig();
-            if (config == null)
-            {
-                Log.Warning("[World] EnergyConfig is null, skip daily login reward");
-                return;
-            }
-
             await NetManager.SyncServerTime();
 
             string lastRewardDateStr = PlayerPrefs.GetString(Last_Daily_Energy_Reward_Date_Key, "");
@@ -72,8 +65,8 @@ namespace GameLogic
             }
 
             int currentEnergy = GameData.Energy;
-            int rewardAmount = config.dailyLoginReward;
-            int maxEnergy = config.energyMax;
+            int rewardAmount = UnityEngine.Random.Range(GlobalConfig.DailyChestEnergyReward.Min, GlobalConfig.DailyChestEnergyReward.Max + 1);
+            int maxEnergy = GlobalConfig.EnergyMax;
             int actualReward = Math.Min(rewardAmount, maxEnergy - currentEnergy);
 
             if (actualReward <= 0)
@@ -98,14 +91,7 @@ namespace GameLogic
         /// </summary>
         public async UniTask<bool> TryConsumeEnergy()
         {
-            var config = GetEnergyConfig();
-            if (config == null)
-            {
-                Log.Error("[World] EnergyConfig is null");
-                return false;
-            }
-
-            int consumeAmount = config.levelConsume;
+            int consumeAmount = GlobalConfig.LevelEnergyConsume;
             int currentEnergy = GameData.Energy;
 
             if (currentEnergy < consumeAmount)

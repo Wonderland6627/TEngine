@@ -10,9 +10,6 @@ namespace GameLogic
 {
     /// <summary>
     /// 配置读取器（泛型参数T直接表示实际存储的类型）
-    /// 支持两种用法：
-    /// - SlimeConfigReader&lt;List&lt;LevelConfig&gt;&gt; - 加载数组配置
-    /// - SlimeConfigReader&lt;EnergyConfig&gt; - 加载单个对象配置
     /// </summary>
     public class SlimeConfigReader<T>
     {
@@ -171,22 +168,6 @@ namespace GameLogic
 
     //===================================================================================
 
-    /// <summary>
-    /// 通关奖励公式参数配置（公式驱动，无需逐关配置）
-    /// coinReward = floor(baseCoin + coinPerLevel * (levelId - 1))
-    /// firstClearCoin = floor(coinReward * firstClearMultiplier)
-    /// energyReturn = floor(levelConsume * energyReturnRate)
-    /// adBonusCoin = coinReward * (adMultiplier - 1)
-    /// </summary>
-    public class LevelRewardFormulaConfig : SlimeConfig
-    {
-        public int baseCoin { get; set; }
-        public int coinPerLevel { get; set; }
-        public float firstClearMultiplier { get; set; }
-        public float energyReturnRate { get; set; }
-        public int adMultiplier { get; set; }
-    }
-
     public class RewardItem
     {
         public ResourceType resourceType { get; set; }
@@ -236,29 +217,6 @@ namespace GameLogic
                     dict[item.resourceType] = item.amount;
             }
             return dict;
-        }
-    }
-
-    //===================================================================================
-
-    public class EnergyConfig : SlimeConfig
-    {
-        public int energyMax { get; set; }                    // 体力最大值
-        public int dailyLoginReward { get; set; }             // 每日登录奖励
-        public int levelConsume { get; set; }                 // 关卡消耗
-        public AdReward adReward { get; set; }                // 广告奖励
-        public ChestReward chestReward { get; set; }          // 宝箱奖励
-
-        public class AdReward
-        {
-            public int min { get; set; }
-            public int max { get; set; }
-        }
-
-        public class ChestReward
-        {
-            public int min { get; set; }
-            public int max { get; set; }
         }
     }
 

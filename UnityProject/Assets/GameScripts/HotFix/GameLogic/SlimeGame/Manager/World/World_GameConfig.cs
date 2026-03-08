@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using GameConfig;
 using TEngine;
 using GameLogic.Network;
 
@@ -13,14 +14,13 @@ namespace GameLogic
         // ========== 列表型配置（使用 SlimeListConfigReader 获得通用查询能力） ==========
         public SlimeListConfigReader<LevelConfig> levelReader { get; private set; }
         public SlimeListConfigReader<UnitConfig> unitReader { get; private set; }
-
-        // ========== 单对象型配置 ==========
-        public SlimeConfigReader<EnergyConfig> energyReader { get; private set; }
-        public SlimeConfigReader<LevelRewardFormulaConfig> levelRewardReader { get; private set; }
         
-        public GameConfig gameConfig { get; private set; }
+        public VisibleGameConfig gameConfig { get; private set; }
 
-        private const string GAME_CONFIG_PATH = "Assets/AssetRaw/Configs/GameConfig.asset";
+        private const string GAME_CONFIG_PATH = "Assets/AssetRaw/Configs/VisibleGameConfig.asset";
+
+        // ========== Luban 全局配置快捷访问 ==========
+        public TbGlobalConfig GlobalConfig => ConfigSystem.Instance.Tables.TbGlobalConfig;
         
         private async UniTask LoadConfig()
         {
@@ -29,12 +29,6 @@ namespace GameLogic
 
             unitReader = new SlimeListConfigReader<UnitConfig>();
             await unitReader.LoadLocalConfig("units");
-
-            energyReader = new SlimeConfigReader<EnergyConfig>();
-            await energyReader.LoadLocalConfig("energy_config");
-
-            levelRewardReader = new SlimeConfigReader<LevelRewardFormulaConfig>();
-            await levelRewardReader.LoadLocalConfig("level_reward_config");
             
             await LoadGameConfig();
             
@@ -71,7 +65,7 @@ namespace GameLogic
         {
             try
             {
-                gameConfig = await GameModule.Resource.LoadAssetAsync<GameConfig>(GAME_CONFIG_PATH);
+                gameConfig = await GameModule.Resource.LoadAssetAsync<VisibleGameConfig>(GAME_CONFIG_PATH);
                 if (gameConfig != null)
                 {
                     Log.Info("[World] LoadGameConfig success");
@@ -138,11 +132,5 @@ namespace GameLogic
         // ========== Unit 查询 ==========
 
         public UnitConfig GetUnitConfig(UnitType unitType) => unitReader.Find(u => u.unitType == (int)unitType);
-
-        // ========== 单对象配置直接获取 ==========
-
-        public EnergyConfig GetEnergyConfig() => energyReader.Value;
-
-        public LevelRewardFormulaConfig GetLevelRewardConfig() => levelRewardReader.Value;
     }
 }
