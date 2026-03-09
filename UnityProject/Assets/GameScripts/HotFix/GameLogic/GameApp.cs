@@ -89,6 +89,9 @@ public partial class GameApp:Singleton<GameApp>
     private void Update()
     {
         TProfiler.BeginFirstSample("Update");
+        
+        NetManager.OnUpdate(UnityEngine.Time.deltaTime);
+        
         var listLogic = _listLogicMgr;
         var logicCnt = listLogic.Count;
         for (int i = 0; i < logicCnt; i++)
@@ -158,6 +161,11 @@ public partial class GameApp:Singleton<GameApp>
 
     private void OnApplicationPause(bool isPause)
     {
+        if (!isPause)
+        {
+            NetManager.OnAppResume();
+        }
+        
         var listLogic = _listLogicMgr;
         var logicCnt = listLogic.Count;
         for (int i = 0; i < logicCnt; i++)

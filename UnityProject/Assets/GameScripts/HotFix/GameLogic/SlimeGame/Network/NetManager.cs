@@ -54,6 +54,11 @@ namespace GameLogic.Network
         private static long? _cachedTokenExpireTime = null;     // 缓存的Token过期时间（Unix时间戳）
         private static ServerType _currentServerType = ServerType.Production;
         private static long _serverTimeOffset = 0;
+        
+        // 时间同步：启动同步 + 恢复同步 + 定时校准
+        private static bool _hasSynced = false;
+        private static float _syncTimer = 0f;
+        private const float SYNC_INTERVAL_SECONDS = 300f;
 
         /// <summary>
         /// 服务器地址配置
@@ -64,6 +69,11 @@ namespace GameLogic.Network
             { ServerType.Dev, "https://express-slime-dev-216111-7-1352845565.sh.run.tcloudbase.com" },
             { ServerType.Production, "https://express-slime-216111-7-1352845565.sh.run.tcloudbase.com" }
         };
+
+        /// <summary>
+        /// 是否已至少完成过一次时间同步
+        /// </summary>
+        public static bool HasSynced => _hasSynced;
 
         /// <summary>
         /// 获取当前服务器时间（UTC时间）
@@ -333,13 +343,43 @@ namespace GameLogic.Network
                     long serverTime = response.timestamp;
                     long clientTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                     _serverTimeOffset = serverTime - clientTime;
+                    _hasSynced = true;
                     Log.Info($"[NetManager] Server time synced - UTC: {ServerTime:yyyy/MM/dd HH:mm:ss}, Local: {ServerTimeLocal:yyyy/MM/dd HH:mm:ss} (offset: {_serverTimeOffset}ms)");
                 }
             }
             catch (Exception e)
             {
-                Log.Error($"[NetManager] SyncServerTime failed: {e.Message}");
+                if (!_hasSynced)
+                {
+                    Log.Warning($"[NetManager] SyncServerTime failed and never synced before, ServerTime may be inaccurate: {e.Message}");
+                }
+                else
+                {
+                    Log.Error($"[NetManager] SyncServerTime failed: {e.Message}");
+                }
             }
+        }
+
+        /// <summary>
+        /// 定时同步驱动，由 GameApp.Update 调用
+        /// </summary>
+        public static void OnUpdate(float deltaTime)
+        {
+            _syncTimer += deltaTime;
+            if (_syncTimer >= SYNC_INTERVAL_SECONDS)
+            {
+                _syncTimer = 0f;
+                SyncServerTime().Forget();
+            }
+        }
+
+        /// <summary>
+        /// App 从后台恢复时调用，立即重新同步
+        /// </summary>
+        public static void OnAppResume()
+        {
+            _syncTimer = 0f;
+            SyncServerTime().Forget();
         }
 
         /// <summary>

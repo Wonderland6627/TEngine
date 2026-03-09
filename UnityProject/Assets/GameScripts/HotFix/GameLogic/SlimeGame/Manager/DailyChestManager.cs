@@ -24,15 +24,13 @@ namespace GameLogic
             return last == today;
         }
 
-        public async UniTask<bool> CanClaimToday()
+        public bool CanClaimToday()
         {
-            await NetManager.SyncServerTime();
             return !IsTodayClaimed();
         }
 
         public async UniTask<bool> TryClaimToday()
         {
-            await NetManager.SyncServerTime();
             if (IsTodayClaimed()) return false;
 
             var chestReward = ConfigSystem.Instance.Tables.TbGlobalConfig.DailyChestEnergyReward;

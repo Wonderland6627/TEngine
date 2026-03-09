@@ -47,8 +47,6 @@ namespace GameLogic
         /// </summary>
         public async UniTask CheckDailyLoginReward()
         {
-            await NetManager.SyncServerTime();
-
             string lastRewardDateStr = PlayerPrefs.GetString(Last_Daily_Energy_Reward_Date_Key, "");
             DateTime? lastRewardDate = null;
             if (!string.IsNullOrEmpty(lastRewardDateStr) && DateTime.TryParse(lastRewardDateStr, out DateTime parsedDate))
