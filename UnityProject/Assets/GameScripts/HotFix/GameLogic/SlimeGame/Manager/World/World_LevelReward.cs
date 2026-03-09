@@ -89,7 +89,7 @@ namespace GameLogic
                 watchedAd = watchedAd,
             };
 
-            var response = await NetManager.CallHttp<ClaimLevelRewardResponse>("claimLevelReward", request);
+            var response = await NetManager.Instance.CallHttp<ClaimLevelRewardResponse>("claimLevelReward", request);
             if (!response.IsSuccess || response.data == null)
             {
                 Log.Error($"[World] ClaimLevelReward failed: {response.ErrorMessage}");

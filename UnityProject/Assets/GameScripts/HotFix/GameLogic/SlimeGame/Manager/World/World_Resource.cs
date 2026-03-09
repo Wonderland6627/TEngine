@@ -30,7 +30,7 @@ namespace GameLogic
                 source = source
             };
 
-            var response = await NetManager.CallHttp<UpdateResourceResponse>("updateResource", request);
+            var response = await NetManager.Instance.CallHttp<UpdateResourceResponse>("updateResource", request);
 
             if (!response.IsSuccess || response.data == null)
             {
@@ -54,7 +54,7 @@ namespace GameLogic
                 lastRewardDate = parsedDate.Date;
             }
 
-            DateTime today = NetManager.ServerTime.ToLocalTime().Date;
+            DateTime today = NetManager.Instance.ServerTime.ToLocalTime().Date;
 
             if (lastRewardDate != null && lastRewardDate.Value >= today)
             {

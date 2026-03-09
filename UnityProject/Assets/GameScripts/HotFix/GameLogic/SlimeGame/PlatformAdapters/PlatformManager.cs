@@ -137,7 +137,7 @@ namespace GameLogic.Network
                 { "platform", platform }
             };
             
-            var response = await NetManager.CallHttp<SessionData>("getCode2Session", loginRequest);
+            var response = await NetManager.Instance.CallHttp<SessionData>("getCode2Session", loginRequest);
             if (!response.IsSuccess || response.data == null)
             {
                 Log.Error($"[PlatformManager] LoginWithCode failed ({platform}): {response.ErrorMessage}");
@@ -145,7 +145,7 @@ namespace GameLogic.Network
             }
 
             // 保存token
-            NetManager.AuthToken = response.data.token;
+            NetManager.Instance.AuthToken = response.data.token;
             Log.Info($"[PlatformManager] LoginWithCode success ({platform}): openid={response.data.openid}, token saved");
             
             // 更新本地用户信息（如果需要，可以在外部处理）

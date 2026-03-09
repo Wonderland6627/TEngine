@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using TEngine;
 using WeChatWASM;
 using Cysharp.Threading.Tasks;
@@ -35,8 +36,9 @@ namespace GameLogic.Network
     /// <summary>
     /// 网络管理器
     /// 统一处理云函数调用和HTTP请求，返回值解析
+    /// 通过 BaseLogicSys 接入 TEngine 生命周期，支持请求取消和安全销毁
     /// </summary>
-    public static class NetManager
+    public class NetManager : BaseLogicSys<NetManager>
     {
         // 配置
         private const string KEY_AUTH_TOKEN = "NetManager_AuthToken";
@@ -50,15 +52,19 @@ namespace GameLogic.Network
         // Token配置
         private const int TOKEN_EXPIRING_THRESHOLD_HOURS = 24;  // Token即将过期阈值（小时）
         
-        private static string _authToken = null;
-        private static long? _cachedTokenExpireTime = null;     // 缓存的Token过期时间（Unix时间戳）
-        private static ServerType _currentServerType = ServerType.Production;
-        private static long _serverTimeOffset = 0;
-        
-        // 时间同步：启动同步 + 恢复同步 + 定时校准
-        private static bool _hasSynced = false;
-        private static float _syncTimer = 0f;
+        // 时间同步
         private const float SYNC_INTERVAL_SECONDS = 300f;
+
+        private string _authToken = null;
+        private long? _cachedTokenExpireTime = null;     // 缓存的Token过期时间（Unix时间戳）
+        private ServerType _currentServerType = ServerType.Production;
+        private long _serverTimeOffset = 0;
+        private bool _hasSynced = false;
+        private float _syncTimer = 0f;
+
+        // 生命周期安全：用于取消在途HTTP请求 + 标记WX回调跳过
+        private CancellationTokenSource _cts;
+        private bool _disposed = false;
 
         /// <summary>
         /// 服务器地址配置
@@ -70,15 +76,85 @@ namespace GameLogic.Network
             { ServerType.Production, "https://express-slime-216111-7-1352845565.sh.run.tcloudbase.com" }
         };
 
+        // API路由字典：接口名 -> HTTP端点路径
+        private static readonly Dictionary<string, string> ApiRouteMap = new Dictionary<string, string>
+        {
+            { "getServerTime", "/api/time" },
+            { "getCode2Session", "/api/minigame/getCode2Session" },
+            { "getUserWXContext", "/api/minigame/getUserWXContext" },
+            { "getUserGameInfoV2", "/api/minigame/getUserGameInfoV2" },
+            { "setUserGameInfoV2", "/api/minigame/setUserGameInfoV2" },
+            { "getUserRankListV2", "/api/minigame/getUserRankListV2" },
+            { "getLevelsConfigV2", "/api/minigame/getLevelsConfigV2" },
+            { "updateResource", "/api/minigame/updateResource" },
+            { "getResources", "/api/minigame/getResources" },
+            { "claimLevelReward", "/api/minigame/claimLevelReward" },
+        };
+
+        #region 生命周期
+
+        public override bool OnInit()
+        {
+            base.OnInit();
+
+            _cts = new CancellationTokenSource();
+            _disposed = false;
+
+            // 默认选服：Editor→本地服，Release包→正式服
+            // PlayerPrefs 保存手动切换值，优先级高于默认值
+#if UNITY_EDITOR
+            ServerType defaultServerType = ServerType.Local;
+#else
+            ServerType defaultServerType = ServerType.Production;
+#endif
+            _currentServerType = (ServerType)PlayerPrefs.GetInt(KEY_SERVER_TYPE, (int)defaultServerType);
+            Log.Info($"[NetManager] Initialized with server: {_currentServerType} ({ServerBaseUrl})");
+
+            RegisterDebuggerServerSwitch();
+            SyncServerTime().Forget();
+
+            return true;
+        }
+
+        public override void OnUpdate()
+        {
+            _syncTimer += Time.deltaTime;
+            if (_syncTimer >= SYNC_INTERVAL_SECONDS)
+            {
+                _syncTimer = 0f;
+                SyncServerTime().Forget();
+            }
+        }
+
+        public override void OnApplicationPause(bool pause)
+        {
+            if (pause) return;
+            _syncTimer = 0f;
+            SyncServerTime().Forget();
+        }
+
+        public override void OnDestroy()
+        {
+            _disposed = true;
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+            Log.Info("[NetManager] Destroyed, all pending requests cancelled");
+        }
+
+        #endregion
+
+        #region 时间同步
+
         /// <summary>
         /// 是否已至少完成过一次时间同步
         /// </summary>
-        public static bool HasSynced => _hasSynced;
+        public bool HasSynced => _hasSynced;
 
         /// <summary>
         /// 获取当前服务器时间（UTC时间）
         /// </summary>
-        public static DateTime ServerTime
+        public DateTime ServerTime
         {
             get
             {
@@ -89,7 +165,7 @@ namespace GameLogic.Network
         /// <summary>
         /// 获取当前服务器时间（本地时区）
         /// </summary>
-        public static DateTime ServerTimeLocal
+        public DateTime ServerTimeLocal
         {
             get
             {
@@ -98,9 +174,44 @@ namespace GameLogic.Network
         }
 
         /// <summary>
+        /// 同步服务器时间
+        /// </summary>
+        public async UniTask SyncServerTime()
+        {
+            try 
+            {
+                var response = await CallHttpData<ServerTimeData>("getServerTime");
+                if (response != null)
+                {
+                    long serverTime = response.timestamp;
+                    long clientTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    _serverTimeOffset = serverTime - clientTime;
+                    _hasSynced = true;
+                    Log.Info($"[NetManager] Server time synced - UTC: {ServerTime:yyyy/MM/dd HH:mm:ss}, Local: {ServerTimeLocal:yyyy/MM/dd HH:mm:ss} (offset: {_serverTimeOffset}ms)");
+                }
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception e)
+            {
+                if (!_hasSynced)
+                {
+                    Log.Warning($"[NetManager] SyncServerTime failed and never synced before, ServerTime may be inaccurate: {e.Message}");
+                }
+                else
+                {
+                    Log.Error($"[NetManager] SyncServerTime failed: {e.Message}");
+                }
+            }
+        }
+
+        #endregion
+
+        #region 服务器配置
+
+        /// <summary>
         /// 当前服务器类型
         /// </summary>
-        public static ServerType CurrentServerType
+        public ServerType CurrentServerType
         {
             get => _currentServerType;
             set
@@ -115,31 +226,12 @@ namespace GameLogic.Network
         /// <summary>
         /// 服务端基础URL（根据当前服务器类型自动获取）
         /// </summary>
-        public static string ServerBaseUrl => ServerUrls[_currentServerType];
-
-        /// <summary>
-        /// 初始化（在游戏启动时调用一次）
-        /// </summary>
-        public static void Initialize()
-        {
-            // 默认选服：Editor→测试服，Release包→正式服
-            // PlayerPrefs 保存手动切换值，优先级高于默认值
-#if UNITY_EDITOR
-            ServerType defaultServerType = ServerType.Local;
-#else
-            ServerType defaultServerType = ServerType.Production;
-#endif
-            _currentServerType = (ServerType)PlayerPrefs.GetInt(KEY_SERVER_TYPE, (int)defaultServerType);
-            Log.Info($"[NetManager] Initialized with server: {_currentServerType} ({ServerBaseUrl})");
-
-            // 注册调试器服务器切换功能
-            RegisterDebuggerServerSwitch();
-        }
+        public string ServerBaseUrl => ServerUrls[_currentServerType];
 
         /// <summary>
         /// 注册调试器服务器切换功能
         /// </summary>
-        private static void RegisterDebuggerServerSwitch()
+        private void RegisterDebuggerServerSwitch()
         {
             string[] serverNames = Enum.GetNames(typeof(ServerType));
             DebuggerModule.RegisterServerSwitch(
@@ -149,10 +241,14 @@ namespace GameLogic.Network
             );
         }
 
+        #endregion
+
+        #region Token管理
+
         /// <summary>
         /// 认证Token（自动缓存到本地）
         /// </summary>
-        public static string AuthToken
+        public string AuthToken
         {
             get
             {
@@ -165,7 +261,7 @@ namespace GameLogic.Network
             set
             {
                 _authToken = value;
-                _cachedTokenExpireTime = null; // 清除缓存的过期时间，下次访问时重新解析
+                _cachedTokenExpireTime = null;
                 if (string.IsNullOrEmpty(value))
                 {
                     PlayerPrefs.DeleteKey(KEY_AUTH_TOKEN);
@@ -181,19 +277,17 @@ namespace GameLogic.Network
         /// <summary>
         /// 清除Token（登出时调用）
         /// </summary>
-        public static void ClearToken()
+        public void ClearToken()
         {
             AuthToken = null;
             _cachedTokenExpireTime = null;
             Log.Info("[NetManager] Token cleared");
         }
         
-        #region Token有效性检查
-        
         /// <summary>
         /// 检查是否需要登录（无Token或Token已过期）
         /// </summary>
-        public static bool NeedLogin
+        public bool NeedLogin
         {
             get
             {
@@ -205,7 +299,7 @@ namespace GameLogic.Network
         /// <summary>
         /// 获取Token状态
         /// </summary>
-        public static TokenState GetTokenState()
+        public TokenState GetTokenState()
         {
             string token = AuthToken;
             if (string.IsNullOrEmpty(token))
@@ -227,7 +321,6 @@ namespace GameLogic.Network
                 return TokenState.Expired;
             }
             
-            // 检查是否即将过期
             long expiringThreshold = TOKEN_EXPIRING_THRESHOLD_HOURS * 3600;
             if (remaining < expiringThreshold)
             {
@@ -240,7 +333,7 @@ namespace GameLogic.Network
         /// <summary>
         /// 获取Token剩余有效时间（秒），无效时返回0
         /// </summary>
-        public static long GetTokenRemainingSeconds()
+        public long GetTokenRemainingSeconds()
         {
             long? expireTime = GetTokenExpireTime(AuthToken);
             if (!expireTime.HasValue)
@@ -258,14 +351,13 @@ namespace GameLogic.Network
         /// </summary>
         /// <param name="token">JWT Token</param>
         /// <returns>过期时间戳，解析失败返回null</returns>
-        private static long? GetTokenExpireTime(string token)
+        private long? GetTokenExpireTime(string token)
         {
             if (string.IsNullOrEmpty(token))
             {
                 return null;
             }
             
-            // 使用缓存
             if (_cachedTokenExpireTime.HasValue)
             {
                 return _cachedTokenExpireTime;
@@ -283,7 +375,6 @@ namespace GameLogic.Network
                 
                 // Base64Url解码payload
                 string payload = parts[1];
-                // Base64Url -> Base64 转换
                 payload = payload.Replace('-', '+').Replace('_', '/');
                 switch (payload.Length % 4)
                 {
@@ -294,12 +385,11 @@ namespace GameLogic.Network
                 byte[] bytes = Convert.FromBase64String(payload);
                 string json = Encoding.UTF8.GetString(bytes);
                 
-                // 解析JSON获取exp字段
                 var data = Utility.Json.ToObject<Dictionary<string, object>>(json);
                 if (data != null && data.TryGetValue("exp", out var expValue))
                 {
                     long exp = Convert.ToInt64(expValue);
-                    _cachedTokenExpireTime = exp; // 缓存结果
+                    _cachedTokenExpireTime = exp;
                     return exp;
                 }
                 
@@ -315,72 +405,7 @@ namespace GameLogic.Network
         
         #endregion
 
-        // API路由字典：接口名 -> HTTP端点路径
-        private static readonly Dictionary<string, string> ApiRouteMap = new Dictionary<string, string>
-        {
-            { "getServerTime", "/api/time" },
-            { "getCode2Session", "/api/minigame/getCode2Session" },
-            { "getUserWXContext", "/api/minigame/getUserWXContext" },
-            { "getUserGameInfoV2", "/api/minigame/getUserGameInfoV2" },
-            { "setUserGameInfoV2", "/api/minigame/setUserGameInfoV2" },
-            { "getUserRankListV2", "/api/minigame/getUserRankListV2" },
-            { "getLevelsConfigV2", "/api/minigame/getLevelsConfigV2" },
-            { "updateResource", "/api/minigame/updateResource" },
-            { "getResources", "/api/minigame/getResources" },
-            { "claimLevelReward", "/api/minigame/claimLevelReward" },
-        };
-
-        /// <summary>
-        /// 同步服务器时间
-        /// </summary>
-        public static async UniTask SyncServerTime()
-        {
-            try 
-            {
-                var response = await CallHttpData<ServerTimeData>("getServerTime");
-                if (response != null)
-                {
-                    long serverTime = response.timestamp;
-                    long clientTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                    _serverTimeOffset = serverTime - clientTime;
-                    _hasSynced = true;
-                    Log.Info($"[NetManager] Server time synced - UTC: {ServerTime:yyyy/MM/dd HH:mm:ss}, Local: {ServerTimeLocal:yyyy/MM/dd HH:mm:ss} (offset: {_serverTimeOffset}ms)");
-                }
-            }
-            catch (Exception e)
-            {
-                if (!_hasSynced)
-                {
-                    Log.Warning($"[NetManager] SyncServerTime failed and never synced before, ServerTime may be inaccurate: {e.Message}");
-                }
-                else
-                {
-                    Log.Error($"[NetManager] SyncServerTime failed: {e.Message}");
-                }
-            }
-        }
-
-        /// <summary>
-        /// 定时同步驱动，由 GameApp.Update 调用
-        /// </summary>
-        public static void OnUpdate(float deltaTime)
-        {
-            _syncTimer += deltaTime;
-            if (_syncTimer >= SYNC_INTERVAL_SECONDS)
-            {
-                _syncTimer = 0f;
-                SyncServerTime().Forget();
-            }
-        }
-
-        /// <summary>
-        /// App 从后台恢复时调用，立即重新同步
-        /// </summary>
-        public static void OnAppResume()
-        {
-            _syncTimer = 0f;
-            SyncServerTime().Forget();
-        }
+        #region WX云函数
 
         /// <summary>
         /// 调用云函数（通用方法）
@@ -390,13 +415,12 @@ namespace GameLogic.Network
         /// <param name="functionName">云函数名称</param>
         /// <param name="parameters">请求参数</param>
         /// <returns>云函数响应，失败时返回 code=-1 的 Response</returns>
-        public static async UniTask<Response<T>> Call<T>(
+        public async UniTask<Response<T>> Call<T>(
             string functionName,
             object parameters = null)
         {
             var tcs = new UniTaskCompletionSource<Response<T>>();
 
-            // 记录请求日志
             string requestJson = parameters != null ? (parameters is string ? (string)parameters : parameters.ToJson()) : "null";
             Log.Info($"[NetManager] Request: {functionName}, params: {requestJson}");
 
@@ -406,13 +430,10 @@ namespace GameLogic.Network
                 data = parameters,
                 success = (res) =>
                 {
+                    if (_disposed) return;
                     try
                     {
-                        // 自动解析响应
-                        // res.result 可能是字符串或对象，统一转换为字符串再解析
                         string resultJson = res.result is string ? (string)res.result : res.result.ToJson();
-                        
-                        // 记录响应日志
                         Log.Info($"[NetManager] Response: {functionName}, result: {resultJson}");
                         
                         var response = Utility.Json.ToObject<Response<T>>(resultJson);
@@ -432,6 +453,7 @@ namespace GameLogic.Network
                 },
                 fail = (err) =>
                 {
+                    if (_disposed) return;
                     var msg = $"Network error: {err.ToJson()}";
                     Log.Error($"[NetManager] {msg}");
                     tcs.TrySetResult(new Response<T>
@@ -454,13 +476,15 @@ namespace GameLogic.Network
         /// <param name="functionName">云函数名称</param>
         /// <param name="parameters">请求参数</param>
         /// <returns>业务数据，失败时返回 null</returns>
-        public static async UniTask<T> CallData<T>(
+        public async UniTask<T> CallData<T>(
             string functionName,
             object parameters = null) where T : class
         {
             var response = await Call<T>(functionName, parameters);
             return response.IsSuccess ? response.data : null;
         }
+
+        #endregion
 
         #region HTTP接口（用于Express服务端通信）
 
@@ -471,7 +495,7 @@ namespace GameLogic.Network
         /// <param name="apiName">接口名（从路由字典查找）</param>
         /// <param name="parameters">请求参数</param>
         /// <returns>HTTP响应</returns>
-        public static async UniTask<Response<T>> CallHttp<T>(string apiName, object parameters = null)
+        public async UniTask<Response<T>> CallHttp<T>(string apiName, object parameters = null)
         {
             if (Application.internetReachability == NetworkReachability.NotReachable)
             {
@@ -479,7 +503,6 @@ namespace GameLogic.Network
                 return new Response<T> { code = ResponseCode.CLIENT_NO_NETWORK, msg = "No network connection", data = default(T) };
             }
             
-            // 从路由字典查找接口路径
             if (!ApiRouteMap.TryGetValue(apiName, out string endpoint))
             {
                 var msg = $"Unknown API: {apiName}";
@@ -487,44 +510,44 @@ namespace GameLogic.Network
                 return new Response<T> { code = ResponseCode.CLIENT_UNKNOWN_API, msg = msg, data = default(T) };
             }
 
-            // 构建完整URL
             string url = ServerBaseUrl.TrimEnd('/') + endpoint;
-
-            // 准备请求数据
             string requestJson = parameters != null ? (parameters is string ? (string)parameters : parameters.ToJson()) : "{}";
             
-            // 带重试的请求
             return await SendHttpRequestWithRetry<T>(url, requestJson, MAX_RETRY_COUNT);
         }
         
         /// <summary>
         /// 发送HTTP请求（带重试机制）
         /// </summary>
-        private static async UniTask<Response<T>> SendHttpRequestWithRetry<T>(string url, string requestJson, int retryCount)
+        private async UniTask<Response<T>> SendHttpRequestWithRetry<T>(string url, string requestJson, int retryCount)
         {
             string lastError = null;
+            var ct = _cts?.Token ?? CancellationToken.None;
             
             for (int attempt = 0; attempt <= retryCount; attempt++)
             {
                 if (attempt > 0)
                 {
                     Log.Warning($"[NetManager] Retry attempt {attempt}/{retryCount} for {url}");
-                    await UniTask.Delay(RETRY_DELAY_MS);
+                    await UniTask.Delay(RETRY_DELAY_MS, cancellationToken: ct);
                 }
                 
                 try
                 {
-                    var result = await SendHttpRequestInternal<T>(url, requestJson);
+                    var result = await SendHttpRequestInternal<T>(url, requestJson, ct);
                     if (result != null)
                     {
                         return result;
                     }
                 }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
                 catch (Exception e)
                 {
                     lastError = e.Message;
                     
-                    // 判断是否为可重试的错误（超时、连接失败等）
                     if (!IsRetryableError(e))
                     {
                         break;
@@ -532,7 +555,6 @@ namespace GameLogic.Network
                 }
             }
             
-            // 所有重试都失败
             Log.Error($"[NetManager] HTTP request failed with url: {url} after {retryCount + 1} attempts: {lastError}");
             return new Response<T> { code = ResponseCode.CLIENT_REQUEST_FAILED, msg = lastError ?? "Request failed", data = default(T) };
         }
@@ -540,7 +562,7 @@ namespace GameLogic.Network
         /// <summary>
         /// 发送HTTP请求（内部实现）
         /// </summary>
-        private static async UniTask<Response<T>> SendHttpRequestInternal<T>(string url, string requestJson)
+        private async UniTask<Response<T>> SendHttpRequestInternal<T>(string url, string requestJson, CancellationToken ct)
         {
             Log.Info($"[NetManager] HTTP POST {url}, params: {requestJson}");
             
@@ -555,17 +577,15 @@ namespace GameLogic.Network
             request.downloadHandler = downloadHandler;
             request.SetRequestHeader("Content-Type", "application/json");
             
-            // 添加token
             if (!string.IsNullOrEmpty(AuthToken))
             {
                 request.SetRequestHeader("Authorization", $"Bearer {AuthToken}");
             }
 
-            await request.SendWebRequest();
+            await request.SendWebRequest().WithCancellation(ct);
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                // 区分可重试和不可重试的错误
                 if (IsRetryableResult(request.result))
                 {
                     throw new Exception($"HTTP error (retryable): {request.error}");
@@ -609,7 +629,7 @@ namespace GameLogic.Network
         /// <param name="apiName">接口名（从路由字典查找）</param>
         /// <param name="parameters">请求参数</param>
         /// <returns>业务数据，失败时返回 null</returns>
-        public static async UniTask<T> CallHttpData<T>(string apiName, object parameters = null) where T : class
+        public async UniTask<T> CallHttpData<T>(string apiName, object parameters = null) where T : class
         {
             var response = await CallHttp<T>(apiName, parameters);
             return response.IsSuccess ? response.data : null;
@@ -619,4 +639,3 @@ namespace GameLogic.Network
     }
 
 }
-

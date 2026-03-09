@@ -13,7 +13,7 @@ namespace GameLogic
 
         private string GetServerDate()
         {
-            var dt = NetManager.ServerTime.ToLocalTime().Date;
+            var dt = NetManager.Instance.ServerTime.ToLocalTime().Date;
             return dt.ToString("yyyy-MM-dd");
         }
 

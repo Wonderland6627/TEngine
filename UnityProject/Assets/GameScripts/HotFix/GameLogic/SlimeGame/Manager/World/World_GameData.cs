@@ -75,7 +75,7 @@ namespace GameLogic
                     GameData.UserInfo = currentUserInfo;
                     
                     // 更新用户信息后，同步到云端 只更新昵称和头像，不更新进度
-                    NetManager.CallHttp<object>("setUserGameInfoV2", new Dictionary<string, object> { { "nickName", result.nickName }, { "avatarUrl", result.avatarUrl } }).Forget();
+                    NetManager.Instance.CallHttp<object>("setUserGameInfoV2", new Dictionary<string, object> { { "nickName", result.nickName }, { "avatarUrl", result.avatarUrl } }).Forget();
                 },
                 fail = (err) =>
                 {
@@ -109,7 +109,7 @@ namespace GameLogic
             currentUserInfo.language = userInfo.language;
             GameData.UserInfo = currentUserInfo;
 
-            NetManager.CallHttp<object>("setUserGameInfoV2", new Dictionary<string, object> 
+            NetManager.Instance.CallHttp<object>("setUserGameInfoV2", new Dictionary<string, object> 
             { 
                 { "nickName", userInfo.nickName }, 
                 { "avatarUrl", userInfo.avatarUrl } 
@@ -120,7 +120,7 @@ namespace GameLogic
         private async void GetOpenID()
         {
             Log.Info("[World] GetOpenID");
-            Response<WXContextData> response = await NetManager.CallHttp<WXContextData>("getUserWXContext");
+            Response<WXContextData> response = await NetManager.Instance.CallHttp<WXContextData>("getUserWXContext");
             if (response.IsSuccess && response.data != null)
             {
                 var currentUserInfo = GameData.UserInfo;
@@ -148,9 +148,9 @@ namespace GameLogic
         public async UniTask<bool> Login()
         {
             // 检查是否需要登录
-            if (!NetManager.NeedLogin)
+            if (!NetManager.Instance.NeedLogin)
             {
-                Log.Info($"[World] Using cached token, remaining: {NetManager.GetTokenRemainingSeconds()}s");
+                Log.Info($"[World] Using cached token, remaining: {NetManager.Instance.GetTokenRemainingSeconds()}s");
                 return true;
             }
             
@@ -175,7 +175,7 @@ namespace GameLogic
             // 这里先尝试从登录响应中获取，如果没有则调用接口
             
             // 暂时先调用getUserWXContext获取openid
-            var response = await NetManager.CallHttp<WXContextData>("getUserWXContext");
+            var response = await NetManager.Instance.CallHttp<WXContextData>("getUserWXContext");
             if (response.IsSuccess && response.data != null && !string.IsNullOrEmpty(response.data.openid))
             {
                 var currentUserInfo = GameData.UserInfo;
@@ -190,7 +190,7 @@ namespace GameLogic
     {
         public async void FetchUserGameInfo(Action<bool> callback = null)
         {
-            var response = await NetManager.CallHttp<UserGameInfoData>("getUserGameInfoV2");
+            var response = await NetManager.Instance.CallHttp<UserGameInfoData>("getUserGameInfoV2");
             if (!response.IsSuccess)
             {
                 Log.Error($"[World] fetch user game info failed: {response.ErrorMessage}");
@@ -275,7 +275,7 @@ namespace GameLogic
                 return m_CachedRankList;
             }
 
-            var response = await NetManager.CallHttp<List<UserGameInfoData>>("getUserRankListV2");
+            var response = await NetManager.Instance.CallHttp<List<UserGameInfoData>>("getUserRankListV2");
             if (response.IsSuccess && response.data != null)
             {
                 var rankList = GetRankListFromResponse(response.data);

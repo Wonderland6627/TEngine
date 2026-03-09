@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GameBase;
 using GameLogic;
+using GameLogic.Network;
 using TEngine;
 
 public partial class GameApp : Singleton<GameApp>
@@ -31,6 +32,7 @@ public partial class GameApp : Singleton<GameApp>
     {
         //带生命周期的单例系统。
         AddLogicSys(BehaviourSingleSystem.Instance);
+        AddLogicSys(NetManager.Instance);
         AddLogicSys(World.Instance);
     }
 
