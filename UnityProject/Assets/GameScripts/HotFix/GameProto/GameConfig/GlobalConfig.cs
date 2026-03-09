@@ -22,7 +22,7 @@ public sealed partial class GlobalConfig : Luban.BeanBase
         FirstClearMultiplier = _buf.ReadFloat();
         EnergyReturnRate = _buf.ReadFloat();
         AdMultiplier = _buf.ReadFloat();
-        DailyChestEnergyReward = global::GameConfig.common.IntRange.DeserializeIntRange(_buf);
+        DailyCheckinRewardId = _buf.ReadInt();
     }
 
     public static GlobalConfig DeserializeGlobalConfig(ByteBuf _buf)
@@ -55,16 +55,15 @@ public sealed partial class GlobalConfig : Luban.BeanBase
     /// </summary>
     public readonly float AdMultiplier;
     /// <summary>
-    /// 每日领取体力奖励范围
+    /// 每日签到奖励id
     /// </summary>
-    public readonly common.IntRange DailyChestEnergyReward;
+    public readonly int DailyCheckinRewardId;
    
     public const int __ID__ = -958250779;
     public override int GetTypeId() => __ID__;
 
     public  void ResolveRef(Tables tables)
     {
-        DailyChestEnergyReward?.ResolveRef(tables);
     }
 
     public override string ToString()
@@ -76,7 +75,7 @@ public sealed partial class GlobalConfig : Luban.BeanBase
         + "firstClearMultiplier:" + FirstClearMultiplier + ","
         + "energyReturnRate:" + EnergyReturnRate + ","
         + "adMultiplier:" + AdMultiplier + ","
-        + "dailyChestEnergyReward:" + DailyChestEnergyReward + ","
+        + "dailyCheckinRewardId:" + DailyCheckinRewardId + ","
         + "}";
     }
 }

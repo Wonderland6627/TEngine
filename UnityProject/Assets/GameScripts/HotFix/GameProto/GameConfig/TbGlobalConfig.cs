@@ -55,9 +55,9 @@ public partial class TbGlobalConfig
     /// </summary>
      public float AdMultiplier => _data.AdMultiplier;
     /// <summary>
-    /// 每日领取体力奖励范围
+    /// 每日签到奖励id
     /// </summary>
-     public common.IntRange DailyChestEnergyReward => _data.DailyChestEnergyReward;
+     public int DailyCheckinRewardId => _data.DailyCheckinRewardId;
     
     public void ResolveRef(Tables tables)
     {

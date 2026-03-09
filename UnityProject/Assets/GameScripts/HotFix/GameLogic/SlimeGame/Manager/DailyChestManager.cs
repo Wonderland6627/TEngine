@@ -1,4 +1,3 @@
-using System;
 using Cysharp.Threading.Tasks;
 using GameBase;
 using GameLogic.Network;
@@ -31,15 +30,14 @@ namespace GameLogic
 
         public async UniTask<bool> TryClaimToday()
         {
+            await NetManager.Instance.SyncServerTime();
             if (IsTodayClaimed()) return false;
 
-            var chestReward = ConfigSystem.Instance.Tables.TbGlobalConfig.DailyChestEnergyReward;
-            if (chestReward == null) return false;
+            int rewardId = ConfigSystem.Instance.Tables.TbGlobalConfig.DailyCheckinRewardId;
+            bool success = await RewardHelper.ClaimReward(rewardId, ResourceSource.DAILY_CHECKIN);
+            if (!success) return false;
 
-            int amount = UnityEngine.Random.Range(chestReward.Min, chestReward.Max + 1);
-            var today = GetServerDate();
-            await World.Instance.UpdateResource(ResourceType.Coin, amount, ResourceSource.DAILY_CHECKIN);
-            PlayerPrefs.SetString(KEY_LAST_DATE, today);
+            PlayerPrefs.SetString(KEY_LAST_DATE, GetServerDate());
             PlayerPrefs.Save();
             return true;
         }

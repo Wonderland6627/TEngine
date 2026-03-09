@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameLogic.Network;
 using TEngine;
@@ -12,8 +10,6 @@ namespace GameLogic
     /// </summary>
     public partial class World
     {
-        private const string Last_Daily_Energy_Reward_Date_Key = "slime_last_daily_energy_reward_date";
-
         /// <summary>
         /// 通用资源增减（调用服务器接口）
         /// </summary>
@@ -40,48 +36,6 @@ namespace GameLogic
 
             GameData.UpdateResource(type, response.data.value);
             return response.data.value;
-        }
-
-        /// <summary>
-        /// 检查并处理每日登录体力奖励
-        /// </summary>
-        public async UniTask CheckDailyLoginReward()
-        {
-            string lastRewardDateStr = PlayerPrefs.GetString(Last_Daily_Energy_Reward_Date_Key, "");
-            DateTime? lastRewardDate = null;
-            if (!string.IsNullOrEmpty(lastRewardDateStr) && DateTime.TryParse(lastRewardDateStr, out DateTime parsedDate))
-            {
-                lastRewardDate = parsedDate.Date;
-            }
-
-            DateTime today = NetManager.Instance.ServerTime.ToLocalTime().Date;
-
-            if (lastRewardDate != null && lastRewardDate.Value >= today)
-            {
-                Log.Info("[World] Same day reward already claimed, skip daily login reward");
-                return;
-            }
-
-            int currentEnergy = GameData.Energy;
-            int rewardAmount = UnityEngine.Random.Range(GlobalConfig.DailyChestEnergyReward.Min, GlobalConfig.DailyChestEnergyReward.Max + 1);
-            int maxEnergy = GlobalConfig.EnergyMax;
-            int actualReward = Math.Min(rewardAmount, maxEnergy - currentEnergy);
-
-            if (actualReward <= 0)
-            {
-                Log.Info($"[World] Energy already at max ({currentEnergy}/{maxEnergy}), skip daily login reward");
-                PlayerPrefs.SetString(Last_Daily_Energy_Reward_Date_Key, today.ToString("yyyy-MM-dd"));
-                PlayerPrefs.Save();
-                return;
-            }
-
-            int result = await UpdateResource(ResourceType.Energy, actualReward, ResourceSource.DAILY_LOGIN);
-            if (result >= 0)
-            {
-                PlayerPrefs.SetString(Last_Daily_Energy_Reward_Date_Key, today.ToString("yyyy-MM-dd"));
-                PlayerPrefs.Save();
-                Log.Info($"[World] Daily login reward success: +{actualReward}");
-            }
         }
 
         /// <summary>

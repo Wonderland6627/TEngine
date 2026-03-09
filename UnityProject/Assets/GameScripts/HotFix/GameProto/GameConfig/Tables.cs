@@ -78,6 +78,27 @@ public partial class Tables
             m_TbResource.ResolveRef(this);
         }
     }
+    /// <summary>
+    /// 奖励表
+    /// </summary>
+    private TbReward m_TbReward;
+    public TbReward TbReward 
+    {
+        get
+        {
+            if (m_TbReward == null)
+            {
+                m_TbReward = new TbReward(defaultLoader("tbreward"));
+                m_TbReward.ResolveRef(this);
+            }
+            return m_TbReward;
+        }
+        set
+        {
+            m_TbReward = value;
+            m_TbReward.ResolveRef(this);
+        }
+    }
 
     #endregion
 

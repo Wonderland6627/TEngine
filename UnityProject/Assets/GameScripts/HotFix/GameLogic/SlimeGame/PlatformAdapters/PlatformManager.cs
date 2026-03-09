@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using TEngine;
 using GameLogic.Network;
 
-namespace GameLogic.Network
+namespace GameLogic
 {
     /// <summary>
     /// 平台管理器
