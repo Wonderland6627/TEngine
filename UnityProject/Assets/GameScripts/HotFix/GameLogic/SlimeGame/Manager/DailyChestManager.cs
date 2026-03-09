@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using GameBase;
 using GameLogic.Network;
@@ -33,9 +34,23 @@ namespace GameLogic
             await NetManager.Instance.SyncServerTime();
             if (IsTodayClaimed()) return false;
 
-            int rewardId = ConfigSystem.Instance.Tables.TbGlobalConfig.DailyCheckinRewardId;
-            bool success = await RewardHelper.ClaimReward(rewardId, ResourceSource.DAILY_CHECKIN);
-            if (!success) return false;
+            var response = await NetManager.Instance.CallHttp<ClaimDailyCheckinResponse>("claimDailyCheckin");
+            if (!response.IsSuccess || response.data == null)
+            {
+                Log.Error($"[DailyChest] ClaimDailyCheckin failed: {response.ErrorMessage}");
+                return false;
+            }
+
+            if (response.data.resources != null)
+            {
+                foreach (var kvp in response.data.resources)
+                {
+                    if (int.TryParse(kvp.Key, out int typeId) && Enum.IsDefined(typeof(ResourceType), typeId))
+                    {
+                        World.Instance.GameData.UpdateResource((ResourceType)typeId, kvp.Value);
+                    }
+                }
+            }
 
             PlayerPrefs.SetString(KEY_LAST_DATE, GetServerDate());
             PlayerPrefs.Save();

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GameLogic.Network
 {
@@ -19,6 +20,16 @@ namespace GameLogic.Network
     [Serializable]
     public class GetResourcesResponse
     {
-        public System.Collections.Generic.Dictionary<string, int> resources;
+        public Dictionary<string, int> resources;
+    }
+
+    /// <summary>
+    /// 每日签到响应数据模型
+    /// </summary>
+    [Serializable]
+    public class ClaimDailyCheckinResponse
+    {
+        public List<RewardItemData> rewards;
+        public Dictionary<string, int> resources;
     }
 }
