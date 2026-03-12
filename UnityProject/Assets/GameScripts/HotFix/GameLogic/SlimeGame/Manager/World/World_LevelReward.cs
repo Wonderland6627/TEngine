@@ -24,9 +24,9 @@ namespace GameLogic
                 isFirstClear = isFirstClear,
             };
 
-            // coinReward = floor(baseCoin + coinPerLevel * (levelId - 1))
+            // coinReward = floor(baseCoin + coinPerLevel * levelId)
             int baseCoin = ResourceDef.GetDefaultValue(ResourceType.Coin);
-            int coinReward = (int)Math.Floor(baseCoin + gc.CoinPerLevel * (levelId - 1.0));
+            int coinReward = (int)Math.Floor((double)(baseCoin + gc.CoinPerLevel * levelId));
             result.baseRewards.Add(new RewardItem
             {
                 resourceType = ResourceType.Coin,
