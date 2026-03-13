@@ -21,6 +21,9 @@ public class LevelEditorWindow : EditorWindow
     
     // 选中状态
     private int selectedCastleId = -1;
+    private int selectedRoadIndex = -1;
+    private bool isRoadLinkMode = false;
+    private int roadLinkStartCastleId = -1;
     
     // 可视化面板相关
     private Vector2 scrollPosition = Vector2.zero;
@@ -32,6 +35,7 @@ public class LevelEditorWindow : EditorWindow
     
     // UI布局
     private float detailPanelWidth = 300f;
+    private Vector2 detailScrollPosition = Vector2.zero;
     
     [MenuItem("PirateCat/关卡编辑器")]
     private static void ShowWindow()
@@ -49,6 +53,16 @@ public class LevelEditorWindow : EditorWindow
     
     private void OnGUI()
     {
+        wantsMouseMove = isRoadLinkMode;
+        
+        if (isRoadLinkMode && Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+        {
+            isRoadLinkMode = false;
+            roadLinkStartCastleId = -1;
+            Repaint();
+            Event.current.Use();
+        }
+        
         DrawToolbar();
         
         EditorGUILayout.BeginHorizontal();
@@ -185,24 +199,38 @@ public class LevelEditorWindow : EditorWindow
         if (worldRangeX <= 0) worldRangeX = 1f;
         if (worldRangeY <= 0) worldRangeY = 1f;
         
-        // 绘制道路
+        // 绘制道路（支持选中高亮和点击选择）
         if (currentLevel.roads != null)
         {
-            foreach (var road in currentLevel.roads)
+            for (int i = 0; i < currentLevel.roads.Count; i++)
             {
+                var road = currentLevel.roads[i];
                 var startCastle = currentLevel.castles.Find(c => c.id == road.startCastleId);
                 var endCastle = currentLevel.castles.Find(c => c.id == road.endCastleId);
                 
-                if (startCastle != null && endCastle != null && 
-                    startCastle.position != null && endCastle.position != null)
+                if (startCastle == null || endCastle == null || 
+                    startCastle.position == null || endCastle.position == null)
+                    continue;
+                
+                Vector2 startPos = WorldToScreenFrame(startCastle.position.x, startCastle.position.y, 
+                    worldMinX, worldMaxX, worldMinY, worldMaxY, screenFrameRect);
+                Vector2 endPos = WorldToScreenFrame(endCastle.position.x, endCastle.position.y,
+                    worldMinX, worldMaxX, worldMinY, worldMaxY, screenFrameRect);
+                
+                bool isSelected = (i == selectedRoadIndex);
+                Handles.color = isSelected ? Color.yellow : Color.gray;
+                Handles.DrawLine(startPos, endPos);
+                
+                if (!isRoadLinkMode && Event.current.type == EventType.MouseDown && Event.current.button == 0)
                 {
-                    Vector2 startPos = WorldToScreenFrame(startCastle.position.x, startCastle.position.y, 
-                        worldMinX, worldMaxX, worldMinY, worldMaxY, screenFrameRect);
-                    Vector2 endPos = WorldToScreenFrame(endCastle.position.x, endCastle.position.y,
-                        worldMinX, worldMaxX, worldMinY, worldMaxY, screenFrameRect);
-                    
-                    Handles.color = Color.gray;
-                    Handles.DrawLine(startPos, endPos);
+                    float dist = PointToLineDistance(Event.current.mousePosition, startPos, endPos);
+                    if (dist < 8f)
+                    {
+                        selectedRoadIndex = i;
+                        selectedCastleId = -1;
+                        Repaint();
+                        Event.current.Use();
+                    }
                 }
             }
         }
@@ -232,6 +260,12 @@ public class LevelEditorWindow : EditorWindow
                 castleColor = Color.yellow;
             }
             
+            // 道路连接模式起点高亮
+            if (isRoadLinkMode && castle.id == roadLinkStartCastleId)
+            {
+                castleColor = Color.green;
+            }
+            
             // 绘制城堡圆圈
             Handles.color = castleColor;
             Handles.DrawSolidDisc(screenPos, Vector3.forward, 15f);
@@ -251,14 +285,55 @@ public class LevelEditorWindow : EditorWindow
                 Vector2 mousePos = Event.current.mousePosition;
                 if (Vector2.Distance(mousePos, screenPos) < 15f)
                 {
-                    selectedCastleId = castle.id;
+                    if (isRoadLinkMode)
+                    {
+                        if (roadLinkStartCastleId < 0)
+                        {
+                            roadLinkStartCastleId = castle.id;
+                        }
+                        else if (castle.id != roadLinkStartCastleId)
+                        {
+                            AddRoad(roadLinkStartCastleId, castle.id);
+                            isRoadLinkMode = false;
+                            roadLinkStartCastleId = -1;
+                        }
+                    }
+                    else
+                    {
+                        selectedCastleId = castle.id;
+                        selectedRoadIndex = -1;
+                    }
                     Repaint();
                     Event.current.Use();
                 }
             }
         }
         
+        // 道路连接模式：绘制预览线
+        if (isRoadLinkMode && roadLinkStartCastleId >= 0 && currentLevel.castles != null)
+        {
+            var linkStartCastle = currentLevel.castles.Find(c => c.id == roadLinkStartCastleId);
+            if (linkStartCastle?.position != null)
+            {
+                Vector2 linkStartPos = WorldToScreenFrame(linkStartCastle.position.x, linkStartCastle.position.y,
+                    worldMinX, worldMaxX, worldMinY, worldMaxY, screenFrameRect);
+                Handles.color = Color.green;
+                Handles.DrawDottedLine(linkStartPos, Event.current.mousePosition, 4f);
+            }
+        }
+        
         Handles.EndGUI();
+        
+        // 连接模式提示
+        if (isRoadLinkMode)
+        {
+            string hint = roadLinkStartCastleId < 0 
+                ? "● 点击起始城堡" 
+                : $"● 已选城堡 {roadLinkStartCastleId}，点击目标城堡 (ESC取消)";
+            Rect hintRect = new Rect(visualizationRect.x + 10, visualizationRect.y + 10, 400, 20);
+            GUIStyle hintStyle = new GUIStyle(EditorStyles.boldLabel) { normal = { textColor = Color.green } };
+            EditorGUI.LabelField(hintRect, hint, hintStyle);
+        }
         
         // 处理鼠标事件
         HandleMouseEvents(visualizationRect);
@@ -280,6 +355,8 @@ public class LevelEditorWindow : EditorWindow
             EditorGUILayout.EndVertical();
             return;
         }
+        
+        detailScrollPosition = EditorGUILayout.BeginScrollView(detailScrollPosition);
         
         // 关卡配置
         EditorGUILayout.LabelField("关卡配置", EditorStyles.boldLabel);
@@ -313,6 +390,53 @@ public class LevelEditorWindow : EditorWindow
             }
         }
         EditorGUI.EndDisabledGroup();
+        
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(10);
+        
+        // 道路操作
+        EditorGUILayout.LabelField("道路操作", EditorStyles.boldLabel);
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        
+        if (isRoadLinkMode)
+        {
+            GUI.backgroundColor = new Color(0.4f, 0.8f, 0.4f);
+            if (GUILayout.Button("取消连接", GUILayout.Height(25)))
+            {
+                isRoadLinkMode = false;
+                roadLinkStartCastleId = -1;
+                Repaint();
+            }
+            GUI.backgroundColor = Color.white;
+        }
+        else
+        {
+            if (GUILayout.Button("添加道路", GUILayout.Height(25)))
+            {
+                isRoadLinkMode = true;
+                // 如果已选中城堡，自动设为起点
+                roadLinkStartCastleId = selectedCastleId;
+                selectedCastleId = -1;
+                selectedRoadIndex = -1;
+            }
+            
+            EditorGUI.BeginDisabledGroup(selectedRoadIndex < 0);
+            if (GUILayout.Button("删除道路", GUILayout.Height(25)))
+            {
+                if (selectedRoadIndex >= 0 && currentLevel.roads != null && selectedRoadIndex < currentLevel.roads.Count)
+                {
+                    var road = currentLevel.roads[selectedRoadIndex];
+                    if (EditorUtility.DisplayDialog("确认删除", 
+                        $"确定要删除城堡 {road.startCastleId} ↔ 城堡 {road.endCastleId} 之间的道路吗？", 
+                        "确定", "取消"))
+                    {
+                        DeleteRoad(selectedRoadIndex);
+                    }
+                }
+            }
+            EditorGUI.EndDisabledGroup();
+        }
         
         EditorGUILayout.EndHorizontal();
         
@@ -372,11 +496,71 @@ public class LevelEditorWindow : EditorWindow
                 }
                 
                 EditorGUILayout.EndVertical();
+                
+                // 关联道路
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("关联道路", EditorStyles.miniLabel);
+                if (currentLevel.roads != null)
+                {
+                    bool hasRoad = false;
+                    for (int i = 0; i < currentLevel.roads.Count; i++)
+                    {
+                        var road = currentLevel.roads[i];
+                        if (road.startCastleId != selectedCastleId && road.endCastleId != selectedCastleId)
+                            continue;
+                        
+                        hasRoad = true;
+                        int otherCastleId = road.startCastleId == selectedCastleId 
+                            ? road.endCastleId : road.startCastleId;
+                        
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField($"  ↔ 城堡 {otherCastleId}", GUILayout.ExpandWidth(true));
+                        if (GUILayout.Button("×", GUILayout.Width(22), GUILayout.Height(18)))
+                        {
+                            if (EditorUtility.DisplayDialog("确认删除", 
+                                $"确定要删除与城堡 {otherCastleId} 之间的道路吗？", 
+                                "确定", "取消"))
+                            {
+                                DeleteRoad(i);
+                                GUIUtility.ExitGUI();
+                            }
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    
+                    if (!hasRoad)
+                    {
+                        EditorGUILayout.LabelField("  无关联道路", EditorStyles.miniLabel);
+                    }
+                }
             }
+        }
+        else if (selectedRoadIndex >= 0 && currentLevel?.roads != null && selectedRoadIndex < currentLevel.roads.Count)
+        {
+            var selectedRoad = currentLevel.roads[selectedRoadIndex];
+            
+            EditorGUILayout.LabelField("选中道路", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            
+            EditorGUILayout.LabelField($"起点城堡: {selectedRoad.startCastleId}");
+            EditorGUILayout.LabelField($"终点城堡: {selectedRoad.endCastleId}");
+            
+            EditorGUILayout.Space(5);
+            if (GUILayout.Button("删除此道路", GUILayout.Height(25)))
+            {
+                if (EditorUtility.DisplayDialog("确认删除", 
+                    $"确定要删除城堡 {selectedRoad.startCastleId} ↔ 城堡 {selectedRoad.endCastleId} 之间的道路吗？", 
+                    "确定", "取消"))
+                {
+                    DeleteRoad(selectedRoadIndex);
+                }
+            }
+            
+            EditorGUILayout.EndVertical();
         }
         else
         {
-            EditorGUILayout.HelpBox("点击可视化面板中的城堡以查看详情", MessageType.Info);
+            EditorGUILayout.HelpBox("点击城堡或道路以查看详情", MessageType.Info);
         }
         
         EditorGUILayout.Space(10);
@@ -403,6 +587,7 @@ public class LevelEditorWindow : EditorWindow
         }
         
         GUILayout.FlexibleSpace();
+        EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
     }
     
@@ -568,8 +753,73 @@ public class LevelEditorWindow : EditorWindow
         
         // 清除选中状态
         selectedCastleId = -1;
+        selectedRoadIndex = -1;
         
         Repaint();
+    }
+    
+    /// <summary>
+    /// 添加道路
+    /// </summary>
+    private void AddRoad(int startCastleId, int endCastleId)
+    {
+        if (currentLevel == null) return;
+        
+        if (currentLevel.roads == null)
+            currentLevel.roads = new List<LevelConfig.Road>();
+        
+        if (HasRoad(startCastleId, endCastleId))
+        {
+            Debug.LogWarning($"Road between castle {startCastleId} and castle {endCastleId} already exists");
+            return;
+        }
+        
+        currentLevel.roads.Add(new LevelConfig.Road
+        {
+            startCastleId = startCastleId,
+            endCastleId = endCastleId
+        });
+        
+        Debug.Log($"Road added: castle {startCastleId} -> castle {endCastleId}");
+        Repaint();
+    }
+    
+    /// <summary>
+    /// 删除道路
+    /// </summary>
+    private void DeleteRoad(int roadIndex)
+    {
+        if (currentLevel?.roads == null || roadIndex < 0 || roadIndex >= currentLevel.roads.Count)
+            return;
+        
+        currentLevel.roads.RemoveAt(roadIndex);
+        selectedRoadIndex = -1;
+        Repaint();
+    }
+    
+    /// <summary>
+    /// 检查两个城堡之间是否已有道路（双向）
+    /// </summary>
+    private bool HasRoad(int castleId1, int castleId2)
+    {
+        if (currentLevel?.roads == null) return false;
+        return currentLevel.roads.Exists(r =>
+            (r.startCastleId == castleId1 && r.endCastleId == castleId2) ||
+            (r.startCastleId == castleId2 && r.endCastleId == castleId1));
+    }
+    
+    /// <summary>
+    /// 点到线段距离
+    /// </summary>
+    private float PointToLineDistance(Vector2 point, Vector2 lineStart, Vector2 lineEnd)
+    {
+        Vector2 line = lineEnd - lineStart;
+        float lenSq = line.sqrMagnitude;
+        if (lenSq < 0.001f) return Vector2.Distance(point, lineStart);
+        
+        float t = Mathf.Clamp01(Vector2.Dot(point - lineStart, line) / lenSq);
+        Vector2 projection = lineStart + t * line;
+        return Vector2.Distance(point, projection);
     }
     
     /// <summary>
