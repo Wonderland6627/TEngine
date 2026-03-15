@@ -12,9 +12,9 @@ namespace GameLogic
 		private GameOverParam m_Param = null;
 		private LevelRewardResult m_RewardResult = null;
 		private bool m_RewardClaimed = false;
-		private List<UIGameOverRewardItem> m_RewardItems = new List<UIGameOverRewardItem>();
+		private List<UIRewardItem> m_RewardItems = new List<UIRewardItem>();
 
-		private const string REWARD_ITEM_PATH = "Assets/AssetRaw/Prefabs/UI/UIGameOver/m_itemGameOverRewardItem.prefab";
+		private const string REWARD_ITEM_PATH = "Assets/AssetRaw/Prefabs/UI/Widget/UIReward/m_itemRewardItem.prefab";
 
 		private static readonly string[] EncourageTexts =
 		{
@@ -172,7 +172,7 @@ namespace GameLogic
 
 			foreach (var kvp in summary)
 			{
-				var item = await CreateWidgetByPathAsync<UIGameOverRewardItem>(
+				var item = await CreateWidgetByPathAsync<UIRewardItem>(
 					m_tfRewardContent, REWARD_ITEM_PATH);
 				item.SetData(kvp.Key, kvp.Value);
 				m_RewardItems.Add(item);

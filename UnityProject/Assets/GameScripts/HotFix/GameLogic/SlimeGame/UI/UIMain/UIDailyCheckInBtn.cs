@@ -29,7 +29,11 @@ namespace GameLogic
 
             DailyChestManager.Instance.TryClaimToday().ContinueWith(success =>
             {
-                if (success) RefreshState();
+                if (success) 
+                {
+                    RefreshState();
+                    //todo: show get reward window
+                }
             }).Forget();
         }
 

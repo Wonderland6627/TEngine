@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8545376697241864655}
   - component: {fileID: 384903190434699766}
   m_Layer: 5
-  m_Name: m_itemGameOverRewardItem
+  m_Name: m_itemRewardItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

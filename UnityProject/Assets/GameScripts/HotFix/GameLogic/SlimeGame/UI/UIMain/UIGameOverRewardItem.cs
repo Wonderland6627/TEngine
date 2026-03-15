@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace GameLogic
 {
-    public partial class UIGameOverRewardItem
+    public partial class UIRewardItem
     {
         protected override void OnCreate()
         {
@@ -32,7 +32,7 @@ namespace GameLogic
     }
 
 #region 脚本工具生成的代码 === 复制开始 ===
-	partial class UIGameOverRewardItem : UIWidget
+	partial class UIRewardItem : UIWidget
 	{
 		private Image m_imgItem;
 		private Text m_txtCount;
