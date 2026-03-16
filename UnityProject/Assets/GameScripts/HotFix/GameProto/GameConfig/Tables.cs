@@ -120,6 +120,27 @@ public partial class Tables
             m_TbGoods.ResolveRef(this);
         }
     }
+    /// <summary>
+    /// 推关激励奖励
+    /// </summary>
+    private TbLevelChest m_TbLevelChest;
+    public TbLevelChest TbLevelChest 
+    {
+        get
+        {
+            if (m_TbLevelChest == null)
+            {
+                m_TbLevelChest = new TbLevelChest(defaultLoader("tblevelchest"));
+                m_TbLevelChest.ResolveRef(this);
+            }
+            return m_TbLevelChest;
+        }
+        set
+        {
+            m_TbLevelChest = value;
+            m_TbLevelChest.ResolveRef(this);
+        }
+    }
 
     #endregion
 

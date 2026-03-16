@@ -12,34 +12,34 @@ using Luban;
 
 namespace GameConfig
 {
-public sealed partial class RewardEntry : Luban.BeanBase
+public sealed partial class LevelChest : Luban.BeanBase
 {
-    public RewardEntry(ByteBuf _buf) 
+    public LevelChest(ByteBuf _buf) 
     {
-        ItemType = (EItemType)_buf.ReadInt();
-        ItemId = _buf.ReadInt();
-        Amount = _buf.ReadInt();
+        Id = _buf.ReadInt();
+        LevelId = _buf.ReadInt();
+        RewardId = _buf.ReadInt();
     }
 
-    public static RewardEntry DeserializeRewardEntry(ByteBuf _buf)
+    public static LevelChest DeserializeLevelChest(ByteBuf _buf)
     {
-        return new RewardEntry(_buf);
+        return new LevelChest(_buf);
     }
 
     /// <summary>
-    /// 物品类型(1=Resource)
+    /// 这是id
     /// </summary>
-    public readonly EItemType ItemType;
+    public readonly int Id;
     /// <summary>
-    /// 物品ID(对应ResourceType枚举值)
+    /// 关卡id
     /// </summary>
-    public readonly int ItemId;
+    public readonly int LevelId;
     /// <summary>
-    /// 数量
+    /// 奖励id
     /// </summary>
-    public readonly int Amount;
+    public readonly int RewardId;
    
-    public const int __ID__ = -1752721821;
+    public const int __ID__ = -2120627715;
     public override int GetTypeId() => __ID__;
 
     public  void ResolveRef(Tables tables)
@@ -49,9 +49,9 @@ public sealed partial class RewardEntry : Luban.BeanBase
     public override string ToString()
     {
         return "{ "
-        + "itemType:" + ItemType + ","
-        + "itemId:" + ItemId + ","
-        + "amount:" + Amount + ","
+        + "id:" + Id + ","
+        + "levelId:" + LevelId + ","
+        + "rewardId:" + RewardId + ","
         + "}";
     }
 }
