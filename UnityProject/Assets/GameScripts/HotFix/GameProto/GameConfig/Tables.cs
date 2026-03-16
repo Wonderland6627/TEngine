@@ -99,6 +99,27 @@ public partial class Tables
             m_TbReward.ResolveRef(this);
         }
     }
+    /// <summary>
+    /// 物品表
+    /// </summary>
+    private TbGoods m_TbGoods;
+    public TbGoods TbGoods 
+    {
+        get
+        {
+            if (m_TbGoods == null)
+            {
+                m_TbGoods = new TbGoods(defaultLoader("tbgoods"));
+                m_TbGoods.ResolveRef(this);
+            }
+            return m_TbGoods;
+        }
+        set
+        {
+            m_TbGoods = value;
+            m_TbGoods.ResolveRef(this);
+        }
+    }
 
     #endregion
 

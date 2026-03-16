@@ -72,15 +72,6 @@ namespace GameLogic
         Diamond = 3,
     }
 
-        /// <summary>
-    /// 物品类型枚举（用于 RewardEntry.ItemType）
-    /// </summary>
-    public enum ItemType
-    {
-        Resource = 1,
-        Goods = 2, // 预留
-    }
-
     /// <summary>
     /// 资源来源常量（与服务端 RESOURCE_SOURCE 一致）
     /// </summary>
