@@ -223,6 +223,10 @@ namespace GameLogic
                     }
                 }
             }
+
+            // 同步推关激励宝箱已领取数据
+            LevelChestManager.Instance.SyncClaimedData(userInfo.claimedLevelChests);
+
             callback?.Invoke(true);
             Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
         }

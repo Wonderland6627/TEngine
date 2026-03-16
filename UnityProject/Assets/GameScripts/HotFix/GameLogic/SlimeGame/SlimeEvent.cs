@@ -25,6 +25,8 @@ namespace GameLogic
         public static string OnProgressLevelIDChanged = "OnProgressLevelIDChanged";
         
         public static string OnLevelRewardClaimed = "OnLevelRewardClaimed";
+        
+        public static string OnLevelChestClaimed = "OnLevelChestClaimed";
     }
 
     /// <summary>

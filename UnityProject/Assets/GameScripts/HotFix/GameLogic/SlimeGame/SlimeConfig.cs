@@ -168,6 +168,23 @@ namespace GameLogic
 
     //===================================================================================
 
+    //===================================================================================
+
+    public enum LevelChestState
+    {
+        Locked,     // 未达到关卡要求
+        Claimable,  // 可领取（已通关且未领取）
+        Claimed     // 已领取
+    }
+
+    public class LevelChestDisplayInfo
+    {
+        public GameConfig.LevelChest config;
+        public LevelChestState state;
+    }
+
+    //===================================================================================
+
     public class RewardItem
     {
         public ResourceType resourceType { get; set; }

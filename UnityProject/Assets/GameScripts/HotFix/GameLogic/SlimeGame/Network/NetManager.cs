@@ -90,6 +90,7 @@ namespace GameLogic.Network
             { "getResources", "/api/minigame/getResources" },
             { "claimLevelReward", "/api/minigame/claimLevelReward" },
             { "claimDailyCheckin", "/api/minigame/claimDailyCheckin" },
+            { "claimLevelChest", "/api/minigame/claimLevelChest" },
         };
 
         #region 生命周期
