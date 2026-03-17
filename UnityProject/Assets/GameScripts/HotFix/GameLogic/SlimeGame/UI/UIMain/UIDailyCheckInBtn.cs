@@ -27,12 +27,12 @@ namespace GameLogic
         {
             if (DailyChestManager.Instance.IsTodayClaimed()) return;
 
-            DailyChestManager.Instance.TryClaimToday().ContinueWith(success =>
+            DailyChestManager.Instance.TryClaimToday().ContinueWith(rewardParam =>
             {
-                if (success) 
+                if (rewardParam != null) 
                 {
                     RefreshState();
-                    //todo: show get reward window
+                    GameModule.UI.ShowUIAsync<UIGetRewardWindow>(rewardParam);
                 }
             }).Forget();
         }

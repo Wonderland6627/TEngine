@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GameConfig;
 
 namespace GameLogic.Network
 {
@@ -13,7 +14,8 @@ namespace GameLogic.Network
     [Serializable]
     public class RewardItemData
     {
-        public int resourceType;
+        public EItemType itemType;
+        public int itemId;
         public int amount;
         public string source;
     }

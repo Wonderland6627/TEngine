@@ -29,16 +29,16 @@ namespace GameLogic
             return !IsTodayClaimed();
         }
 
-        public async UniTask<bool> TryClaimToday()
+        public async UniTask<RewardParam> TryClaimToday()
         {
             await NetManager.Instance.SyncServerTime();
-            if (IsTodayClaimed()) return false;
+            if (IsTodayClaimed()) return null;
 
             var response = await NetManager.Instance.CallHttp<ClaimDailyCheckinResponse>("claimDailyCheckin");
             if (!response.IsSuccess || response.data == null)
             {
                 Log.Error($"[DailyChest] ClaimDailyCheckin failed: {response.ErrorMessage}");
-                return false;
+                return null;
             }
 
             World.Instance.SyncResources(response.data.resources);
@@ -46,7 +46,18 @@ namespace GameLogic
 
             PlayerPrefs.SetString(KEY_LAST_DATE, GetServerDate());
             PlayerPrefs.Save();
-            return true;
+
+            return ConvertToRewardParam(response.data);
+        }
+
+        private RewardParam ConvertToRewardParam(ClaimDailyCheckinResponse response)
+        {
+            var rewardParam = new RewardParam();
+            foreach (var reward in response.rewards)
+            {
+                rewardParam.AddReward(reward.itemType, reward.itemId, reward.amount);
+            }
+            return rewardParam;
         }
     }
 }

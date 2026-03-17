@@ -174,7 +174,7 @@ namespace GameLogic
 			{
 				var item = await CreateWidgetByPathAsync<UIRewardItem>(
 					m_tfRewardContent, REWARD_ITEM_PATH);
-				item.SetData(kvp.Key, kvp.Value);
+				item.SetData(GameConfig.EItemType.RESOURCE, (int)kvp.Key, kvp.Value);
 				m_RewardItems.Add(item);
 			}
 		}

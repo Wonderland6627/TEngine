@@ -21,17 +21,6 @@ namespace GameLogic
         public RewardParam() { }
 
         /// <summary>
-        /// 兼容旧接口：从 Resource 字典构建
-        /// </summary>
-        public RewardParam(Dictionary<ResourceType, int> rewards)
-        {
-            foreach (var kvp in rewards)
-            {
-                Rewards.Add(new RewardDisplayEntry(EItemType.RESOURCE, (int)kvp.Key, kvp.Value));
-            }
-        }
-
-        /// <summary>
         /// 便捷接口：添加资源类型奖励
         /// </summary>
         public RewardParam AddReward(ResourceType type, int amount)
