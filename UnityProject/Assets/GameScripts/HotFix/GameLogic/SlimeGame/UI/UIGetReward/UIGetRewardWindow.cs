@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using GameConfig;
 
 namespace GameLogic
 {
@@ -11,36 +12,57 @@ namespace GameLogic
     /// 用法:
     ///   GameModule.UI.ShowUIAsync&lt;UIGetRewardWindow&gt;(new RewardParam(rewardDict));
     ///   GameModule.UI.ShowUIAsync&lt;UIGetRewardWindow&gt;(new RewardParam().AddReward(ResourceType.Coin, 100));
+    ///   GameModule.UI.ShowUIAsync&lt;UIGetRewardWindow&gt;(new RewardParam().AddReward(EItemType.GOODS, 1001, 2));
     /// </summary>
     public class RewardParam
     {
-        public List<RewardEntry> Rewards { get; private set; } = new List<RewardEntry>();
+        public List<RewardDisplayEntry> Rewards { get; private set; } = new List<RewardDisplayEntry>();
 
         public RewardParam() { }
 
+        /// <summary>
+        /// 兼容旧接口：从 Resource 字典构建
+        /// </summary>
         public RewardParam(Dictionary<ResourceType, int> rewards)
         {
             foreach (var kvp in rewards)
             {
-                Rewards.Add(new RewardEntry(kvp.Key, kvp.Value));
+                Rewards.Add(new RewardDisplayEntry(EItemType.RESOURCE, (int)kvp.Key, kvp.Value));
             }
         }
 
+        /// <summary>
+        /// 便捷接口：添加资源类型奖励
+        /// </summary>
         public RewardParam AddReward(ResourceType type, int amount)
         {
-            Rewards.Add(new RewardEntry(type, amount));
+            Rewards.Add(new RewardDisplayEntry(EItemType.RESOURCE, (int)type, amount));
+            return this;
+        }
+
+        /// <summary>
+        /// 通用接口：按 item_type 添加奖励，支持任何物品类型
+        /// </summary>
+        public RewardParam AddReward(EItemType itemType, int itemId, int amount)
+        {
+            Rewards.Add(new RewardDisplayEntry(itemType, itemId, amount));
             return this;
         }
     }
 
-    public struct RewardEntry
+    /// <summary>
+    /// 奖励展示条目，统一使用 (ItemType, ItemId, Amount) 三元组
+    /// </summary>
+    public struct RewardDisplayEntry
     {
-        public ResourceType Type;
+        public EItemType ItemType;
+        public int ItemId;
         public int Amount;
 
-        public RewardEntry(ResourceType type, int amount)
+        public RewardDisplayEntry(EItemType itemType, int itemId, int amount)
         {
-            Type = type;
+            ItemType = itemType;
+            ItemId = itemId;
             Amount = amount;
         }
     }
@@ -89,7 +111,7 @@ namespace GameLogic
             {
                 var item = await CreateWidgetByPathAsync<UIRewardItem>(
                     m_tfRewardContent, REWARD_ITEM_PATH);
-                item.SetData(reward.Type, reward.Amount);
+                item.SetData(reward.ItemType, reward.ItemId, reward.Amount);
                 m_RewardItems.Add(item);
             }
         }

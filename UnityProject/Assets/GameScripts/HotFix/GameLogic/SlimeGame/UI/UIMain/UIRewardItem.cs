@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GameConfig;
 using TEngine;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,15 +13,20 @@ namespace GameLogic
             base.OnCreate();
         }
 
-        public void SetData(ResourceType type, int amount)
+        public void SetData(EItemType itemType, int itemId, int amount)
         {
             m_txtCount.text = $"+{amount}";
-            LoadIcon(type).Forget();
+            LoadIcon(itemType, itemId).Forget();
         }
 
-        private async UniTaskVoid LoadIcon(ResourceType type)
+        private async UniTaskVoid LoadIcon(EItemType itemType, int itemId)
         {
-            string iconPath = ResourceDef.GetIconPath(type);
+            string iconPath = itemType switch
+            {
+                EItemType.RESOURCE => ResourceDef.GetIconPath((ResourceType)itemId),
+                EItemType.GOODS => GoodsDef.GetIconPath(itemId),
+                _ => null
+            };
             if (string.IsNullOrEmpty(iconPath)) return;
 
             var sprite = await GameModule.Resource.LoadAssetAsync<Sprite>(iconPath);

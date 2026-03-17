@@ -41,16 +41,8 @@ namespace GameLogic
                 return false;
             }
 
-            if (response.data.resources != null)
-            {
-                foreach (var kvp in response.data.resources)
-                {
-                    if (int.TryParse(kvp.Key, out int typeId) && Enum.IsDefined(typeof(ResourceType), typeId))
-                    {
-                        World.Instance.GameData.UpdateResource((ResourceType)typeId, kvp.Value);
-                    }
-                }
-            }
+            World.Instance.SyncResources(response.data.resources);
+            World.Instance.SyncGoods(response.data.goods);
 
             PlayerPrefs.SetString(KEY_LAST_DATE, GetServerDate());
             PlayerPrefs.Save();

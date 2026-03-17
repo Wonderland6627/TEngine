@@ -213,22 +213,46 @@ namespace GameLogic
             GameData.SetProgressLevelID(userInfo.progressLevelID);
             
             // 同步资源数据
-            if (userInfo.resources != null)
-            {
-                foreach (var kvp in userInfo.resources)
-                {
-                    if (int.TryParse(kvp.Key, out int typeId) && System.Enum.IsDefined(typeof(ResourceType), typeId))
-                    {
-                        GameData.UpdateResource((ResourceType)typeId, kvp.Value);
-                    }
-                }
-            }
+            SyncResources(userInfo.resources);
+
+            // 同步物品数据
+            SyncGoods(userInfo.goods);
 
             // 同步推关激励宝箱已领取数据
             LevelChestManager.Instance.SyncClaimedData(userInfo.claimedLevelChests);
 
             callback?.Invoke(true);
             Log.Info($"[World] fetch user game info success: {userInfo.ToJson()}");
+        }
+
+        /// <summary>
+        /// 从服务器响应同步资源数据到本地
+        /// </summary>
+        public void SyncResources(Dictionary<string, int> resources)
+        {
+            if (resources == null) return;
+            foreach (var kvp in resources)
+            {
+                if (int.TryParse(kvp.Key, out int typeId) && System.Enum.IsDefined(typeof(ResourceType), typeId))
+                {
+                    GameData.UpdateResource((ResourceType)typeId, kvp.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 从服务器响应同步物品数据到本地
+        /// </summary>
+        public void SyncGoods(Dictionary<string, int> goods)
+        {
+            if (goods == null) return;
+            foreach (var kvp in goods)
+            {
+                if (int.TryParse(kvp.Key, out int goodsId))
+                {
+                    GameData.UpdateGoods(goodsId, kvp.Value);
+                }
+            }
         }
 
         /// <summary>

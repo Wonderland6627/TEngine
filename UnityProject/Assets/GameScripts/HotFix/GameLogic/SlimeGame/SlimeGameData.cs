@@ -27,6 +27,7 @@ namespace GameLogic
         private const string Enable_Vibration_Key = "slime_enable_vibration";
         private const string Request_User_Info_Date_Key = "slime_request_userinfo_date";
         private const string Resources_Key_Prefix = "slime_res_";
+        private const string Goods_Key_Prefix = "slime_goods_";
 
         private UserInfo _userInfo = new();
         public UserInfo UserInfo
@@ -142,6 +143,45 @@ namespace GameLogic
         public int Coin => GetResource(ResourceType.Coin);
         public int Energy => GetResource(ResourceType.Energy);
         public int Diamond => GetResource(ResourceType.Diamond);
+
+        // ========== 物品存储 ==========
+        private readonly Dictionary<int, int> _goods = new();
+
+        /// <summary>
+        /// 获取指定物品的当前数量
+        /// </summary>
+        public int GetGoods(int goodsId)
+        {
+            return _goods.TryGetValue(goodsId, out int value) ? value : 0;
+        }
+
+        /// <summary>
+        /// 更新物品数量（从服务器数据同步），发送变化事件
+        /// </summary>
+        public void UpdateGoods(int goodsId, int newValue)
+        {
+            int oldValue = GetGoods(goodsId);
+            if (oldValue == newValue) return;
+
+            _goods[goodsId] = newValue;
+            PlayerPrefs.SetInt(Goods_Key_Prefix + goodsId, newValue);
+            PlayerPrefs.Save();
+
+            int change = newValue - oldValue;
+            GameEvent.Send(SlimeEvent.OnGoodsChanged, new GoodsChangedParam(goodsId, change, newValue));
+            Log.Info($"[SlimeGameData] Update goods {goodsId}: {oldValue} -> {newValue} (change: {change})");
+        }
+
+        /// <summary>
+        /// 批量更新所有物品（从服务器拉取后同步）
+        /// </summary>
+        public void UpdateAllGoods(Dictionary<int, int> goods)
+        {
+            foreach (var kvp in goods)
+            {
+                UpdateGoods(kvp.Key, kvp.Value);
+            }
+        }
 
         public SlimeGameData()
         {

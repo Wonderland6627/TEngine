@@ -15,6 +15,7 @@ namespace GameLogic.Network
         public string avatarUrl = "";
         public string openID = "";
         public Dictionary<string, int> resources;
+        public Dictionary<string, int> goods;
         public List<int> claimedLevelChests;
     }
 }

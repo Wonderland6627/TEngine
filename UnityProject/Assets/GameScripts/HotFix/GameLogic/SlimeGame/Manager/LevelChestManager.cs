@@ -90,11 +90,7 @@ namespace GameLogic
             var param = new RewardParam();
             foreach (var entry in reward.RewardItems)
             {
-                if (entry.ItemType == EItemType.RESOURCE
-                    && Enum.IsDefined(typeof(ResourceType), entry.ItemId))
-                {
-                    param.AddReward((ResourceType)entry.ItemId, entry.Amount);
-                }
+                param.AddReward(entry.ItemType, entry.ItemId, entry.Amount);
             }
             return param;
         }
@@ -174,17 +170,9 @@ namespace GameLogic
                 SaveClaimedCache();
             }
 
-            // 同步资源
-            if (response.data.resources != null)
-            {
-                foreach (var kvp in response.data.resources)
-                {
-                    if (int.TryParse(kvp.Key, out int typeId) && Enum.IsDefined(typeof(ResourceType), typeId))
-                    {
-                        World.Instance.GameData.UpdateResource((ResourceType)typeId, kvp.Value);
-                    }
-                }
-            }
+            // 同步资源和物品
+            World.Instance.SyncResources(response.data.resources);
+            World.Instance.SyncGoods(response.data.goods);
 
             GameEvent.Send(SlimeEvent.OnLevelChestClaimed, chestLevelId);
             Log.Info($"[LevelChest] Claimed chest: chestLevelId={chestLevelId}");

@@ -22,6 +22,8 @@ namespace GameLogic
         
         public static string OnResourceNotEnough = "OnResourceNotEnough";
         
+        public static string OnGoodsChanged = "OnGoodsChanged";
+        
         public static string OnProgressLevelIDChanged = "OnProgressLevelIDChanged";
         
         public static string OnLevelRewardClaimed = "OnLevelRewardClaimed";
@@ -41,6 +43,23 @@ namespace GameLogic
         public ResourceChangedParam(ResourceType resourceType, int change, int newValue)
         {
             this.resourceType = resourceType;
+            this.change = change;
+            this.newValue = newValue;
+        }
+    }
+
+    /// <summary>
+    /// 物品变化事件参数
+    /// </summary>
+    public class GoodsChangedParam
+    {
+        public int goodsId;
+        public int change;
+        public int newValue;
+
+        public GoodsChangedParam(int goodsId, int change, int newValue)
+        {
+            this.goodsId = goodsId;
             this.change = change;
             this.newValue = newValue;
         }

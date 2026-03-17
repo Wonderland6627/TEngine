@@ -12,5 +12,6 @@ namespace GameLogic.Network
         public List<RewardItemData> rewards;
         public List<int> claimedLevelChests;
         public Dictionary<string, int> resources;
+        public Dictionary<string, int> goods;
     }
 }
