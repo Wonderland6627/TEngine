@@ -11,6 +11,9 @@ namespace GameLogic.Network
         public bool isFirstClear;
     }
 
+    /// <summary>
+    /// 服务端奖励条目：与 ITEM_TYPE(1=Resource,2=Goods) + item_id 一致
+    /// </summary>
     [Serializable]
     public class RewardItemData
     {

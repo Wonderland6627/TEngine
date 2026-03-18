@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using GameBase;
+using GameConfig;
 using GameLogic.Network;
 using TEngine;
 using UnityEngine;
@@ -55,7 +56,7 @@ namespace GameLogic
             var rewardParam = new RewardParam();
             foreach (var reward in response.rewards)
             {
-                rewardParam.AddReward(reward.itemType, reward.itemId, reward.amount);
+                rewardParam.AddReward((EItemType)reward.itemType, reward.itemId, reward.amount);
             }
             return rewardParam;
         }
