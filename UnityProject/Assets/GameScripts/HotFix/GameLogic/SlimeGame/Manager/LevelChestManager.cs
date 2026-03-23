@@ -97,11 +97,6 @@ namespace GameLogic
         #endregion
 
         #region 滑动窗口
-
-        /// <summary>
-        /// 获取当前显示的宝箱列表（最多3个，以当前进度为中心）
-        /// 算法：找到第一个 level_id > progressLevelID 的索引 i，显示 [i-1, i, i+1]
-        /// </summary>
         public List<LevelChestDisplayInfo> GetDisplayChests()
         {
             if (_allMilestones == null || _allMilestones.Count == 0)

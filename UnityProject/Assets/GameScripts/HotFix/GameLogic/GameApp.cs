@@ -43,6 +43,8 @@ public partial class GameApp:Singleton<GameApp>
         
         PlatformManager.Initialize();
         PlatformManager.SetCurrentPlatform();
+        
+        LevelChestManager.Instance.Init();
         World.Instance.AsyncInit();
     }
     

@@ -10,6 +10,7 @@ namespace GameLogic
 	{
 		private int selectLevelId = -1;
 		private UIDailyChestBtn dailyChestBtn;
+		private UILevelChestBtn[] levelChestBtns = new UILevelChestBtn[3];
 
 		protected override void OnCreate()
 		{
@@ -18,6 +19,11 @@ namespace GameLogic
 
 			m_txtEnergy.text = $"x{ConfigSystem.Instance.Tables.TbGlobalConfig.LevelEnergyConsume}";
 			dailyChestBtn = CreateWidget<UIDailyChestBtn>(m_itemDailyChestBtn);
+			
+			// 初始化 3 个关卡激励奖励按钮
+			levelChestBtns[0] = CreateWidget<UILevelChestBtn>(m_itemLevelChest_1);
+			levelChestBtns[1] = CreateWidget<UILevelChestBtn>(m_itemLevelChest_2);
+			levelChestBtns[2] = CreateWidget<UILevelChestBtn>(m_itemLevelChest_3);
 			
 			int nextLevelId = GetNextLevelId();
 			RefreshLevelPreview(nextLevelId);
@@ -100,8 +106,31 @@ namespace GameLogic
 			m_imgLevelNext.gameObject.SetActive(previewLevelId < World.Instance.GetAllLevels().Count);
 
 			dailyChestBtn?.RefreshState();
+			RefreshLevelChestBtns();
 
 			Log.Info($"[UILevelView] refresh level preview [{previewLevelId}] progresslvid [{progressLevelID}] islocked [{isLocked}]");
+		}
+
+		/// <summary>
+		/// 刷新关卡激励奖励按钮
+		/// </summary>
+		private void RefreshLevelChestBtns()
+		{
+			var displayChests = LevelChestManager.Instance.GetDisplayChests();
+			
+			for (int i = 0; i < 3; i++)
+			{
+				if (i < displayChests.Count)
+				{
+					levelChestBtns[i]?.RefreshState(displayChests[i]);
+				}
+				else
+				{
+					levelChestBtns[i]?.RefreshState(null);
+				}
+			}
+
+			Log.Info($"[UILevelView] RefreshLevelChestBtns: {displayChests.Count} chests displayed");
 		}
 		
 		private int GetNextLevelId()
@@ -136,9 +165,9 @@ namespace GameLogic
 		private Button m_btnStart;
 		private Text m_txtStart;
 		private Text m_txtEnergy;
-		private GameObject m_itemLevelReward_1;
-		private GameObject m_itemLevelReward_2;
-		private GameObject m_itemLevelReward_3;
+		private GameObject m_itemLevelChest_1;
+		private GameObject m_itemLevelChest_2;
+		private GameObject m_itemLevelChest_3;
 
 		protected override void ScriptGenerator()
 		{
@@ -158,9 +187,9 @@ namespace GameLogic
 			m_btnStart = FindChildComponent<Button>("m_btnStart");
 			m_txtStart = FindChildComponent<Text>("m_btnStart/m_txtStart");
 			m_txtEnergy = FindChildComponent<Text>("m_btnStart/m_txtEnergy");
-			m_itemLevelReward_1 = FindChild("layoutBottom/m_itemLevelReward_1").gameObject;
-			m_itemLevelReward_2 = FindChild("layoutBottom/m_itemLevelReward_2").gameObject;
-			m_itemLevelReward_3 = FindChild("layoutBottom/m_itemLevelReward_3").gameObject;
+			m_itemLevelChest_1 = FindChild("layoutBottom/m_itemLevelChest_1").gameObject;
+			m_itemLevelChest_2 = FindChild("layoutBottom/m_itemLevelChest_2").gameObject;
+			m_itemLevelChest_3 = FindChild("layoutBottom/m_itemLevelChest_3").gameObject;
 		}
 	}
 #endregion === 复制结束 ===
