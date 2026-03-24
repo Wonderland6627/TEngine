@@ -97,34 +97,68 @@ namespace GameLogic
         #endregion
 
         #region 滑动窗口
-        public List<LevelChestDisplayInfo> GetDisplayChests()
+
+        private const int DisplayChestSlotCount = 3;
+
+        /// <summary>
+        /// 选关界面滑动窗口：以 anchorLevelId 为锚取相邻 3 个里程碑；返回列表固定 3 个元素，槽位无配置时为 null。
+        /// </summary>
+        public List<LevelChestDisplayInfo> GetDisplayChests(int anchorLevelId)
         {
+            var result = new List<LevelChestDisplayInfo>(DisplayChestSlotCount);
+            for (int i = 0; i < DisplayChestSlotCount; i++)
+            {
+                result.Add(null);
+            }
+
             if (_allMilestones == null || _allMilestones.Count == 0)
-                return new List<LevelChestDisplayInfo>();
-
-            int progress = World.Instance.GameData.ProgressLevelID;
-            int firstLockedIndex = _allMilestones.FindIndex(m => m.LevelId > progress);
-
-            // 所有里程碑都已通过
-            if (firstLockedIndex < 0)
             {
-                firstLockedIndex = _allMilestones.Count;
+                return result;
             }
 
-            var result = new List<LevelChestDisplayInfo>();
-            for (int offset = -1; offset <= 1; offset++)
+            int n = _allMilestones.Count;
+            if (n == 1)
             {
-                int idx = firstLockedIndex + offset;
-                if (idx < 0 || idx >= _allMilestones.Count) continue;
+                result[1] = BuildDisplayInfo(_allMilestones[0]);
+                return result;
+            }
 
-                var cfg = _allMilestones[idx];
-                result.Add(new LevelChestDisplayInfo
+            if (n == 2)
+            {
+                result[0] = BuildDisplayInfo(_allMilestones[0]);
+                result[1] = BuildDisplayInfo(_allMilestones[1]);
+                return result;
+            }
+
+            // 中心：首个 LevelId >= 锚点；若全部小于锚点则中心为最后一项，再取连续 3 格并贴边裁剪
+            int center = n - 1;
+            for (int i = 0; i < n; i++)
+            {
+                if (_allMilestones[i].LevelId >= anchorLevelId)
                 {
-                    config = cfg,
-                    state = GetChestState(cfg.LevelId),
-                });
+                    center = i;
+                    break;
+                }
             }
+
+            int start = Math.Max(0, Math.Min(center - 1, n - DisplayChestSlotCount));
+            for (int i = 0; i < DisplayChestSlotCount; i++)
+            {
+                result[i] = BuildDisplayInfo(_allMilestones[start + i]);
+            }
+
             return result;
+        }
+
+        private LevelChestDisplayInfo BuildDisplayInfo(LevelChest cfg)
+        {
+            if (cfg == null) return null;
+
+            return new LevelChestDisplayInfo
+            {
+                config = cfg,
+                state = GetChestState(cfg.LevelId),
+            };
         }
 
         #endregion

@@ -116,21 +116,14 @@ namespace GameLogic
 		/// </summary>
 		private void RefreshLevelChestBtns()
 		{
-			var displayChests = LevelChestManager.Instance.GetDisplayChests();
-			
-			for (int i = 0; i < 3; i++)
+			var displayChests = LevelChestManager.Instance.GetDisplayChests(selectLevelId);
+
+			for (int i = 0; i < levelChestBtns.Length; i++)
 			{
-				if (i < displayChests.Count)
-				{
-					levelChestBtns[i]?.RefreshState(displayChests[i]);
-				}
-				else
-				{
-					levelChestBtns[i]?.RefreshState(null);
-				}
+				levelChestBtns[i]?.RefreshState(displayChests[i]);
 			}
 
-			Log.Info($"[UILevelView] RefreshLevelChestBtns: {displayChests.Count} chests displayed");
+			Log.Info($"[UILevelView] RefreshLevelChestBtns: anchorLevel={selectLevelId}, slots={displayChests.Count}");
 		}
 		
 		private int GetNextLevelId()
