@@ -20,7 +20,7 @@ namespace GameLogic
             var res = await GameModule.Resource.LoadAssetAsync<TextAsset>(jsonPath);
             if (res == null)
             {
-                Log.Warning($"[SlimeConfigReader] Config file not found: {jsonPath}");
+                Log.Error($"[SlimeConfigReader] Config file not found: {jsonPath}");
                 return;
             }
 

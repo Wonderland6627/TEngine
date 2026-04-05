@@ -71,6 +71,8 @@ namespace GameLogic
         Reward,                // 锦囊奖励广告
         RefreshRewardsList,    // 刷新按钮广告
         LevelRewardDouble,     // 通关奖励翻倍广告
+        EnergyRecover,         // 体力恢复广告
+        AdsGiftPack,           // 广告礼包广告
     }
     
     // 广告事件参数

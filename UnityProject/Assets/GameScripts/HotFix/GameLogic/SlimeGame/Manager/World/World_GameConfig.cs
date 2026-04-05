@@ -72,7 +72,7 @@ namespace GameLogic
                 }
                 else
                 {
-                    Log.Warning("[World] LoadGameConfig failed, config file not found");
+                    Log.Error("[World] LoadGameConfig failed, config file not found");
                 }
             }
             catch (Exception e)

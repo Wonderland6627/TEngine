@@ -35,6 +35,11 @@ namespace GameLogic
         /// </summary>
         public const int VALIDATION_ERROR = -4;
 
+        /// <summary>
+        /// 资源不足
+        /// </summary>
+        public const int RESOURCE_NOT_ENOUGH = -5;
+
         // ========== 客户端本地错误码（-100 ~ -199，仅客户端使用） ==========
         /// <summary>
         /// 无网络连接

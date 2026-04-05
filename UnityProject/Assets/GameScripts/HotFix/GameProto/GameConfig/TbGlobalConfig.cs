@@ -58,6 +58,10 @@ public partial class TbGlobalConfig
     /// 每日签到奖励id
     /// </summary>
      public int DailyCheckinRewardId => _data.DailyCheckinRewardId;
+    /// <summary>
+    /// 广告礼包ID
+    /// </summary>
+     public System.Collections.Generic.List<int> AdRewardPackIds => _data.AdRewardPackIds;
     
     public void ResolveRef(Tables tables)
     {

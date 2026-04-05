@@ -23,6 +23,7 @@ public sealed partial class GlobalConfig : Luban.BeanBase
         EnergyReturnRate = _buf.ReadFloat();
         AdMultiplier = _buf.ReadFloat();
         DailyCheckinRewardId = _buf.ReadInt();
+        {int n0 = _buf.ReadSize(); AdRewardPackIds = new System.Collections.Generic.List<int>(n0);for(var i0 = 0 ; i0 < n0 ; i0++) { int _e0;  _e0 = _buf.ReadInt(); AdRewardPackIds.Add(_e0);}}
     }
 
     public static GlobalConfig DeserializeGlobalConfig(ByteBuf _buf)
@@ -58,6 +59,10 @@ public sealed partial class GlobalConfig : Luban.BeanBase
     /// 每日签到奖励id
     /// </summary>
     public readonly int DailyCheckinRewardId;
+    /// <summary>
+    /// 广告礼包ID
+    /// </summary>
+    public readonly System.Collections.Generic.List<int> AdRewardPackIds;
    
     public const int __ID__ = -958250779;
     public override int GetTypeId() => __ID__;
@@ -76,6 +81,7 @@ public sealed partial class GlobalConfig : Luban.BeanBase
         + "energyReturnRate:" + EnergyReturnRate + ","
         + "adMultiplier:" + AdMultiplier + ","
         + "dailyCheckinRewardId:" + DailyCheckinRewardId + ","
+        + "adRewardPackIds:" + Luban.StringUtil.CollectionToString(AdRewardPackIds) + ","
         + "}";
     }
 }

@@ -172,7 +172,7 @@ namespace GameLogic
         {
             if (!CanClaim(chestLevelId))
             {
-                Log.Warning($"[LevelChest] Cannot claim chest: chestLevelId={chestLevelId}, state={GetChestState(chestLevelId)}");
+                Log.Info($"[LevelChest] Cannot claim chest: chestLevelId={chestLevelId}, state={GetChestState(chestLevelId)}");
                 return false;
             }
 

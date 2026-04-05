@@ -48,8 +48,9 @@ namespace GameLogic
 
             if (currentEnergy < consumeAmount)
             {
-                Log.Warning($"[World] Energy not enough: {currentEnergy} < {consumeAmount}");
+                Log.Info($"[World] Energy not enough: {currentEnergy} < {consumeAmount}");
                 GameEvent.Send(SlimeEvent.OnResourceNotEnough, ResourceType.Energy);
+                GameModule.UI.ShowUIAsync<UIWatchAdsTipsWindow>();
                 return false;
             }
 

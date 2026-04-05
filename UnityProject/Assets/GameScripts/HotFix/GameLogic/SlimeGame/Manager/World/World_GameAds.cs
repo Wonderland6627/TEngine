@@ -132,7 +132,7 @@ namespace GameLogic
         private void ShowRewardedVideoAd()
         {
 #if UNITY_EDITOR
-            Log.Info($"[Ads] show rewardedVideoAd in editor, with userData: {_currentAdsEventParam != null}");
+            SimulateAdCompleteInEditor();
             return;
 #endif
             if (_rewardedVideoAd == null)
@@ -143,5 +143,25 @@ namespace GameLogic
             _rewardedVideoAd.Show();
             Log.Info($"[Ads] show rewardedVideoAd, with userData: {_currentAdsEventParam != null}");
         }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Editor下模拟广告观看完成，直接发送成功事件，使所有广告消费者正常工作
+        /// </summary>
+        private void SimulateAdCompleteInEditor()
+        {
+            if (_currentAdsEventParam == null)
+            {
+                Log.Error("[Ads] No current ads event param found in editor");
+                return;
+            }
+
+            _currentAdsEventParam.isCompleted = true;
+
+            Log.Info($"[Ads] Editor simulate ad complete: {_currentAdsEventParam.adsType}, userData={_currentAdsEventParam.userData}");
+            GameEvent.Send(SlimeEvent.OnAdsResultReceived, _currentAdsEventParam);
+            ClearAdsState();
+        }
+#endif
     }
 }

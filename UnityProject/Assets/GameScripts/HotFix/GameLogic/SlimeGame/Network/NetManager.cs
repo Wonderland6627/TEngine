@@ -91,6 +91,7 @@ namespace GameLogic.Network
             { "claimLevelReward", "/api/minigame/claimLevelReward" },
             { "claimDailyCheckin", "/api/minigame/claimDailyCheckin" },
             { "claimLevelChest", "/api/minigame/claimLevelChest" },
+            { "claimAdsGiftPack", "/api/minigame/claimAdsGiftPack" },
         };
 
         #region 生命周期

@@ -18,6 +18,7 @@ namespace GameLogic
 			Log.Info($"[UILevelView] OnCreate");
 
 			m_txtEnergy.text = $"x{ConfigSystem.Instance.Tables.TbGlobalConfig.LevelEnergyConsume}";
+			RefreshEnergyColor();
 			dailyChestBtn = CreateWidget<UIDailyChestBtn>(m_itemDailyChestBtn);
 			
 			// 初始化 3 个关卡激励奖励按钮
@@ -61,6 +62,7 @@ namespace GameLogic
 			};
 
 			GameEvent.AddEventListener<int>(SlimeEvent.OnProgressLevelIDChanged, OnProgressLevelIDChanged);
+			GameEvent.AddEventListener<ResourceChangedParam>(SlimeEvent.OnResourceChanged, OnResourceChanged);
 		}
 
 		protected override void OnSetVisible(bool visible)
@@ -71,6 +73,7 @@ namespace GameLogic
 			int nextLevelId = GetNextLevelId();
 			Log.Info($"[UILevelView] OnSetVisible nextLevelId [{nextLevelId}]");
 			RefreshLevelPreview(nextLevelId);
+			RefreshEnergyColor();
 		}
 
 		private void OnProgressLevelIDChanged(int newProgressLevelID)
@@ -83,6 +86,7 @@ namespace GameLogic
 		protected override void OnDestroy()
 		{
 			GameEvent.RemoveEventListener<int>(SlimeEvent.OnProgressLevelIDChanged, OnProgressLevelIDChanged);
+			GameEvent.RemoveEventListener<ResourceChangedParam>(SlimeEvent.OnResourceChanged, OnResourceChanged);
 			base.OnDestroy();
 		}
 
@@ -126,6 +130,22 @@ namespace GameLogic
 			Log.Info($"[UILevelView] RefreshLevelChestBtns: anchorLevel={selectLevelId}, slots={displayChests.Count}");
 		}
 		
+		private void OnResourceChanged(ResourceChangedParam param)
+		{
+			if (param.resourceType != ResourceType.Energy) return;
+			RefreshEnergyColor();
+		}
+
+		/// <summary>
+		/// 体力不足时能量消耗文字变红，给视觉暗示
+		/// </summary>
+		private void RefreshEnergyColor()
+		{
+			int energyCost = ConfigSystem.Instance.Tables.TbGlobalConfig.LevelEnergyConsume;
+			int currentEnergy = World.Instance.GameData.Energy;
+			m_txtEnergy.color = currentEnergy < energyCost ? Color.red : Color.white;
+		}
+
 		private int GetNextLevelId()
 		{
 			int progressLevelID = World.Instance.GameData.ProgressLevelID; //当前最高通关关卡

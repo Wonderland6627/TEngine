@@ -227,16 +227,16 @@ namespace GameLogic
 
         /// <summary>
         /// 从服务器响应同步资源数据到本地
+        /// 服务器未返回的资源类型视为 0（DB 中未初始化）
         /// </summary>
         public void SyncResources(Dictionary<string, int> resources)
         {
             if (resources == null) return;
-            foreach (var kvp in resources)
+            foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
             {
-                if (int.TryParse(kvp.Key, out int typeId) && System.Enum.IsDefined(typeof(ResourceType), typeId))
-                {
-                    GameData.UpdateResource((ResourceType)typeId, kvp.Value);
-                }
+                string key = ((int)type).ToString();
+                int value = resources.ContainsKey(key) ? resources[key] : 0;
+                GameData.UpdateResource(type, value);
             }
         }
 

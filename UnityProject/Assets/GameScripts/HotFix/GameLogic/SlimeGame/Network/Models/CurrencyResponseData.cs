@@ -33,4 +33,15 @@ namespace GameLogic.Network
         public Dictionary<string, int> resources;
         public Dictionary<string, int> goods;
     }
+
+    /// <summary>
+    /// 广告礼包领取响应数据模型
+    /// </summary>
+    [Serializable]
+    public class ClaimAdsGiftPackResponse
+    {
+        public List<RewardItemData> rewards;
+        public Dictionary<string, int> resources;
+        public Dictionary<string, int> goods;
+    }
 }
