@@ -59,7 +59,6 @@ namespace GameLogic
             private set 
             {
                 _progressLevelID = value;
-                PlayerPrefs.SetInt(Progress_Level_ID_Key, _progressLevelID);
                 Log.Info($"[SlimeGameData] set progress level id: [{_progressLevelID}]");
             }
         }
@@ -185,7 +184,6 @@ namespace GameLogic
 
         public SlimeGameData()
         {
-            _progressLevelID = PlayerPrefs.GetInt(Progress_Level_ID_Key, 0);
             _enableSound = PlayerPrefs.GetInt(Enable_Sound_Key, 1) == 1;
             _enableVibration = PlayerPrefs.GetInt(Enable_Vibration_Key, 1) == 1;
 
