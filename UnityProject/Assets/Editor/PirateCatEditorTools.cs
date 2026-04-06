@@ -126,20 +126,23 @@ public static class PirateCatEditorTools
     
     /// <summary>
     /// 步骤4: 复制文件到 Backup 目录
+    /// 按照 YooAsset 官方资源部署文档，备份目录结构与 CDN 扁平结构 1:1 映射
     /// </summary>
-    /// <param name="version">版本号</param>
+    /// <param name="appVersion">App版本号，对应 CDN 目录名</param>
+    /// <param name="resourceVersion">资源版本号，对应 YooAsset 构建输出子目录</param>
     /// <param name="hasResourceChanged">是否修改了资源</param>
     /// <returns>是否成功</returns>
-    public static bool CopyToBackupDirectory(string version, bool hasResourceChanged)
+    public static bool CopyToBackupDirectory(string appVersion, string resourceVersion, bool hasResourceChanged)
     {
         try
         {
-            Debug.Log($"[PirateCatEditorTools] Step 4: Copy files to backup directory");
+            Debug.Log($"[PirateCatEditorTools] Step 4: Copy files to backup directory (app={appVersion}, res={resourceVersion})");
             
-            CopyToBackup(version, hasResourceChanged);
+            CopyToBackup(appVersion, resourceVersion, hasResourceChanged);
             
-            Debug.Log($"[PirateCatEditorTools] Files copied to backup directory successfully");
-            EditorUtility.DisplayDialog("成功", $"文件已复制到备份目录：{version}", "确定");
+            string backupPath = Path.Combine(BackupBasePath, appVersion);
+            Debug.Log($"[PirateCatEditorTools] Files copied to backup directory successfully: {backupPath}");
+            EditorUtility.DisplayDialog("成功", $"文件已复制到备份目录：{backupPath}\n\n该目录内容可直接上传到 CDN 的 MiniGame/{appVersion}/ 路径下", "确定");
             return true;
         }
         catch (System.Exception e)
@@ -269,24 +272,19 @@ public static class PirateCatEditorTools
     
     /// <summary>
     /// 复制文件到 Backup 目录
-    /// 注意：导出后的WXExport文件夹中会有webgl和minigame两个文件夹，需要的文件在webgl文件夹下
+    /// 按照 YooAsset 官方资源部署文档，所有 bundle/manifest 文件直接放在 APP 版本目录下（扁平结构）
+    /// https://www.yooasset.com/docs/1.5.x/guide-editor/AssetBundleDeployer
+    /// 
+    /// Bundle 文件来源: Bundles/WebGL/DefaultPackage/{resourceVersion}/
+    /// bin.txt 来源: WXExport/webgl/*.bin.txt
+    /// 备份目标: CDN_Backup/MiniGame/{appVersion}/ （与 CDN 结构 1:1 映射）
     /// </summary>
-    public static void CopyToBackup(string version, bool hasResourceChanged)
+    public static void CopyToBackup(string appVersion, string resourceVersion, bool hasResourceChanged)
     {
-        Debug.Log($"[PirateCatEditorTools] Copy files to backup directory");
+        Debug.Log($"[PirateCatEditorTools] Copy files to backup directory (app={appVersion}, res={resourceVersion})");
         
-        string exportPath = GetMiniGameExportPath();
-        // 文件在 webgl 文件夹下
-        string webglPath = Path.Combine(exportPath, "webgl");
-        string backupPath = Path.Combine(BackupBasePath, version);
+        string backupPath = Path.Combine(BackupBasePath, appVersion);
         
-        // 检查 webgl 文件夹是否存在
-        if (!Directory.Exists(webglPath))
-        {
-            throw new System.Exception($"WebGL folder not found: {webglPath}. Please ensure the WeChat transform tool has completed successfully.");
-        }
-        
-        // 创建备份目录
         if (!Directory.Exists(backupPath))
         {
             Directory.CreateDirectory(backupPath);
@@ -294,26 +292,42 @@ public static class PirateCatEditorTools
         
         if (hasResourceChanged)
         {
-            // 复制 StreamingAssets 文件夹（从 webgl 文件夹下）
-            string streamingAssetsSource = Path.Combine(webglPath, "StreamingAssets");
-            string streamingAssetsDest = Path.Combine(backupPath, "StreamingAssets");
+            // 从 YooAsset 构建输出目录复制 bundle 文件（扁平结构，直接放在 APP 版本目录下）
+            string bundleOutputRoot = YooAsset.Editor.AssetBundleBuilderHelper.GetDefaultBuildOutputRoot();
+            string bundleSourcePath = Path.Combine(bundleOutputRoot, "WebGL", "DefaultPackage", resourceVersion);
             
-            if (Directory.Exists(streamingAssetsSource))
+            if (!Directory.Exists(bundleSourcePath))
             {
-                if (Directory.Exists(streamingAssetsDest))
-                {
-                    Directory.Delete(streamingAssetsDest, true);
-                }
-                FileUtil.CopyFileOrDirectory(streamingAssetsSource, streamingAssetsDest);
-                Debug.Log($"[PirateCatEditorTools] Copied StreamingAssets from {streamingAssetsSource} to {streamingAssetsDest}");
+                throw new System.Exception(
+                    $"Bundle output directory not found: {bundleSourcePath}\n" +
+                    $"Please ensure YooAsset build has completed with PackageVersion={resourceVersion}");
             }
-            else
+            
+            string[] bundleFiles = Directory.GetFiles(bundleSourcePath, "*", SearchOption.TopDirectoryOnly);
+            int copiedCount = 0;
+            foreach (string sourceFile in bundleFiles)
             {
-                Debug.LogWarning($"[PirateCatEditorTools] StreamingAssets folder not found at {streamingAssetsSource}");
+                string fileName = Path.GetFileName(sourceFile);
+                // 跳过 OutputCache 等非发布文件
+                if (fileName.StartsWith("."))
+                    continue;
+                    
+                string destPath = Path.Combine(backupPath, fileName);
+                File.Copy(sourceFile, destPath, true);
+                copiedCount++;
             }
+            Debug.Log($"[PirateCatEditorTools] Copied {copiedCount} bundle files from {bundleSourcePath} to {backupPath}");
         }
         
-        // 复制 bin.txt 文件（从 webgl 文件夹下）
+        // 复制 bin.txt 文件（从 WXExport/webgl/ 文件夹下）
+        string exportPath = GetMiniGameExportPath();
+        string webglPath = Path.Combine(exportPath, "webgl");
+        
+        if (!Directory.Exists(webglPath))
+        {
+            throw new System.Exception($"WebGL folder not found: {webglPath}. Please ensure the WeChat transform tool has completed successfully.");
+        }
+        
         string[] binFiles = Directory.GetFiles(webglPath, "*.bin.txt", SearchOption.TopDirectoryOnly);
         if (binFiles.Length == 0)
         {
@@ -326,7 +340,7 @@ public static class PirateCatEditorTools
                 string fileName = Path.GetFileName(binFile);
                 string destPath = Path.Combine(backupPath, fileName);
                 File.Copy(binFile, destPath, true);
-                Debug.Log($"[PirateCatEditorTools] Copied {fileName} from {binFile} to {destPath}");
+                Debug.Log($"[PirateCatEditorTools] Copied {fileName} to {destPath}");
             }
         }
     }

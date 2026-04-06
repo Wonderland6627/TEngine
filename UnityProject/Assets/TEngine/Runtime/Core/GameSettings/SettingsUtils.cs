@@ -64,8 +64,9 @@ public static class SettingsUtils
 
     public static string GetResDownLoadPath(string fileName = "")
     {
-        // return Path.Combine(CompleteDownLoadPath, $"{ResourcesArea.ResAdminType}_{ResourcesArea.ResAdminCode}", GetPlatformName(), fileName).Replace("\\", "/");
-        return Path.Combine(CompleteDownLoadPath.Trim('/'), "StreamingAssets/package/DefaultPackage", fileName).Replace("\\", "/");
+        // 按照 YooAsset 官方资源部署文档，bundle 文件直接放在 APP 版本目录下（扁平结构）
+        // https://www.yooasset.com/docs/1.5.x/guide-editor/AssetBundleDeployer
+        return Path.Combine(CompleteDownLoadPath.Trim('/'), fileName).Replace("\\", "/");
     }
 
     public static string CompleteDownLoadPath

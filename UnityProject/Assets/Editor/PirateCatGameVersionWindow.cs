@@ -164,26 +164,30 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUILayout.LabelField("步骤4: 复制到备份目录", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
-        EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(resourceVersion));
+        EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(resourceVersion) || string.IsNullOrEmpty(appVersion));
         if (GUILayout.Button("复制到 CDN_Backup", GUILayout.Height(30)))
         {
+            string bundleInfo = hasResourceChanged
+                ? $"是（将从 Bundles/WebGL/DefaultPackage/{resourceVersion}/ 复制 bundle + bin.txt）"
+                : "否（只复制 bin.txt）";
+            
             if (EditorUtility.DisplayDialog("确认复制",
-                $"确定要将文件复制到备份目录吗？\n\n资源版本号: {resourceVersion}\n" +
-                $"资源修改: {(hasResourceChanged ? "是（将复制 StreamingAssets 和 bin.txt）" : "否（只复制 bin.txt）")}",
+                $"确定要将文件复制到备份目录吗？\n\n" +
+                $"App版本号: {appVersion}\n" +
+                $"资源版本号: {resourceVersion}\n" +
+                $"资源修改: {bundleInfo}\n\n" +
+                $"备份目标: CDN_Backup/MiniGame/{appVersion}/\n" +
+                $"该目录内容可直接上传到 CDN",
                 "确定", "取消"))
             {
-                string backupPath = System.IO.Path.Combine("CDN_Backup", "MiniGame", resourceVersion);
+                PirateCatEditorTools.CopyToBackupDirectory(appVersion, resourceVersion, hasResourceChanged);
+                
+                string backupPath = System.IO.Path.Combine("CDN_Backup", "MiniGame", appVersion);
                 string fullPath = System.IO.Path.GetFullPath(backupPath);
                 if (System.IO.Directory.Exists(fullPath))
                 {
                     EditorUtility.RevealInFinder(fullPath);
                 }
-                else
-                {
-                    EditorUtility.DisplayDialog("提示", $"目录不存在: {fullPath}", "确定");
-                }
-                
-                PirateCatEditorTools.CopyToBackupDirectory(resourceVersion, hasResourceChanged);
             }
         }
         EditorGUI.EndDisabledGroup();
@@ -195,7 +199,9 @@ public class PirateCatGameVersionWindow : EditorWindow
             wordWrap = true,
             normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
         };
-        EditorGUILayout.LabelField("提示: 文件将从 WXExport/webgl/ 复制到 CDN_Backup/MiniGame/{版本号}/", helpStyle4);
+        EditorGUILayout.LabelField(
+            $"提示: Bundle 从 Bundles/WebGL/DefaultPackage/{{资源版本号}}/ 复制，bin.txt 从 WXExport/webgl/ 复制\n" +
+            $"备份到 CDN_Backup/MiniGame/{{App版本号}}/ （与 CDN 扁平结构一致，可直接上传）", helpStyle4);
         
         EditorGUILayout.EndVertical();
         
