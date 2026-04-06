@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using GameConfig;
 
 namespace GameLogic
 {
@@ -42,6 +43,8 @@ namespace GameLogic
 				return;
 			}
 
+			GameEvent.AddEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResult);
+
 			bool isWin = m_Param.IsWin();
 
 			// 根据胜负切换面板
@@ -74,8 +77,8 @@ namespace GameLogic
 
 		protected override void OnDestroy()
 		{
-			base.OnDestroy();
 			GameEvent.RemoveEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResult);
+			base.OnDestroy();
 		}
 
 		#region 按钮初始化
@@ -192,24 +195,19 @@ namespace GameLogic
 		/// <summary>
 		/// 请求看广告翻倍奖励
 		/// </summary>
-		public void RequestAdDoubleReward()
+		private void RequestAdDoubleReward()
 		{
 			if (m_RewardResult == null || m_RewardClaimed) return;
 
-			GameEvent.AddEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResult);
 			World.Instance.ShowAds(AdsType.LevelRewardDouble);
 		}
 
 		private void OnAdsResult(AdsEventParam param)
 		{
 			if (param.adsType != AdsType.LevelRewardDouble) return;
+			if (!param.isCompleted || m_RewardClaimed) return;
 
-			GameEvent.RemoveEventListener<AdsEventParam>(SlimeEvent.OnAdsResultReceived, OnAdsResult);
-
-			if (param.isCompleted)
-			{
-				ClaimReward(true).Forget();
-			}
+			ClaimReward(true).Forget();
 		}
 
 		private void OnClickTryAgain()
@@ -249,8 +247,28 @@ namespace GameLogic
 
 			Log.Info($"[UIGameOverWindow] Reward claimed: level={m_RewardResult.levelId}, watchedAd={watchedAd}");
 
+			var rewardParam = BuildRewardParam(watchedAd);
+
 			Close();
 			World.Instance.EndGame();
+
+			if (rewardParam != null)
+			{
+				GameModule.UI.ShowUIAsync<UIGetRewardWindow>(rewardParam);
+			}
+		}
+
+		private RewardParam BuildRewardParam(bool watchedAd)
+		{
+			if (m_RewardResult == null) return null;
+
+			var summary = m_RewardResult.SumByType(watchedAd);
+			var param = new RewardParam();
+			foreach (var kvp in summary)
+			{
+				param.AddReward(kvp.Key, kvp.Value);
+			}
+			return param;
 		}
 
 		#endregion
