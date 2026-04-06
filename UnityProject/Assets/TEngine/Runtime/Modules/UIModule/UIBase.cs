@@ -549,10 +549,7 @@ namespace TEngine
         /// </summary>
         protected void AttachUIFlag()
         {
-#if !UNITY_EDITOR
-            return;
-#endif
-
+#if UNITY_EDITOR
             if (gameObject == null)
             {
                 return;
@@ -578,6 +575,7 @@ namespace TEngine
             {
                 flag.uiName = GetType().Name;
             }
+#endif
         }
 
         #endregion
