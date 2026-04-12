@@ -1,7 +1,6 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using UnityToolbarExtender;
 
 namespace TEngine.Editor
 {
@@ -29,50 +28,51 @@ namespace TEngine.Editor
             {
                 _identityKey = DateTime.Now.ToString("yyyyMMddHHmmss");
             }
-            ToolbarExtender.RightToolbarGUI.Add(OnToolbarGUI);
         }
 
-        static void OnToolbarGUI()
+        /// <summary>
+        /// Guard：仅 Local 服且由协调器结合窗口宽度决定是否绘制。
+        /// </summary>
+        internal static bool ShouldDrawIdentitySection()
         {
-            if (PlayerPrefs.GetInt(KEY_SERVER_TYPE, 0) != SERVER_TYPE_LOCAL) return;
+            return PlayerPrefs.GetInt(KEY_SERVER_TYPE, 0) == SERVER_TYPE_LOCAL;
+        }
 
-            EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
+        /// <summary>
+        /// 由 EditorToolbarRightCoordinator 调用；紧挨服务器下拉右侧绘制。
+        /// </summary>
+        internal static void DrawToolbarSection()
+        {
+            _labelStyle ??= new GUIStyle(EditorStyles.miniLabel)
             {
-                GUILayout.Space(-150);
-                GUILayout.FlexibleSpace();
+                alignment = TextAnchor.MiddleRight,
+                fontStyle = FontStyle.Bold
+            };
 
-                _labelStyle ??= new GUIStyle(EditorStyles.miniLabel)
-                {
-                    alignment = TextAnchor.MiddleRight,
-                    fontStyle = FontStyle.Bold
-                };
+            _textFieldStyle ??= new GUIStyle(EditorStyles.toolbarTextField)
+            {
+                alignment = TextAnchor.MiddleLeft
+            };
 
-                _textFieldStyle ??= new GUIStyle(EditorStyles.toolbarTextField)
-                {
-                    alignment = TextAnchor.MiddleLeft
-                };
-
-                double now = EditorApplication.timeSinceStartup;
-                if (now - _lastPollTime > POLL_INTERVAL)
-                {
-                    _lastPollTime = now;
-                    _identityKey = EditorPrefs.GetString(PREF_KEY, "");
-                }
-
-                GUILayout.Label("ID:", _labelStyle, GUILayout.Width(20));
-                string newKey = EditorGUILayout.TextField(_identityKey, _textFieldStyle, GUILayout.Width(80));
-
-                if (newKey != _identityKey)
-                {
-                    _identityKey = newKey;
-                    EditorPrefs.SetString(PREF_KEY, newKey);
-                    Debug.Log($"[EditorIdentityKey] Identity key changed: {newKey}");
-                }
-
-                GUILayout.FlexibleSpace();
-                GUILayout.Space(400);
+            double now = EditorApplication.timeSinceStartup;
+            if (now - _lastPollTime > POLL_INTERVAL)
+            {
+                _lastPollTime = now;
+                _identityKey = EditorPrefs.GetString(PREF_KEY, "");
             }
-            EditorGUI.EndDisabledGroup();
+
+            float labelW = EditorToolbarRightLayout.Scale(EditorToolbarRightLayout.IdentityLabelWidthDesign);
+            float fieldW = EditorToolbarRightLayout.Scale(EditorToolbarRightLayout.IdentityFieldWidthDesign);
+
+            GUILayout.Label("ID:", _labelStyle, GUILayout.Width(labelW));
+            string newKey = EditorGUILayout.TextField(_identityKey, _textFieldStyle, GUILayout.Width(fieldW));
+
+            if (newKey != _identityKey)
+            {
+                _identityKey = newKey;
+                EditorPrefs.SetString(PREF_KEY, newKey);
+                Debug.Log($"[EditorIdentityKey] Identity key changed: {newKey}");
+            }
         }
     }
 }

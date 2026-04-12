@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEditor;
 using System.Reflection;
@@ -11,6 +11,10 @@ using UnityEngine.Experimental.UIElements;
 
 namespace UnityToolbarExtender
 {
+	/// <summary>
+	/// 通过反射查找 Unity 内置 Toolbar，并在左/右对齐区域注入 IMGUIContainer（或旧版替换 OnGUI 链），
+	/// 将绘制转发给 <see cref="ToolbarExtender"/> 注册的委托。
+	/// </summary>
 	public static class ToolbarCallback
 	{
 		static Type m_toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");

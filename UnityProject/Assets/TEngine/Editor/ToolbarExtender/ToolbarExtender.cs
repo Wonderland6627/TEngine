@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace UnityToolbarExtender
 {
+	/// <summary>
+	/// 维护 LeftToolbarGUI / RightToolbarGUI 回调列表；旧版 Unity 中还会用 Rect 估算左右安全区并 BeginArea 裁剪。
+	/// TEngine 业务侧由 <see cref="TEngine.Editor.EditorToolbarRightCoordinator"/> 统一注册右侧 GUI。
+	/// </summary>
 	[InitializeOnLoad]
 	public static class ToolbarExtender
 	{

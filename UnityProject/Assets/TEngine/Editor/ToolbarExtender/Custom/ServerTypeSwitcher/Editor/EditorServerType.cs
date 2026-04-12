@@ -1,6 +1,5 @@
 using UnityEditor;
 using UnityEngine;
-using UnityToolbarExtender;
 
 namespace TEngine.Editor
 {
@@ -28,45 +27,38 @@ namespace TEngine.Editor
         static EditorServerType()
         {
             _serverTypeIndex = PlayerPrefs.GetInt(KEY_SERVER_TYPE, 0);
-            ToolbarExtender.RightToolbarGUI.Add(OnToolbarGUI);
         }
 
-        static void OnToolbarGUI()
+        /// <summary>
+        /// 由 EditorToolbarRightCoordinator 调用；绘制顺序优先于身份与资源模式。
+        /// </summary>
+        internal static void DrawToolbarSection()
         {
-            EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
+            _popupStyle ??= new GUIStyle("Tab middle")
             {
-                GUILayout.Space(-375);
-                GUILayout.FlexibleSpace();
+                padding = new RectOffset(2, 8, 2, 2),
+                alignment = TextAnchor.MiddleCenter,
+                fontStyle = FontStyle.Bold
+            };
 
-                _popupStyle ??= new GUIStyle("Tab middle")
-                {
-                    padding = new RectOffset(2, 8, 2, 2),
-                    alignment = TextAnchor.MiddleCenter,
-                    fontStyle = FontStyle.Bold
-                };
-
-                double now = EditorApplication.timeSinceStartup;
-                if (now - _lastPollTime > POLL_INTERVAL)
-                {
-                    _lastPollTime = now;
-                    _serverTypeIndex = PlayerPrefs.GetInt(KEY_SERVER_TYPE, _serverTypeIndex);
-                }
-
-                int selectedIndex = EditorGUILayout.Popup(
-                    "", _serverTypeIndex, ServerTypeNames, _popupStyle, GUILayout.Width(180));
-
-                if (selectedIndex != _serverTypeIndex)
-                {
-                    Debug.Log($"[EditorServerType] Server switched: {ServerTypeNames[selectedIndex]}");
-                    _serverTypeIndex = selectedIndex;
-                    PlayerPrefs.SetInt(KEY_SERVER_TYPE, selectedIndex);
-                    PlayerPrefs.Save();
-                }
-
-                GUILayout.FlexibleSpace();
-                GUILayout.Space(400);
+            double now = EditorApplication.timeSinceStartup;
+            if (now - _lastPollTime > POLL_INTERVAL)
+            {
+                _lastPollTime = now;
+                _serverTypeIndex = PlayerPrefs.GetInt(KEY_SERVER_TYPE, _serverTypeIndex);
             }
-            EditorGUI.EndDisabledGroup();
+
+            float w = EditorToolbarRightLayout.Scale(EditorToolbarRightLayout.ServerPopupWidthDesign);
+            int selectedIndex = EditorGUILayout.Popup(
+                "", _serverTypeIndex, ServerTypeNames, _popupStyle, GUILayout.Width(w));
+
+            if (selectedIndex != _serverTypeIndex)
+            {
+                Debug.Log($"[EditorServerType] Server switched: {ServerTypeNames[selectedIndex]}");
+                _serverTypeIndex = selectedIndex;
+                PlayerPrefs.SetInt(KEY_SERVER_TYPE, selectedIndex);
+                PlayerPrefs.Save();
+            }
         }
     }
 }

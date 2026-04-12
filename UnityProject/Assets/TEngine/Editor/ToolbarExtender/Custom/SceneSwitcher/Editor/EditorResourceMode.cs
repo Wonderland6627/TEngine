@@ -1,6 +1,5 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
-using UnityToolbarExtender;
 
 namespace TEngine.Editor
 {
@@ -24,12 +23,10 @@ namespace TEngine.Editor
 
         static EditorResourceMode()
         {
-            ToolbarExtender.RightToolbarGUI.Add(OnToolbarGUI);
             _playModeIndex = EditorPrefs.GetInt("EditorPlayMode", 0);
         }
 
         private const string ButtonStyleName = "Tab middle";
-        static GUIStyle _buttonGuiStyle;
 
         private static readonly string[] _resourceModeNames =
         {
@@ -39,32 +36,37 @@ namespace TEngine.Editor
             "WebPlayMode (WebGL运行模式)"
         };
 
+        /// <summary> 窄屏时与 _resourceModeNames 一一对应的短标签，避免下拉过宽。 </summary>
+        private static readonly string[] _resourceModeNamesShort =
+        {
+            "EditorMode",
+            "Offline",
+            "Host",
+            "Web"
+        };
+
         private static int _playModeIndex = 0;
         public static int PlayModeIndex => _playModeIndex;
 
-        static void OnToolbarGUI()
+        /// <summary>
+        /// 由 EditorToolbarRightCoordinator 调用；不在此注册 Toolbar。
+        /// </summary>
+        /// <param name="popupWidth">PopupWidth：下拉控件宽度（已含 DPI 缩放）。</param>
+        /// <param name="useShortLabels">为 true 时使用短选项文案以适配窄宽度。</param>
+        internal static void DrawToolbarSection(float popupWidth, bool useShortLabels)
         {
-            EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
+            string[] names = useShortLabels ? _resourceModeNamesShort : _resourceModeNames;
+
+            // 资源模式
+            int selectedIndex = EditorGUILayout.Popup(
+                "", _playModeIndex, names, ToolbarStyles.ToolBarButtonGuiStyle, GUILayout.Width(popupWidth));
+            // ReSharper disable once RedundantCheckBeforeAssignment
+            if (selectedIndex != _playModeIndex)
             {
-                GUILayout.Space(10);
-
-                GUILayout.FlexibleSpace();
-
-                // 资源模式
-                int selectedIndex = EditorGUILayout.Popup("", _playModeIndex, _resourceModeNames, ToolbarStyles.ToolBarButtonGuiStyle);
-                // ReSharper disable once RedundantCheckBeforeAssignment
-                if (selectedIndex != _playModeIndex)
-                {
-                    Debug.Log($"更改编辑器资源运行模式 : {_resourceModeNames[selectedIndex]}");
-                    _playModeIndex = selectedIndex;
-                    EditorPrefs.SetInt("EditorPlayMode", selectedIndex);
-                }
-
-                GUILayout.FlexibleSpace();
-
-                GUILayout.Space(400);
+                Debug.Log($"更改编辑器资源运行模式 : {_resourceModeNames[selectedIndex]}");
+                _playModeIndex = selectedIndex;
+                EditorPrefs.SetInt("EditorPlayMode", selectedIndex);
             }
-            EditorGUI.EndDisabledGroup();
         }
     }
 }
