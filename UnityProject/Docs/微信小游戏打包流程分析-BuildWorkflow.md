@@ -1,101 +1,51 @@
-# 微信小游戏打包流程分析
+# 微信小游戏打包流程分析（已对齐当前代码）
 
-## 打包流程步骤
+## 1. YooAsset 运行时真实流程（WebPlayMode）
 
-### 步骤1: 修改 YooAssetSettings.asset 的 BuildVersion
-- **文件路径**: `Assets/TEngine/AssetSetting/Resources/YooAssetSettings.asset`
-- **需要修改**: `BuildVersion` 字段（当前值: `v0.1.7.2`）
-- **脚本可行性**: ✅ **可以通过脚本执行**
-  - 使用 `AssetDatabase.LoadAssetAtPath` 加载 ScriptableObject
-  - 修改 `BuildVersion` 属性
-  - 使用 `EditorUtility.SetDirty` 和 `AssetDatabase.SaveAssets` 保存
+1. `ResourceModule` 启动时，将远端根地址设置为 `SettingsUtils.GetResDownLoadPath()`（来自 `TEngineGlobalSettings.asset` 的资源URL）。
+2. 进入更新流程后，先请求远端版本文件：`PackageManifest_DefaultPackage.version`。
+3. 再请求远端清单哈希：`PackageManifest_DefaultPackage_{资源版本}.hash`。
+4. 然后请求远端二进制清单：`PackageManifest_DefaultPackage_{资源版本}.bytes`。
+5. 根据清单创建下载器，按需下载 bundle。
 
-### 步骤2: 修改 InnerResourceSourceUrl 的版本号
-- **文件路径**: `Assets/TEngine/ResRaw/Resources/TEngineGlobalSettings.asset`
-- **需要修改**: `m_InnerResourceSourceUrl` 字段
-- **URL模板**: `https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/【版本号】/`
-- **脚本可行性**: ✅ **可以通过脚本执行**
-  - 加载 `TEngineGlobalSettings` ScriptableObject
-  - 修改 `ResourcesArea.InnerResourceSourceUrl` 属性
-  - 保存修改
+> 说明：微信小游戏环境下，初始化阶段已跳过 `StreamingAssets/package/...` 的内置版本探测，避免非致命 404 噪音日志。
 
-### 步骤3: 将 InnerResourceSourceUrl 复制到小游戏导出配置的 CDN 地址
-- **文件路径**: `Assets/WX-WASM-SDK-V2/Editor/MiniGameConfig.asset`
-- **需要修改**: `ProjectConf.CDN` 字段
-- **脚本可行性**: ✅ **可以通过脚本执行**
-  - 加载 `MiniGameConfig` ScriptableObject
-  - 将步骤2的 URL 复制到 `ProjectConf.CDN`
-  - 保存修改
+## 2. 版本与路径映射（当前工程）
 
-### 步骤4: 导出微信小游戏工程
-- **导出路径**: `D:/CustomProjects/TEngine/UnityProject/WXExport` (从 MiniGameConfig.asset 的 DST 字段获取)
-- **脚本可行性**: ⚠️ **部分可通过脚本执行**
-  - 可以使用 `BuildPipeline.BuildPlayer` 构建 WebGL 目标
-  - 但微信小游戏可能需要特定的后处理步骤（可能需要调用微信SDK的导出方法）
-  - 需要确认微信小游戏SDK是否提供导出API
+- `App版本号`：`ProjectSettings/ProjectSettings.asset` 的 `bundleVersion`（当前为 `v1.1`）。
+- `资源版本号`：`Assets/TEngine/AssetSetting/Resources/YooAssetSettings.asset` 的 `BuildVersion`（当前为 `v0.1.7.8`）。
+- `远端根地址`：`Assets/TEngine/ResRaw/Resources/TEngineGlobalSettings.asset` 的 `m_InnerResourceSourceUrl`（当前指向 `.../MiniGame/v1.1/`）。
+- `小游戏导出CDN地址`：`Assets/WX-WASM-SDK-V2/Editor/MiniGameConfig.asset` 的 `ProjectConf.CDN`（当前与 `m_InnerResourceSourceUrl` 一致）。
+- `资源包名`：`DefaultPackage`（来自 `ResourceModule` 与 YooAsset 配置）。
 
-### 步骤5: 复制 StreamingAssets 和 bin.txt 到 Backup 目录
-- **源路径**: `WXExport/StreamingAssets` 和 `WXExport/*.bin.txt`
-- **目标路径**: `CDN_Backup/MiniGame/【版本号】/`
-- **脚本可行性**: ✅ **完全可以通过脚本执行**
-  - 使用 `FileUtil.CopyFileOrDirectory` 或 `System.IO` 进行文件复制
-  - 创建版本号目录
-  - 复制 StreamingAssets 文件夹
-  - 查找并复制所有 `.bin.txt` 文件
+## 3. 打包工具当前真实流程（PirateCat）
 
-### 步骤6: 上传 StreamingAssets 和 bin.txt 到 UOSCDN
-- **UOSCDN地址**: `https://uos.unity.cn/services/bd2fcdf8-2152-4e5f-b1be-3f6b950c8034/asset/bucket/cde09f24-d39c-4845-a3e3-17344f4f2894`
-- **上传路径**: `content/MiniGame/【版本号】/`
-- **脚本可行性**: ⚠️ **需要确认UOSCDN API**
-  - 项目中有 `cn.unity.uos.launcher` 包
-  - 需要查找 UOSCDN 的上传 API
-  - 可能需要使用 Unity Cloud Services API 或 UOS SDK
+1. **更新版本号（可选）**
+   - 更新 `YooAssetSettings.BuildVersion`（资源版本）。
+   - 更新 `PlayerSettings.bundleVersion`（App版本）。
+   - 同步更新 `InnerResourceSourceUrl` 与 `MiniGameConfig.CDN` 到 `.../MiniGame/{App版本}/`。
+2. **构建资源（手动）**
+   - 工具仅打开 `AssetBundle Builder` 窗口，构建动作由开发者在窗口中确认执行。
+3. **导出微信小游戏（手动）**
+   - 工具调用“微信小游戏/转换小游戏”菜单。
+4. **复制到备份目录**
+   - 当“修改了资源”时：从 `Bundles/WebGL/DefaultPackage/{资源版本}/` 复制 bundle/manifest 等文件。
+   - 始终从 `WXExport/webgl/` 复制 `*.bin.txt`。
+   - 目标目录：`CDN_Backup/MiniGame/{App版本}/`（与 CDN 扁平目录对齐）。
 
-### 步骤7: 在 UOSCDN 中创建新的 release 并 assign 版本号
-- **脚本可行性**: ⚠️ **需要确认UOSCDN API**
-  - 需要查找 UOSCDN 的 release 创建 API
-  - 可能需要使用 Unity Cloud Services API
+## 4. 已确认的错误与修正
 
-### 步骤8: 测试
-- **脚本可行性**: ❌ **需要手动操作**
-  - Unity 中测试
-  - 微信小游戏开发者工具中测试
+- 旧文档中“上传 `StreamingAssets` 目录”的描述已过时。
+- 当前正确做法是上传 `CDN_Backup/MiniGame/{App版本}/` 下的扁平文件集合，而不是 `StreamingAssets/...` 子目录。
+- 若仅改代码（不改资源），建议保持 `App版本号` 不变，仅替换 `bin.txt`；若改了 `App版本号`，需确保新目录下已有对应资源文件，否则会出现远端资源缺失。
 
-## 资源修改判断逻辑
+## 5. 发布前核对清单
 
-根据用户需求，需要区分两种情况：
-
-### 情况1: 修改了资源（需要重新 build 和上传 bundle）
-- ✅ 执行步骤1: 修改 YooAssetSettings.asset 的 BuildVersion
-- ✅ 执行步骤2: 修改 InnerResourceSourceUrl
-- ✅ 执行步骤3: 更新 MiniGameConfig.asset 的 CDN
-- ✅ 执行步骤4: 使用 YooAsset 构建 AssetBundle（调用 `ReleaseTools.BuildInternal`）
-- ✅ 执行步骤5: 导出微信小游戏工程
-- ✅ 执行步骤6: 复制到 Backup 目录
-- ✅ 执行步骤7: 上传 StreamingAssets 和 bin.txt 到 UOSCDN
-- ✅ 执行步骤8: 创建 release
-
-### 情况2: 只修改了代码（只需要上传新的 bin.txt）
-- ❌ 跳过步骤1-3（不修改版本号）
-- ❌ 跳过步骤4（不构建 AssetBundle）
-- ✅ 执行步骤5: 导出微信小游戏工程（只导出代码，不包含资源）
-- ✅ 执行步骤6: 只复制 bin.txt 到 Backup 目录（不复制 StreamingAssets）
-- ✅ 执行步骤7: 只上传 bin.txt 到 UOSCDN（不上传 StreamingAssets）
-- ❌ 跳过步骤8（不创建新 release，或使用现有 release）
-
-## 需要进一步确认的事项
-
-1. **微信小游戏导出API**: 确认微信小游戏SDK是否提供程序化导出方法
-2. **UOSCDN API**: 查找 UOSCDN 的上传和 release 管理 API
-3. **bin.txt 文件位置**: 确认导出工程中 bin.txt 文件的确切位置和命名规则
-4. **版本号格式**: 确认版本号格式（当前使用 `v0.1.7.2` 格式）
-
-## 下一步行动
-
-1. 先实现步骤1-3（修改配置文件）
-2. 实现步骤5（文件复制到Backup）
-3. 查找并实现步骤4（微信小游戏导出）
-4. 查找并实现步骤6-7（UOSCDN上传和release管理）
-5. 根据"是否修改资源"选项实现条件分支逻辑
-
-
+- `YooAssetSettings.BuildVersion` 与本次资源构建版本一致。
+- `InnerResourceSourceUrl` 与 `MiniGameConfig.CDN` 一致，且都指向本次 `App版本` 目录。
+- CDN 目录至少存在：
+  - `PackageManifest_DefaultPackage.version`
+  - `PackageManifest_DefaultPackage_{资源版本}.hash`
+  - `PackageManifest_DefaultPackage_{资源版本}.bytes`
+  - 本次清单引用到的 bundle 文件
+  - 对应 `*.bin.txt`

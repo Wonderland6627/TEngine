@@ -168,8 +168,11 @@ public class PirateCatGameVersionWindow : EditorWindow
         if (GUILayout.Button("复制到 CDN_Backup", GUILayout.Height(30)))
         {
             string bundleInfo = hasResourceChanged
-                ? $"是（将从 Bundles/WebGL/DefaultPackage/{resourceVersion}/ 复制 bundle + bin.txt）"
-                : "否（只复制 bin.txt）";
+                ? $"是（将从 Bundles/WebGL/DefaultPackage/{resourceVersion}/ 复制 bundle + manifest + bin.txt）"
+                : "否（只复制 bin.txt，要求目标 App 版本目录已存在可用资源）";
+            string codeOnlyWarning = hasResourceChanged
+                ? string.Empty
+                : "\n\n警告：仅代码模式建议保持 App 版本号不变；若切到新 App 版本目录，请先确保该目录已有对应资源文件。";
             
             if (EditorUtility.DisplayDialog("确认复制",
                 $"确定要将文件复制到备份目录吗？\n\n" +
@@ -177,7 +180,8 @@ public class PirateCatGameVersionWindow : EditorWindow
                 $"资源版本号: {resourceVersion}\n" +
                 $"资源修改: {bundleInfo}\n\n" +
                 $"备份目标: CDN_Backup/MiniGame/{appVersion}/\n" +
-                $"该目录内容可直接上传到 CDN",
+                $"该目录内容可直接上传到 CDN" +
+                $"{codeOnlyWarning}",
                 "确定", "取消"))
             {
                 PirateCatEditorTools.CopyToBackupDirectory(appVersion, resourceVersion, hasResourceChanged);
@@ -200,7 +204,8 @@ public class PirateCatGameVersionWindow : EditorWindow
             normal = { textColor = new Color(0.6f, 0.6f, 0.6f) }
         };
         EditorGUILayout.LabelField(
-            $"提示: Bundle 从 Bundles/WebGL/DefaultPackage/{{资源版本号}}/ 复制，bin.txt 从 WXExport/webgl/ 复制\n" +
+            $"提示: Bundle/Manifest 从 Bundles/WebGL/DefaultPackage/{{资源版本号}}/ 复制，bin.txt 从 WXExport/webgl/ 复制\n" +
+            $"仅代码模式建议保持 App 版本号不变，否则目标目录需提前具备资源文件\n" +
             $"备份到 CDN_Backup/MiniGame/{{App版本号}}/ （与 CDN 扁平结构一致，可直接上传）", helpStyle4);
         
         EditorGUILayout.EndVertical();

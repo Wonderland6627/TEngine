@@ -1,25 +1,42 @@
-# CDN 备份说明
+# CDN 备份说明（当前流程）
 
-## 备份目录结构
-CDN 备份目录按照平台和版本进行管理，具体结构如下：
+## 目录结构
+
+当前采用 App 版本目录管理（扁平结构）：
+
 ```plaintext
 CDN_Backup
 └── MiniGame
-    ├── v0.1
-    ├── v0.2
+    ├── v1.1
+    │   ├── PackageManifest_DefaultPackage.version
+    │   ├── PackageManifest_DefaultPackage_v0.x.x.x.hash
+    │   ├── PackageManifest_DefaultPackage_v0.x.x.x.bytes
+    │   ├── *.bundle
+    │   └── *.bin.txt
     └── ...
 ```
 
-### CDN结构
-1. YooAsset Builder打Bundle时，按顺序修改版本号 YooAssetSettings.asset 的BuildVersion（v0.1、v0.2等）
-2. 修改InnerResourceSourceUrl的版本号：
-   https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/【版本号】/
-3. 将InnerResourceSourceUrl复制到小游戏导出配置的CDN地址
-4. 导出微信小游戏工程
-5. 将导出工程中的StreamingAssets文件夹和bin.txt文件根据版本好复制到Backup目录下的对应版本号文件夹中
-6. 将导出工程中的StreamingAssets文件夹和bin.txt文件上传到UOSCDN
-7. 在UOSCDN中创建一个新的release，并将assign设置为修改后的版本号
-8. 在Unity和微信小游戏开发者工具中测试
+## 版本含义
+
+- `App版本号`：决定目录层级（`MiniGame/{App版本}/`）。
+- `资源版本号`：写入 `PackageManifest_DefaultPackage.version` 内容，并用于 hash/bytes 文件名。
+
+## 标准流程
+
+1. 资源有改动时，先更新 `YooAssetSettings.BuildVersion`（资源版本）。
+2. 更新 `InnerResourceSourceUrl` 和 `MiniGameConfig.CDN` 到 `.../MiniGame/{App版本}/`。
+3. 执行 YooAsset 构建，生成 `Bundles/WebGL/DefaultPackage/{资源版本}/`。
+4. 导出微信小游戏工程，生成 `WXExport/webgl/*.bin.txt`。
+5. 复制发布文件到 `CDN_Backup/MiniGame/{App版本}/`：
+   - 资源变更：复制 bundle + manifest + bin.txt。
+   - 仅代码变更：只复制 bin.txt（建议 App 版本保持不变）。
+6. 上传备份目录内容到 UOSCDN 对应路径：`content/MiniGame/{App版本}/`。
+7. 在 Unity 与微信开发者工具验证版本更新与资源加载。
+
+## 关键说明
+
+- 不再按 `StreamingAssets/...` 子目录上传，运行时请求已对齐 CDN 根目录扁平结构。
+- 若“仅代码变更”但切换了 App 版本目录，新目录需提前具备旧资源文件，否则会缺失清单或 bundle。
 
 UOSCDN: https://uos.unity.cn/services/bd2fcdf8-2152-4e5f-b1be-3f6b950c8034/asset/bucket/cde09f24-d39c-4845-a3e3-17344f4f2894
 微信小游戏控制台: https://mp.weixin.qq.com/wxamp/home/guide?lang=zh_CN&token=28368697
