@@ -1,7 +1,11 @@
+using System;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using YooAsset;
+using Process = System.Diagnostics.Process;
+using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 /// <summary>
 /// 打包工具核心逻辑
@@ -18,6 +22,7 @@ public static class PirateCatEditorTools
     
     // 备份目录
     private const string BackupBasePath = "CDN_Backup/MiniGame";
+    private const string VersionRecommendationScriptRelativePath = "Tools/version_recommendation.py";
     
     /// <summary>
     /// 步骤1: 更新资源版本号（更新所有相关配置文件）
@@ -151,6 +156,61 @@ public static class PirateCatEditorTools
             EditorUtility.DisplayDialog("错误", $"复制文件失败：{e.Message}", "确定");
             return false;
         }
+    }
+
+    /// <summary>
+    /// 基于 Windows 下的 git diff 给出版本号更新建议。
+    /// </summary>
+    public static bool TryGetVersionRecommendationWindows(out string recommendation, out string error)
+    {
+        recommendation = string.Empty;
+        error = string.Empty;
+
+#if !UNITY_EDITOR_WIN
+        error = "该功能仅支持 Windows 编辑器。";
+        return false;
+#endif
+
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        string scriptPath = Path.Combine(projectRoot, VersionRecommendationScriptRelativePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+        if (!File.Exists(scriptPath))
+        {
+            error = $"未找到分析脚本：{scriptPath}";
+            return false;
+        }
+
+        string lastError = string.Empty;
+        if (TryRunPythonRecommendationScript(scriptPath, projectRoot, "py", "-3", out recommendation, out error))
+        {
+            return true;
+        }
+        if (!string.IsNullOrEmpty(error))
+        {
+            lastError = $"py -3 失败：{error}";
+        }
+
+        if (TryRunPythonRecommendationScript(scriptPath, projectRoot, "python", string.Empty, out recommendation, out error))
+        {
+            return true;
+        }
+        if (!string.IsNullOrEmpty(error))
+        {
+            lastError = $"python 失败：{error}";
+        }
+
+        if (TryRunPythonRecommendationScript(scriptPath, projectRoot, "python3", string.Empty, out recommendation, out error))
+        {
+            return true;
+        }
+        if (!string.IsNullOrEmpty(error))
+        {
+            lastError = $"python3 失败：{error}";
+        }
+
+        error = string.IsNullOrEmpty(lastError)
+            ? "未检测到可用 Python 解释器。请安装 Python 或 py launcher 后重试。"
+            : $"自动分析失败。\n{lastError}";
+        return false;
     }
     
     /// <summary>
@@ -371,6 +431,111 @@ public static class PirateCatEditorTools
         
         // 如果读取失败，使用默认路径
         return Path.Combine(Application.dataPath, "..", "WXExport");
+    }
+
+    private static bool TryRunPythonRecommendationScript(string scriptPath, string projectRoot, string interpreter,
+        string interpreterPrefixArgs, out string recommendation, out string error)
+    {
+        recommendation = string.Empty;
+        error = string.Empty;
+
+        string arguments = BuildPythonScriptArguments(scriptPath, projectRoot, interpreterPrefixArgs);
+        if (!TryRunProcess(interpreter, arguments, projectRoot, out string output, out string stdError, out int exitCode))
+        {
+            error = stdError;
+            return false;
+        }
+
+        if (exitCode != 0)
+        {
+            error = string.IsNullOrWhiteSpace(stdError)
+                ? $"脚本执行失败，退出码：{exitCode}"
+                : stdError.Trim();
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            error = "脚本执行成功，但未返回建议内容。";
+            return false;
+        }
+
+        recommendation = output.Trim();
+        return true;
+    }
+
+    private static string BuildPythonScriptArguments(string scriptPath, string projectRoot, string interpreterPrefixArgs)
+    {
+        string argsPrefix = string.IsNullOrWhiteSpace(interpreterPrefixArgs)
+            ? string.Empty
+            : $"{interpreterPrefixArgs.Trim()} ";
+
+        return $"{argsPrefix}{QuoteArgument(scriptPath)} --project-root {QuoteArgument(projectRoot)}".Trim();
+    }
+
+    private static bool TryRunProcess(string fileName, string arguments, string workingDirectory, out string output,
+        out string error, out int exitCode)
+    {
+        output = string.Empty;
+        error = string.Empty;
+        exitCode = -1;
+
+        if (string.IsNullOrEmpty(fileName))
+        {
+            error = "可执行文件名为空。";
+            return false;
+        }
+
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = fileName,
+            Arguments = arguments,
+            WorkingDirectory = workingDirectory,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8,
+            CreateNoWindow = true
+        };
+
+        // 强制 Python 按 UTF-8 输出，避免 Windows 本地代码页导致乱码。
+        startInfo.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
+        startInfo.EnvironmentVariables["PYTHONUTF8"] = "1";
+
+        try
+        {
+            using (Process process = Process.Start(startInfo))
+            {
+                if (process == null)
+                {
+                    error = $"启动进程失败：{fileName}";
+                    return false;
+                }
+
+                output = process.StandardOutput.ReadToEnd();
+                string stdError = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                exitCode = process.ExitCode;
+                error = stdError?.Trim() ?? string.Empty;
+                return true;
+            }
+        }
+        catch (Exception e)
+        {
+            error = e.Message;
+            return false;
+        }
+    }
+
+    private static string QuoteArgument(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return "\"\"";
+        }
+
+        return $"\"{value.Replace("\"", "\\\"")}\"";
     }
     
     /// <summary>

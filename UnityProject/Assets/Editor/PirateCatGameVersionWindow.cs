@@ -11,6 +11,8 @@ public class PirateCatGameVersionWindow : EditorWindow
     private string resourceVersion = "v0.1.7.2"; // 资源版本号
     private string appVersion = "1.0.0"; // App版本号
     private bool hasResourceChanged = false;
+    private string versionSuggestion = string.Empty;
+    private MessageType versionSuggestionType = MessageType.Info;
     
     [MenuItem("PirateCat/打包工具")]
     private static void ShowWindow()
@@ -53,6 +55,32 @@ public class PirateCatGameVersionWindow : EditorWindow
         EditorGUILayout.LabelField("微信小游戏打包工具", titleStyle);
         
         EditorGUILayout.Space(20);
+
+        // ========== 智能建议 ==========
+        EditorGUILayout.LabelField("版本建议（Windows）", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        if (GUILayout.Button("分析当前 Git 变更并给出建议", GUILayout.Height(28)))
+        {
+            if (PirateCatEditorTools.TryGetVersionRecommendationWindows(out string suggestion, out string error))
+            {
+                versionSuggestion = suggestion;
+                versionSuggestionType = MessageType.Info;
+            }
+            else
+            {
+                versionSuggestion = error;
+                versionSuggestionType = MessageType.Warning;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(versionSuggestion))
+        {
+            EditorGUILayout.HelpBox(versionSuggestion, versionSuggestionType);
+        }
+
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(15);
         
         // ========== 步骤1: 修改版本号 ==========
         EditorGUILayout.LabelField("步骤1: 修改版本号", EditorStyles.boldLabel);
@@ -96,6 +124,14 @@ public class PirateCatGameVersionWindow : EditorWindow
             }
         }
         EditorGUI.EndDisabledGroup();
+
+        EditorGUILayout.Space(8);
+        EditorGUILayout.HelpBox(
+            "简略规则:\n" +
+            "1) 修改了资源(AssetRaw/Scene/Bundle收集配置) -> 需要更新资源版本号。\n" +
+            "2) 仅修改代码(cs/lua/逻辑) -> 通常不需要更新资源版本号。\n" +
+            "3) App版本号默认保持不变；仅当你要切到新的 CDN 目录并保留旧目录并行时再更新。",
+            MessageType.None);
         
         EditorGUILayout.EndVertical();
         
