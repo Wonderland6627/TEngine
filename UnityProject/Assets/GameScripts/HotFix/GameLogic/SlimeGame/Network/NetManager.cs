@@ -72,8 +72,8 @@ namespace GameLogic.Network
         private static readonly Dictionary<ServerType, string> ServerUrls = new Dictionary<ServerType, string>
         {
             { ServerType.Local, "http://localhost:3000" },
-            { ServerType.Dev, "https://piratecat.top/dev" },
-            { ServerType.Production, "https://piratecat.top" }
+            { ServerType.Dev, "https://dev.slime.piratecat.top" },
+            { ServerType.Production, "https://slime.piratecat.top" }
         };
 
         // API路由字典：接口名 -> HTTP端点路径

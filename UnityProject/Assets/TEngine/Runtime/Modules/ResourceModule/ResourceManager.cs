@@ -128,7 +128,7 @@ namespace TEngine
             YooAssets.Initialize(new ResourceLogger());
             YooAssets.SetOperationSystemMaxTimeSlice(Milliseconds);
 
-#if UNITY_WECHAT_GAME && !UNITY_EDITOR
+#if UNITY_WEIXINMINIGAME && !UNITY_EDITOR
             YooAssets.SetCacheSystemDisableCacheOnWebGL();    
 #endif
 

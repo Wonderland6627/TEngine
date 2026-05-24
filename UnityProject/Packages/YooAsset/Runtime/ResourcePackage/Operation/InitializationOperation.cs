@@ -385,6 +385,12 @@ namespace YooAsset
         }
         internal override void InternalOnStart()
         {
+#if UNITY_WEIXINMINIGAME && !UNITY_EDITOR
+            // 微信小游戏环境下，StreamingAssets 内置版本探测会触发非致命 404 噪音日志，直接跳过。
+            _steps = ESteps.Done;
+            Status = EOperationStatus.Succeed;
+            return;
+#endif
             _steps = ESteps.QueryWebPackageVersion;
         }
         internal override void InternalOnUpdate()

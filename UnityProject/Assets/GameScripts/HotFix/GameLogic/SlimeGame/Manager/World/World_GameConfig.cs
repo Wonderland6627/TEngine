@@ -63,17 +63,27 @@ namespace GameLogic
         
         private async UniTask LoadGameConfig()
         {
+            if (gameConfig != null)
+            {
+                return;
+            }
+
             try
             {
                 gameConfig = await GameModule.Resource.LoadAssetAsync<VisibleGameConfig>(GAME_CONFIG_PATH);
-                if (gameConfig != null)
-                {
-                    Log.Info("[World] LoadGameConfig success");
-                }
-                else
+
+                if (gameConfig == null)
                 {
                     Log.Error("[World] LoadGameConfig failed, config file not found");
+                    return;
                 }
+
+                Log.Info("[World] LoadGameConfig success");
+            }
+            catch (ArgumentException e) when (e.Message.Contains("VisibleGameConfig"))
+            {
+                gameConfig = null;
+                Log.Warning("[World] LoadGameConfig skipped due to duplicated type key. fallback curve will be used.");
             }
             catch (Exception e)
             {
