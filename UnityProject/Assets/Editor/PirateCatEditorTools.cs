@@ -179,38 +179,14 @@ public static class PirateCatEditorTools
             return false;
         }
 
-        string lastError = string.Empty;
-        if (TryRunPythonRecommendationScript(scriptPath, projectRoot, "py", "-3", out recommendation, out error))
+        string pythonExecutable = GetPyenvPythonPath();
+        if (string.IsNullOrEmpty(pythonExecutable))
         {
-            return true;
-        }
-        if (!string.IsNullOrEmpty(error))
-        {
-            lastError = $"py -3 失败：{error}";
+            error = "未找到 pyenv Python。\n请确认已安装 pyenv-win，且 ~/.pyenv/pyenv-win/version 指向有效版本。";
+            return false;
         }
 
-        if (TryRunPythonRecommendationScript(scriptPath, projectRoot, "python", string.Empty, out recommendation, out error))
-        {
-            return true;
-        }
-        if (!string.IsNullOrEmpty(error))
-        {
-            lastError = $"python 失败：{error}";
-        }
-
-        if (TryRunPythonRecommendationScript(scriptPath, projectRoot, "python3", string.Empty, out recommendation, out error))
-        {
-            return true;
-        }
-        if (!string.IsNullOrEmpty(error))
-        {
-            lastError = $"python3 失败：{error}";
-        }
-
-        error = string.IsNullOrEmpty(lastError)
-            ? "未检测到可用 Python 解释器。请安装 Python 或 py launcher 后重试。"
-            : $"自动分析失败。\n{lastError}";
-        return false;
+        return TryRunPythonRecommendationScript(scriptPath, projectRoot, pythonExecutable, out recommendation, out error);
     }
     
     /// <summary>
@@ -433,14 +409,39 @@ public static class PirateCatEditorTools
         return Path.Combine(Application.dataPath, "..", "WXExport");
     }
 
-    private static bool TryRunPythonRecommendationScript(string scriptPath, string projectRoot, string interpreter,
-        string interpreterPrefixArgs, out string recommendation, out string error)
+    /// <summary>
+    /// 本机使用 pyenv-win，Unity 进程 PATH 里没有 python 命令，直接定位真实 python.exe。
+    /// </summary>
+    private static string GetPyenvPythonPath()
+    {
+        string pyenvRoot = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".pyenv", "pyenv-win");
+
+        string versionFile = Path.Combine(pyenvRoot, "version");
+        if (!File.Exists(versionFile))
+        {
+            return string.Empty;
+        }
+
+        string version = File.ReadAllText(versionFile).Trim();
+        if (string.IsNullOrEmpty(version))
+        {
+            return string.Empty;
+        }
+
+        string pythonExe = Path.Combine(pyenvRoot, "versions", version, "python.exe");
+        return File.Exists(pythonExe) ? pythonExe : string.Empty;
+    }
+
+    private static bool TryRunPythonRecommendationScript(string scriptPath, string projectRoot, string pythonExecutable,
+        out string recommendation, out string error)
     {
         recommendation = string.Empty;
         error = string.Empty;
 
-        string arguments = BuildPythonScriptArguments(scriptPath, projectRoot, interpreterPrefixArgs);
-        if (!TryRunProcess(interpreter, arguments, projectRoot, out string output, out string stdError, out int exitCode))
+        string arguments = $"{QuoteArgument(scriptPath)} --project-root {QuoteArgument(projectRoot)}";
+        if (!TryRunProcess(pythonExecutable, arguments, projectRoot, out string output, out string stdError, out int exitCode))
         {
             error = stdError;
             return false;
@@ -462,15 +463,6 @@ public static class PirateCatEditorTools
 
         recommendation = output.Trim();
         return true;
-    }
-
-    private static string BuildPythonScriptArguments(string scriptPath, string projectRoot, string interpreterPrefixArgs)
-    {
-        string argsPrefix = string.IsNullOrWhiteSpace(interpreterPrefixArgs)
-            ? string.Empty
-            : $"{interpreterPrefixArgs.Trim()} ";
-
-        return $"{argsPrefix}{QuoteArgument(scriptPath)} --project-root {QuoteArgument(projectRoot)}".Trim();
     }
 
     private static bool TryRunProcess(string fileName, string arguments, string workingDirectory, out string output,
