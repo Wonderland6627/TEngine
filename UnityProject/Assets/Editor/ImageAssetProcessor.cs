@@ -669,7 +669,14 @@ namespace GameLogic.Editor
         
         private string FindPythonExecutable()
         {
-            // 常见的 Python 路径
+            string pyenvPython = FindPythonFromPyenv();
+            if (!string.IsNullOrEmpty(pyenvPython))
+            {
+                UnityEngine.Debug.Log($"[ImageAssetProcessor] Found Python via pyenv: {pyenvPython}");
+                return pyenvPython;
+            }
+
+            // 常见的 Python 路径（作为回退）
             string[] possiblePaths = new string[]
             {
                 "python",
@@ -690,35 +697,180 @@ namespace GameLogic.Editor
             
             foreach (string path in possiblePaths)
             {
-                try
+                if (!CanRunPython(path))
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo
-                    {
-                        FileName = path,
-                        Arguments = "--version",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = true
-                    };
-                    
-                    using (Process process = Process.Start(startInfo))
-                    {
-                        process.WaitForExit();
-                        if (process.ExitCode == 0)
-                        {
-                            UnityEngine.Debug.Log($"[ImageAssetProcessor] Found Python at: {path}");
-                            return path;
-                        }
-                    }
+                    continue;
                 }
-                catch
-                {
-                    // 继续查找
-                }
+
+                UnityEngine.Debug.Log($"[ImageAssetProcessor] Found Python at: {path}");
+                return path;
             }
             
             return null;
+        }
+
+        private string FindPythonFromPyenv()
+        {
+            string pyenvRoot = GetPyenvRoot();
+            if (string.IsNullOrEmpty(pyenvRoot))
+            {
+                return null;
+            }
+
+            string pyenvBat = Path.Combine(pyenvRoot, "bin", "pyenv.bat");
+            string pyenvWhichPython = TryGetPyenvWhichPython(pyenvBat);
+            if (!string.IsNullOrEmpty(pyenvWhichPython) && CanRunPython(pyenvWhichPython))
+            {
+                return pyenvWhichPython;
+            }
+
+            string[] pyenvCandidates = new string[]
+            {
+                Path.Combine(pyenvRoot, "shims", "python.bat"),
+                Path.Combine(pyenvRoot, "shims", "python.exe"),
+            };
+
+            foreach (string candidate in pyenvCandidates)
+            {
+                if (!CanRunPython(candidate))
+                {
+                    continue;
+                }
+
+                return candidate;
+            }
+
+            return null;
+        }
+
+        private string GetPyenvRoot()
+        {
+            string[] envKeys = { "PYENV_ROOT", "PYENV", "PYENV_HOME" };
+            foreach (string envKey in envKeys)
+            {
+                string root = System.Environment.GetEnvironmentVariable(envKey);
+                if (!string.IsNullOrEmpty(root) && Directory.Exists(root))
+                {
+                    return root;
+                }
+            }
+
+            string userHome = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+            if (string.IsNullOrEmpty(userHome))
+            {
+                return null;
+            }
+
+            string defaultPyenvRoot = Path.Combine(userHome, ".pyenv", "pyenv-win");
+            if (Directory.Exists(defaultPyenvRoot))
+            {
+                return defaultPyenvRoot;
+            }
+
+            return null;
+        }
+
+        private string TryGetPyenvWhichPython(string pyenvBatPath)
+        {
+            if (string.IsNullOrEmpty(pyenvBatPath) || !File.Exists(pyenvBatPath))
+            {
+                return null;
+            }
+
+            try
+            {
+                ProcessStartInfo startInfo = CreateProcessStartInfo(pyenvBatPath, "which python");
+
+                using (Process process = Process.Start(startInfo))
+                {
+                    if (process == null)
+                    {
+                        return null;
+                    }
+
+                    string stdout = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    if (process.ExitCode != 0)
+                    {
+                        return null;
+                    }
+
+                    string[] lines = stdout.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    if (lines.Length == 0)
+                    {
+                        return null;
+                    }
+
+                    string pythonPath = lines[0].Trim().Trim('"');
+                    if (File.Exists(pythonPath))
+                    {
+                        return pythonPath;
+                    }
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        private bool CanRunPython(string commandOrPath)
+        {
+            if (string.IsNullOrEmpty(commandOrPath))
+            {
+                return false;
+            }
+
+            try
+            {
+                ProcessStartInfo startInfo = CreateProcessStartInfo(commandOrPath, "--version");
+
+                using (Process process = Process.Start(startInfo))
+                {
+                    if (process == null)
+                    {
+                        return false;
+                    }
+
+                    process.WaitForExit();
+                    return process.ExitCode == 0;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private ProcessStartInfo CreateProcessStartInfo(string fileNameOrCommand, string arguments)
+        {
+            bool isBatchFile = fileNameOrCommand.EndsWith(".bat", System.StringComparison.OrdinalIgnoreCase)
+                || fileNameOrCommand.EndsWith(".cmd", System.StringComparison.OrdinalIgnoreCase);
+
+            if (!isBatchFile)
+            {
+                return new ProcessStartInfo
+                {
+                    FileName = fileNameOrCommand,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+            }
+
+            return new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c \"\"{fileNameOrCommand}\" {arguments}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
         }
         
         private string GetExtensionFromFormat(ExportFormat format)

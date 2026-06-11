@@ -19,8 +19,9 @@ public sealed partial class Unit : Luban.BeanBase
         Id = _buf.ReadInt();
         Name = _buf.ReadString();
         Desc = _buf.ReadString();
-        UnitRace = (unit.EUnitRace)_buf.ReadInt();
+        UnitType = (unit.EUnitType)_buf.ReadInt();
         Quality = (EQuality)_buf.ReadInt();
+        MoveDuration = _buf.ReadFloat();
         ImgPath = _buf.ReadString();
     }
 
@@ -44,11 +45,15 @@ public sealed partial class Unit : Luban.BeanBase
     /// <summary>
     /// 单位种族
     /// </summary>
-    public readonly unit.EUnitRace UnitRace;
+    public readonly unit.EUnitType UnitType;
     /// <summary>
     /// 稀有度
     /// </summary>
     public readonly EQuality Quality;
+    /// <summary>
+    /// 移动速率
+    /// </summary>
+    public readonly float MoveDuration;
     /// <summary>
     /// 图片路径
     /// </summary>
@@ -67,8 +72,9 @@ public sealed partial class Unit : Luban.BeanBase
         + "id:" + Id + ","
         + "name:" + Name + ","
         + "desc:" + Desc + ","
-        + "unitRace:" + UnitRace + ","
+        + "unitType:" + UnitType + ","
         + "quality:" + Quality + ","
+        + "moveDuration:" + MoveDuration + ","
         + "imgPath:" + ImgPath + ","
         + "}";
     }

@@ -14,10 +14,10 @@ namespace GameLogic
         public static Color GetFactionColor(UnitType type) => type switch
         {
             UnitType.Player  => new Color32(0, 120, 255, 255),
-            UnitType.Enemy_1 => new Color32(220, 50, 50, 255),
+            UnitType.Enemy_1 => new Color32(255, 165, 0, 255),
             UnitType.Enemy_2 => new Color32(50, 200, 80, 255),
-            UnitType.Enemy_3 => new Color32(150, 60, 220, 255),
-            UnitType.Enemy_4 => new Color32(240, 150, 30, 255),
+            UnitType.Enemy_3 => new Color32(255, 255, 0, 255),
+            UnitType.Enemy_4 => new Color32(255, 105, 180, 255),
             _ => Color.white,
         };
 

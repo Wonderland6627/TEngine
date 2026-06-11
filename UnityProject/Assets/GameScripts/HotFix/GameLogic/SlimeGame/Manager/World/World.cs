@@ -283,20 +283,21 @@ namespace GameLogic
 
         public async void CreateUnit(BaseCastle spawnCastle, UnitType unitType, BaseCastle targetCastle, Transform container)
         {
-            var unitConfig = GetUnitConfig(unitType);
-            if (unitConfig == null)
-            {
-                return;
-            }
             var mainWindow = await GameModule.UI.GetUIAsyncAwait<UIGameWindow>();
             if (mainWindow == null)
             {
                 return;
             }
-            var unit = await mainWindow.CreateWidgetByPathAsync<BaseUnit>(container, unitConfig.unitPrefabPath);
+            var unit = await mainWindow.CreateWidgetByPathAsync<BaseUnit>(container, GetUnitPrefabPath());
+            if (unit == null)
+            {
+                return;
+            }
+
             unit.gameObject.name = $"{unitType}_{unit.gameObject.GetInstanceID()}";
             unit.unitType = unitType;
-            unit.moveDuration = unitConfig.moveDuration;
+            unit.moveDuration = GetUnitMoveDuration(unitType);
+            unit.SetUnitImagePath(GetUnitImagePath(unitType));
             unit.transform.position = spawnCastle.transform.position;
             unit.transform.localScale = Vector3.one;
             unit.SetTarget(targetCastle);

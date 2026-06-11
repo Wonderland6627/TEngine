@@ -106,10 +106,10 @@ public partial class BaseCastle : BaseObject
 
     private void UpdateCastleImage(bool animate = false)
     {
-        m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
+        m_txtCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
         if (GameModule.Debugger.ActiveWindow)
         {
-            m_textCountTxt.text = $"[{ID}] {Mathf.Abs(occupiedUnitCount)} {GetUnitTypeFlag()} {currentSpawnSpeedCoe:F2}";
+            m_txtCountTxt.text = $"[{ID}] {Mathf.Abs(occupiedUnitCount)} {GetUnitTypeFlag()} {currentSpawnSpeedCoe:F2}";
         }
 
         m_imgFreeImg.gameObject.SetActive(false);
@@ -357,13 +357,14 @@ partial class BaseCastle
     #region 脚本工具生成的代码
     private Image m_imgFactionImg;
     private Image m_imgFreeImg;
-    private Text m_textCountTxt;
+    private Text m_txtCountTxt;
     private RectTransform m_rectDragArrow;
+
     protected override void ScriptGenerator()
     {
         m_imgFactionImg = FindChildComponent<Image>("m_imgFactionImg");
         m_imgFreeImg = FindChildComponent<Image>("m_imgFreeImg");
-        m_textCountTxt = FindChildComponent<Text>("m_textCountTxt");
+        m_txtCountTxt = FindChildComponent<Text>("m_txtCountTxt");
         m_rectDragArrow = FindChildComponent<RectTransform>("m_rectDragArrow");
     }
     #endregion

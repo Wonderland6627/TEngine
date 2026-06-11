@@ -13,11 +13,12 @@ namespace GameLogic
     {
         // ========== 列表型配置（使用 SlimeListConfigReader 获得通用查询能力） ==========
         public SlimeListConfigReader<LevelConfig> levelReader { get; private set; }
-        public SlimeListConfigReader<UnitConfig> unitReader { get; private set; }
         
         public VisibleGameConfig gameConfig { get; private set; }
 
         private const string GAME_CONFIG_PATH = "Assets/AssetRaw/Configs/VisibleGameConfig.asset";
+        private const string UNIT_PREFAB_PATH = "Assets/AssetRaw/Prefabs/UI/Units/Unit_Slime.prefab";
+        private const float DEFAULT_UNIT_MOVE_DURATION = 7.5f;
 
         // ========== Luban 全局配置快捷访问 ==========
         public TbGlobalConfig GlobalConfig => ConfigSystem.Instance.Tables.TbGlobalConfig;
@@ -26,9 +27,6 @@ namespace GameLogic
         {
             levelReader = new SlimeListConfigReader<LevelConfig>();
             await levelReader.LoadLocalConfig("levels");
-
-            unitReader = new SlimeListConfigReader<UnitConfig>();
-            await unitReader.LoadLocalConfig("units");
             
             await LoadGameConfig();
             
@@ -141,7 +139,91 @@ namespace GameLogic
 
         // ========== Unit 查询 ==========
 
-        public UnitConfig GetUnitConfig(UnitType unitType) => unitReader.Find(u => u.unitType == (int)unitType);
+        public string GetUnitPrefabPath() => UNIT_PREFAB_PATH;
+
+        public float GetUnitMoveDuration(UnitType unitType)
+        {
+            var unit = GetUnitTableConfig(unitType);
+            if (unit == null)
+            {
+                return DEFAULT_UNIT_MOVE_DURATION;
+            }
+
+            if (unit.MoveDuration > 0f)
+            {
+                return unit.MoveDuration;
+            }
+
+            Log.Warning($"[World] Invalid move duration in TbUnit, id: {unit.Id}, value: {unit.MoveDuration}");
+            return DEFAULT_UNIT_MOVE_DURATION;
+        }
+
+        public string GetUnitImagePath(UnitType unitType)
+        {
+            var unit = GetUnitTableConfig(unitType);
+            if (unit == null)
+            {
+                return string.Empty;
+            }
+
+            if (string.IsNullOrEmpty(unit.ImgPath))
+            {
+                Log.Warning($"[World] TbUnit img path empty, id: {unit.Id}");
+                return string.Empty;
+            }
+
+            return unit.ImgPath;
+        }
+
+        private GameConfig.Unit GetUnitTableConfig(UnitType unitType)
+        {
+            if (!TryGetConfigUnitType(unitType, out var targetType))
+            {
+                Log.Warning($"[World] Unsupported unitType when querying unit config: {unitType}");
+                return null;
+            }
+
+            var tbUnit = ConfigSystem.Instance.Tables.TbUnit;
+            if (tbUnit == null || tbUnit.DataList == null || tbUnit.DataList.Count == 0)
+            {
+                Log.Warning("[World] TbUnit is empty when querying unit config");
+                return null;
+            }
+
+            var unit = tbUnit.DataList.FirstOrDefault(item => item.UnitType == targetType);
+            if (unit != null)
+            {
+                return unit;
+            }
+
+            Log.Warning($"[World] TbUnit record missing for type: {targetType}");
+            return null;
+        }
+
+        private bool TryGetConfigUnitType(UnitType unitType, out GameConfig.unit.EUnitType configUnitType)
+        {
+            switch (unitType)
+            {
+                case UnitType.Player:
+                    configUnitType = GameConfig.unit.EUnitType.BLUE;
+                    return true;
+                case UnitType.Enemy_1:
+                    configUnitType = GameConfig.unit.EUnitType.RED;
+                    return true;
+                case UnitType.Enemy_2:
+                    configUnitType = GameConfig.unit.EUnitType.GREEN;
+                    return true;
+                case UnitType.Enemy_3:
+                    configUnitType = GameConfig.unit.EUnitType.YELLOW;
+                    return true;
+                case UnitType.Enemy_4:
+                    configUnitType = GameConfig.unit.EUnitType.PINK;
+                    return true;
+                default:
+                    configUnitType = default;
+                    return false;
+            }
+        }
 
         // ========== 阵营参数查询（优先factions字典，fallback到旧字段） ==========
 

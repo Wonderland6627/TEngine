@@ -12,10 +12,10 @@ def install_package(package):
     try:
         print(f"\n正在安装 {package}...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-        print(f"✓ {package} 安装成功")
+        print(f"[OK] {package} 安装成功")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"✗ {package} 安装失败: {e}")
+        print(f"[FAIL] {package} 安装失败: {e}")
         return False
 
 def check_package(package_name, import_name=None):
@@ -48,9 +48,9 @@ def main():
     
     for package_name, import_name in packages:
         if check_package(package_name, import_name):
-            print(f"✓ {package_name} 已安装")
+            print(f"[OK] {package_name} 已安装")
         else:
-            print(f"✗ {package_name} 未安装")
+            print(f"[MISS] {package_name} 未安装")
             missing_packages.append(package_name)
     
     if not missing_packages:
@@ -83,15 +83,15 @@ def main():
     all_ok = True
     for package_name, import_name in packages:
         if check_package(package_name, import_name):
-            print(f"✓ {package_name} 可用")
+            print(f"[OK] {package_name} 可用")
         else:
-            print(f"✗ {package_name} 不可用")
+            print(f"[FAIL] {package_name} 不可用")
             all_ok = False
     
     if all_ok:
-        print("\n✓ 所有依赖验证通过！")
+        print("\n[OK] 所有依赖验证通过！")
     else:
-        print("\n✗ 部分依赖验证失败，请检查安装")
+        print("\n[FAIL] 部分依赖验证失败，请检查安装")
 
 if __name__ == '__main__':
     main()

@@ -122,17 +122,6 @@ namespace GameLogic
 
     //===================================================================================
 
-    public class UnitConfig : SlimeConfig
-    {
-        public int unitType { get; set; }
-        public string unitImageName { get; set; }
-        public string unitPrefabPath { get; set; }
-        public float moveDuration { get; set; }
-        public float moveSpeed { get; set; }
-    }
-
-    //===================================================================================
-
     public class RewardConfig : SlimeConfig
     {
         public int rewardId { get; set; }                    // 锦囊ID

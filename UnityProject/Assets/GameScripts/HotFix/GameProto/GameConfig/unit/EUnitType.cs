@@ -11,7 +11,7 @@
 
 namespace GameConfig.unit
 { 
-    public enum EUnitRace
+    public enum EUnitType
     {
         /// <summary>
         /// 蓝晶族
@@ -21,6 +21,18 @@ namespace GameConfig.unit
         /// 赤焰族
         /// </summary>
         RED = 2,
+        /// <summary>
+        /// 翠叶族
+        /// </summary>
+        GREEN = 3,
+        /// <summary>
+        /// 金雷族
+        /// </summary>
+        YELLOW = 4,
+        /// <summary>
+        /// 樱粉族
+        /// </summary>
+        PINK = 5,
         /// <summary>
         /// 黯渊族
         /// </summary>

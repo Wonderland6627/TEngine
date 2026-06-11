@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using GameLogic;
 using TEngine;
 using UnityEngine;
@@ -94,6 +95,27 @@ public partial class BaseUnit : BaseObject
     {
         World.Instance.Vibrate();
         Destroy();
+    }
+
+    public void SetUnitImagePath(string imagePath)
+    {
+        if (string.IsNullOrEmpty(imagePath))
+        {
+            return;
+        }
+
+        LoadUnitImageAsync(imagePath).Forget();
+    }
+
+    private async UniTaskVoid LoadUnitImageAsync(string imagePath)
+    {
+        var sprite = await GameModule.Resource.LoadAssetAsync<Sprite>(imagePath);
+        if (sprite == null || m_imgUnit == null)
+        {
+            return;
+        }
+
+        m_imgUnit.sprite = sprite;
     }
 }
 
