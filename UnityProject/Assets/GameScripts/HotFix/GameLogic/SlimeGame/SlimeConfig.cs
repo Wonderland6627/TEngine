@@ -103,10 +103,20 @@ namespace GameLogic
 
         public class Config
         {
+            // 旧字段，向后兼容关卡1-2
             public float playerSpawnInterval { get; set; }
             public float playerAttackInterval { get; set; }
             public float enemy_1_SpawnInterval { get; set; }
             public float enemy_1_AttackInterval { get; set; }
+
+            // 新增：按阵营配置（key = UnitType int值），优先使用
+            public Dictionary<int, FactionConfig> factions { get; set; }
+        }
+
+        public class FactionConfig
+        {
+            public float spawnInterval { get; set; } = 1f;
+            public float attackInterval { get; set; } = 0.275f;
         }
     }
 

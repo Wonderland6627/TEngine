@@ -243,11 +243,11 @@ public class LevelEditorWindow : EditorWindow
             Vector2 screenPos = WorldToScreenFrame(castle.position.x, castle.position.y,
                 worldMinX, worldMaxX, worldMinY, worldMaxY, screenFrameRect);
             
-            // 确定颜色
-            Color castleColor = Color.white;
+            // 确定颜色（按阵营）
+            Color castleColor;
             if (castle.occupiedOnStart)
             {
-                castleColor = castle.occupiedSlimeType == 0 ? Color.blue : Color.red;
+                castleColor = GetEditorFactionColor(castle.occupiedSlimeType);
             }
             else
             {
@@ -568,7 +568,7 @@ public class LevelEditorWindow : EditorWindow
         // 游戏配置
         if (currentLevel.config != null)
         {
-            EditorGUILayout.LabelField("游戏配置", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("游戏配置（旧字段/兼容）", EditorStyles.boldLabel);
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             
             EditorGUI.BeginChangeCheck();
@@ -581,6 +581,105 @@ public class LevelEditorWindow : EditorWindow
             if (EditorGUI.EndChangeCheck())
             {
                 Repaint();
+            }
+            
+            EditorGUILayout.EndVertical();
+            
+            EditorGUILayout.Space(5);
+            
+            // 多阵营配置（factions 字典）
+            EditorGUILayout.LabelField("多阵营配置（优先使用）", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            
+            if (currentLevel.config.factions == null)
+            {
+                EditorGUILayout.HelpBox("当前关卡未配置 factions 字典，将 fallback 到旧字段", MessageType.Info);
+                if (GUILayout.Button("初始化 factions 配置"))
+                {
+                    currentLevel.config.factions = new Dictionary<int, LevelConfig.FactionConfig>();
+                    // 自动检测当前关卡使用的阵营并初始化
+                    var usedFactions = new HashSet<int>();
+                    if (currentLevel.castles != null)
+                    {
+                        foreach (var c in currentLevel.castles)
+                        {
+                            if (c.occupiedOnStart)
+                                usedFactions.Add(c.occupiedSlimeType);
+                        }
+                    }
+                    if (usedFactions.Count == 0) { usedFactions.Add(0); usedFactions.Add(1); }
+                    foreach (int fid in usedFactions)
+                    {
+                        currentLevel.config.factions[fid] = new LevelConfig.FactionConfig
+                        {
+                            spawnInterval = 1f,
+                            attackInterval = 0.275f
+                        };
+                    }
+                    Repaint();
+                }
+            }
+            else
+            {
+                EditorGUI.BeginChangeCheck();
+                
+                var factionKeys = new List<int>(currentLevel.config.factions.Keys);
+                factionKeys.Sort();
+                
+                foreach (int factionId in factionKeys)
+                {
+                    var fc = currentLevel.config.factions[factionId];
+                    string factionName = GetFactionDisplayName(factionId);
+                    Color factionColor = GetEditorFactionColor(factionId);
+                    
+                    EditorGUILayout.BeginHorizontal();
+                    
+                    // 阵营颜色标识
+                    var colorRect = GUILayoutUtility.GetRect(12, 12, GUILayout.Width(12), GUILayout.Height(12));
+                    colorRect.y += 3;
+                    EditorGUI.DrawRect(colorRect, factionColor);
+                    EditorGUILayout.LabelField(factionName, EditorStyles.boldLabel, GUILayout.Width(80));
+                    
+                    if (GUILayout.Button("×", GUILayout.Width(20), GUILayout.Height(16)))
+                    {
+                        currentLevel.config.factions.Remove(factionId);
+                        Repaint();
+                        GUIUtility.ExitGUI();
+                    }
+                    EditorGUILayout.EndHorizontal();
+                    
+                    EditorGUI.indentLevel++;
+                    fc.spawnInterval = EditorGUILayout.FloatField("生成间隔", fc.spawnInterval);
+                    fc.attackInterval = EditorGUILayout.FloatField("攻击间隔", fc.attackInterval);
+                    EditorGUI.indentLevel--;
+                    
+                    EditorGUILayout.Space(2);
+                }
+                
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Repaint();
+                }
+                
+                // 添加阵营按钮
+                EditorGUILayout.Space(3);
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("添加阵营:", GUILayout.Width(60));
+                for (int i = 0; i <= 4; i++)
+                {
+                    if (currentLevel.config.factions.ContainsKey(i)) continue;
+                    string btnName = GetFactionDisplayName(i);
+                    if (GUILayout.Button($"+{btnName}", GUILayout.Width(65)))
+                    {
+                        currentLevel.config.factions[i] = new LevelConfig.FactionConfig
+                        {
+                            spawnInterval = 1f,
+                            attackInterval = 0.275f
+                        };
+                        Repaint();
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
             }
             
             EditorGUILayout.EndVertical();
@@ -822,6 +921,32 @@ public class LevelEditorWindow : EditorWindow
         return Vector2.Distance(point, projection);
     }
     
+    /// <summary>
+    /// 获取阵营在编辑器中的显示颜色
+    /// </summary>
+    private static Color GetEditorFactionColor(int slimeType) => slimeType switch
+    {
+        0 => new Color(0f, 0.47f, 1f),          // 蓝 Player
+        1 => new Color(0.86f, 0.2f, 0.2f),      // 红 Enemy_1
+        2 => new Color(0.2f, 0.78f, 0.31f),     // 绿 Enemy_2
+        3 => new Color(0.59f, 0.24f, 0.86f),    // 紫 Enemy_3
+        4 => new Color(0.94f, 0.59f, 0.12f),    // 橙 Enemy_4
+        _ => Color.white,
+    };
+
+    /// <summary>
+    /// 获取阵营显示名称
+    /// </summary>
+    private static string GetFactionDisplayName(int factionId) => factionId switch
+    {
+        0 => "玩家",
+        1 => "敌人1(红)",
+        2 => "敌人2(绿)",
+        3 => "敌人3(紫)",
+        4 => "敌人4(橙)",
+        _ => $"阵营{factionId}",
+    };
+
     /// <summary>
     /// 保存JSON文件
     /// </summary>

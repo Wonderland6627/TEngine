@@ -19,11 +19,48 @@ namespace GameLogic
 
         private int aiPlayerExeTimer = -1;
         
-        // 游戏状态变量
-        public float playerSlimeMoveSpeedCoe = 1f; // 玩家史莱姆移动速度系数
-        public float enemySlimeMoveSpeedCoe = 1f; // 敌人史莱姆移动速度系数
-        public float playerSlimeSpawnSpeedCoe = 1f; // 玩家史莱姆生成速度系数
-        public float enemySlimeSpawnSpeedCoe = 1f; // 敌人史莱姆生成速度系数
+        // 游戏状态变量（保留旧字段用于兼容外部引用）
+        public float playerSlimeMoveSpeedCoe
+        {
+            get => GetFactionMoveSpeedCoe(UnitType.Player);
+            set => SetFactionMoveSpeedCoe(UnitType.Player, value);
+        }
+        public float enemySlimeMoveSpeedCoe
+        {
+            get => GetFactionMoveSpeedCoe(UnitType.Enemy_1);
+            set => SetFactionMoveSpeedCoe(UnitType.Enemy_1, value);
+        }
+        public float playerSlimeSpawnSpeedCoe
+        {
+            get => GetFactionSpawnSpeedCoe(UnitType.Player);
+            set => SetFactionSpawnSpeedCoe(UnitType.Player, value);
+        }
+        public float enemySlimeSpawnSpeedCoe
+        {
+            get => GetFactionSpawnSpeedCoe(UnitType.Enemy_1);
+            set => SetFactionSpawnSpeedCoe(UnitType.Enemy_1, value);
+        }
+
+        private Dictionary<UnitType, float> _moveSpeedCoe = new();
+        private Dictionary<UnitType, float> _spawnSpeedCoe = new();
+
+        public float GetFactionMoveSpeedCoe(UnitType type)
+            => _moveSpeedCoe.TryGetValue(type, out var v) ? v : 1f;
+
+        public void SetFactionMoveSpeedCoe(UnitType type, float value)
+            => _moveSpeedCoe[type] = value;
+
+        public float GetFactionSpawnSpeedCoe(UnitType type)
+            => _spawnSpeedCoe.TryGetValue(type, out var v) ? v : 1f;
+
+        public void SetFactionSpawnSpeedCoe(UnitType type, float value)
+            => _spawnSpeedCoe[type] = value;
+
+        private void ResetFactionSpeedCoe()
+        {
+            _moveSpeedCoe.Clear();
+            _spawnSpeedCoe.Clear();
+        }
 
         public async UniTaskVoid AsyncInit()
         {
@@ -99,7 +136,7 @@ namespace GameLogic
             }
             roads.Clear();
 
-            // 锦囊系统已移除 - occupiedCastleTimes 和 ResetRewardAction
+            ResetFactionSpeedCoe();
             ClearAdsState();
             
             GameModule.Timer.RemoveTimer(aiPlayerExeTimer);
@@ -130,16 +167,35 @@ namespace GameLogic
             if (!isPlaying) return;
             if (castles.Count == 0) return;
 
-            // 检查：所有的castle的被占领类型是否都相同
-            List<UnitType> unitTypes = castles.Select(castle => castle.occupiedUnitType).Distinct().ToList();
-            if (unitTypes.Count > 1) return;
+            // 玩家没有任何已占领的城堡 -> 立即判负
+            bool playerHasCastle = castles.Any(c => c.isOccupied && c.occupiedUnitType == UnitType.Player);
+            if (!playerHasCastle)
+            {
+                // 找到拥有最多城堡的AI阵营作为赢家
+                var aliveFactions = castles
+                    .Where(c => c.isOccupied)
+                    .Select(c => c.occupiedUnitType)
+                    .Distinct()
+                    .ToList();
+                UnitType winner = aliveFactions.Count > 0 ? aliveFactions[0] : UnitType.Enemy_1;
+                PauseGame();
+                GameEvent.Send(SlimeEvent.OnGameOver, new GameOverParam() { winUnitType = winner });
+                return;
+            }
 
-            // 所有城堡都必须是被占领状态
-            bool allOccupied = castles.All(castle => castle.isOccupiedOnStart || castle.occupiedUnitCount > 0);
-            if (!allOccupied) return;
+            // 统计存活阵营数（拥有至少一个已占领城堡的阵营）
+            var survivingFactions = castles
+                .Where(c => c.isOccupied)
+                .Select(c => c.occupiedUnitType)
+                .Distinct()
+                .ToList();
 
-            UnitType winUnitType = unitTypes[0];
+            // 还有未占领的城堡 且 存活阵营 > 1 -> 继续
+            bool hasFreeCastle = castles.Any(c => !c.isOccupied);
+            if (survivingFactions.Count > 1 || hasFreeCastle) return;
 
+            // 只剩1个阵营，且没有空城堡
+            UnitType winUnitType = survivingFactions[0];
             PauseGame();
             GameEvent.Send(SlimeEvent.OnGameOver, new GameOverParam() { winUnitType = winUnitType });
         }
@@ -307,62 +363,60 @@ namespace GameLogic
     {
         void ExecuteAI(object[] args)
         {
-            void LogIgnoreReason(string reason)
-            {
-                Log.Info($"[World] ExecuteAI attack ignore reason: {reason}");
-            }
-            if (playingLevelId == 1 && !GameData.GuideFinish) return; //第一关且新手引导未完成 不执行AI
+            if (playingLevelId == 1 && !GameData.GuideFinish) return;
             if (castles == null || castles.Count == 0) return;
 
-            List<BaseCastle> aiCastles = castles.FindAll(castle => castle.occupiedUnitType != UnitType.Player);
-            int aiCounts = aiCastles.Count;
-            int playerCounts = castles.Count - aiCounts;
-            bool isAIMore = aiCounts > playerCounts;
-            for (int i = 0; i < aiCastles.Count; i++)
-            {
-                if (isAIMore)
-                {
-                    bool ignoreMove = GetRandomFlag(25f); //25%的概率忽略本次攻占
-                    if (ignoreMove)
-                    {
-                        LogIgnoreReason("25% chance to ignore this occupation");
-                        continue;
-                    }
-                }
-                BaseCastle aiCastle = aiCastles[i];
-                if (aiCastle == null)
-                {
-                    continue;
-                }
-                int attackStartCount = GetRandomValue(5, 15);
-                if (aiCastle.occupiedUnitCount < attackStartCount)
-                {
-                    continue;
-                }
+            // 收集当前存活的非玩家阵营
+            var aiFactions = castles
+                .Where(c => c.isOccupied && !FactionUtil.IsPlayer(c.occupiedUnitType))
+                .Select(c => c.occupiedUnitType)
+                .Distinct()
+                .ToList();
 
-                //蚂蚁首先找最近的蜜蜂点位 找到路径 攻占路径上的点位
-                List<BaseCastle> playerCastles = castles
-                    .FindAll(castle => castle != aiCastle && castle.occupiedUnitType == UnitType.Player || !castle.isOccupied)
-                    .OrderBy(castle => Vector2.Distance(castle.transform.position, aiCastle.transform.position))
+            foreach (var faction in aiFactions)
+            {
+                ExecuteAIForFaction(faction);
+            }
+        }
+
+        private void ExecuteAIForFaction(UnitType faction)
+        {
+            var myCastles = castles.FindAll(c => c.isOccupied && c.occupiedUnitType == faction);
+            int myCastleCount = myCastles.Count;
+            int totalOccupied = castles.Count(c => c.isOccupied);
+            bool isAdvantage = myCastleCount * 2 > totalOccupied;
+
+            foreach (var aiCastle in myCastles)
+            {
+                if (aiCastle == null) continue;
+
+                if (isAdvantage && GetRandomFlag(25f)) continue;
+
+                int attackStartCount = GetRandomValue(5, 15);
+                if (aiCastle.occupiedUnitCount < attackStartCount) continue;
+
+                // 寻找目标：非己方的城堡（包括其他AI和空城堡），按距离排序
+                var targets = castles
+                    .Where(c => c != aiCastle && (c.occupiedUnitType != faction || !c.isOccupied))
+                    .OrderBy(c => Vector2.Distance(c.transform.position, aiCastle.transform.position))
                     .ToList();
-                foreach (var playerCastle in playerCastles)
+
+                foreach (var target in targets)
                 {
-                    if (!IsOnSameRoad(aiCastle, playerCastle))
+                    if (!IsOnSameRoad(aiCastle, target))
                     {
-                        //找交叉点
-                        var allCrossCastles = castles.FindAll(castle =>
-                            IsOnSameRoad(aiCastle, castle) &&
-                            IsOnSameRoad(playerCastle, castle));
-                        var nearestCrossCastle = allCrossCastles
-                           .OrderBy(castle => Vector2.Distance(castle.transform.position, aiCastle.transform.position))
-                           .FirstOrDefault();
-                        if (nearestCrossCastle != null)
+                        var crossCastles = castles.FindAll(c =>
+                            IsOnSameRoad(aiCastle, c) && IsOnSameRoad(target, c));
+                        var nearest = crossCastles
+                            .OrderBy(c => Vector2.Distance(c.transform.position, aiCastle.transform.position))
+                            .FirstOrDefault();
+                        if (nearest != null)
                         {
-                            aiCastle.MoveTo(nearestCrossCastle);
+                            aiCastle.MoveTo(nearest);
                         }
                         continue;
                     }
-                    aiCastle.MoveTo(playerCastle);
+                    aiCastle.MoveTo(target);
                 }
             }
         }

@@ -8,8 +8,11 @@ using UnityEngine.UI;
 
 public enum UnitType: int
 {
-    Player = 0,
-    Enemy_1 = 1,
+    Player   = 0,
+    Enemy_1  = 1,
+    Enemy_2  = 2,
+    Enemy_3  = 3,
+    Enemy_4  = 4,
 }
 
 public partial class BaseUnit : BaseObject
@@ -50,9 +53,7 @@ public partial class BaseUnit : BaseObject
     {
         var uiRootRect = GameModule.UI.UIRootRect;
         float screenWidth = uiRootRect.rect.width;
-        float speedCoe = unitType == UnitType.Player
-            ? World.Instance.playerSlimeMoveSpeedCoe
-           : World.Instance.enemySlimeMoveSpeedCoe;
+        float speedCoe = World.Instance.GetFactionMoveSpeedCoe(unitType);
         float distancePerFrame = screenWidth / moveDuration * Time.deltaTime * speedCoe;
         Vector2 currentPos = transform.localPosition;
         currentPos += moveDir * distancePerFrame;

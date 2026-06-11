@@ -6,11 +6,8 @@
             "castleType": 0,
             "occupiedOnStart": true,
             "occupiedSlimeType": 0,
-            "occupiedUnitCount": 30,
-            "position": {
-                "x": 0,
-                "y": -550
-            }
+            "occupiedUnitCount": 28,
+            "position": { "x": 0, "y": -550 }
         },
         {
             "id": 1,
@@ -18,10 +15,7 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": -300,
-                "y": -350
-            }
+            "position": { "x": -200, "y": -350 }
         },
         {
             "id": 2,
@@ -29,10 +23,7 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": 300,
-                "y": -350
-            }
+            "position": { "x": 200, "y": -350 }
         },
         {
             "id": 3,
@@ -40,10 +31,7 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": -200,
-                "y": -200
-            }
+            "position": { "x": -350, "y": -150 }
         },
         {
             "id": 4,
@@ -51,10 +39,7 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": 0,
-                "y": -200
-            }
+            "position": { "x": 0, "y": -150 }
         },
         {
             "id": 5,
@@ -62,21 +47,15 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": 200,
-                "y": -200
-            }
+            "position": { "x": 350, "y": -150 }
         },
         {
             "id": 6,
             "castleType": 0,
-            "occupiedOnStart": false,
-            "occupiedSlimeType": 0,
-            "occupiedUnitCount": 0,
-            "position": {
-                "x": -250,
-                "y": 0
-            }
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 14,
+            "position": { "x": -350, "y": 50 }
         },
         {
             "id": 7,
@@ -84,10 +63,7 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": -100,
-                "y": 0
-            }
+            "position": { "x": -100, "y": 50 }
         },
         {
             "id": 8,
@@ -95,32 +71,23 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": 100,
-                "y": 0
-            }
+            "position": { "x": 100, "y": 50 }
         },
         {
             "id": 9,
             "castleType": 0,
-            "occupiedOnStart": false,
-            "occupiedSlimeType": 0,
-            "occupiedUnitCount": 0,
-            "position": {
-                "x": 250,
-                "y": 0
-            }
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 2,
+            "occupiedUnitCount": 14,
+            "position": { "x": 350, "y": 50 }
         },
         {
             "id": 10,
             "castleType": 0,
-            "occupiedOnStart": false,
-            "occupiedSlimeType": 0,
-            "occupiedUnitCount": 0,
-            "position": {
-                "x": -200,
-                "y": 200
-            }
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 3,
+            "occupiedUnitCount": 14,
+            "position": { "x": -250, "y": 300 }
         },
         {
             "id": 11,
@@ -128,154 +95,62 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
-            "position": {
-                "x": 0,
-                "y": 200
-            }
+            "position": { "x": 0, "y": 300 }
         },
         {
             "id": 12,
             "castleType": 0,
-            "occupiedOnStart": false,
-            "occupiedSlimeType": 0,
-            "occupiedUnitCount": 0,
-            "position": {
-                "x": 200,
-                "y": 200
-            }
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 4,
+            "occupiedUnitCount": 14,
+            "position": { "x": 250, "y": 300 }
         },
         {
             "id": 13,
             "castleType": 0,
-            "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
-            "occupiedUnitCount": 22,
-            "position": {
-                "x": -300,
-                "y": 400
-            }
-        },
-        {
-            "id": 14,
-            "castleType": 0,
-            "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
-            "occupiedUnitCount": 22,
-            "position": {
-                "x": 300,
-                "y": 400
-            }
-        },
-        {
-            "id": 15,
-            "castleType": 0,
-            "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
-            "occupiedUnitCount": 25,
-            "position": {
-                "x": 0,
-                "y": 550
-            }
+            "occupiedOnStart": false,
+            "occupiedSlimeType": 0,
+            "occupiedUnitCount": 0,
+            "position": { "x": 0, "y": 500 }
         }
     ],
     "roads": [
-        {
-            "startCastleId": 0,
-            "endCastleId": 1
-        },
-        {
-            "startCastleId": 0,
-            "endCastleId": 2
-        },
-        {
-            "startCastleId": 1,
-            "endCastleId": 3
-        },
-        {
-            "startCastleId": 2,
-            "endCastleId": 5
-        },
-        {
-            "startCastleId": 3,
-            "endCastleId": 4
-        },
-        {
-            "startCastleId": 4,
-            "endCastleId": 5
-        },
-        {
-            "startCastleId": 3,
-            "endCastleId": 6
-        },
-        {
-            "startCastleId": 4,
-            "endCastleId": 7
-        },
-        {
-            "startCastleId": 5,
-            "endCastleId": 9
-        },
-        {
-            "startCastleId": 6,
-            "endCastleId": 7
-        },
-        {
-            "startCastleId": 7,
-            "endCastleId": 8
-        },
-        {
-            "startCastleId": 8,
-            "endCastleId": 9
-        },
-        {
-            "startCastleId": 6,
-            "endCastleId": 10
-        },
-        {
-            "startCastleId": 7,
-            "endCastleId": 11
-        },
-        {
-            "startCastleId": 8,
-            "endCastleId": 12
-        },
-        {
-            "startCastleId": 9,
-            "endCastleId": 12
-        },
-        {
-            "startCastleId": 10,
-            "endCastleId": 11
-        },
-        {
-            "startCastleId": 11,
-            "endCastleId": 12
-        },
-        {
-            "startCastleId": 10,
-            "endCastleId": 13
-        },
-        {
-            "startCastleId": 11,
-            "endCastleId": 15
-        },
-        {
-            "startCastleId": 12,
-            "endCastleId": 14
-        },
-        {
-            "startCastleId": 13,
-            "endCastleId": 15
-        },
-        {
-            "startCastleId": 14,
-            "endCastleId": 15
-        }
+        { "startCastleId": 0, "endCastleId": 1 },
+        { "startCastleId": 0, "endCastleId": 2 },
+        { "startCastleId": 1, "endCastleId": 3 },
+        { "startCastleId": 1, "endCastleId": 4 },
+        { "startCastleId": 2, "endCastleId": 4 },
+        { "startCastleId": 2, "endCastleId": 5 },
+        { "startCastleId": 3, "endCastleId": 6 },
+        { "startCastleId": 3, "endCastleId": 7 },
+        { "startCastleId": 4, "endCastleId": 7 },
+        { "startCastleId": 4, "endCastleId": 8 },
+        { "startCastleId": 5, "endCastleId": 8 },
+        { "startCastleId": 5, "endCastleId": 9 },
+        { "startCastleId": 6, "endCastleId": 10 },
+        { "startCastleId": 6, "endCastleId": 7 },
+        { "startCastleId": 7, "endCastleId": 10 },
+        { "startCastleId": 7, "endCastleId": 11 },
+        { "startCastleId": 8, "endCastleId": 11 },
+        { "startCastleId": 8, "endCastleId": 12 },
+        { "startCastleId": 8, "endCastleId": 9 },
+        { "startCastleId": 9, "endCastleId": 12 },
+        { "startCastleId": 10, "endCastleId": 11 },
+        { "startCastleId": 10, "endCastleId": 13 },
+        { "startCastleId": 11, "endCastleId": 13 },
+        { "startCastleId": 12, "endCastleId": 13 }
     ],
     "config": {
         "playerSpawnInterval": 1,
         "playerAttackInterval": 0.275,
         "enemy_1_SpawnInterval": 1,
-        "enemy_1_AttackInterval": 0.275
+        "enemy_1_AttackInterval": 0.275,
+        "factions": {
+            "0": { "spawnInterval": 1, "attackInterval": 0.275 },
+            "1": { "spawnInterval": 1, "attackInterval": 0.275 },
+            "2": { "spawnInterval": 1, "attackInterval": 0.275 },
+            "3": { "spawnInterval": 1, "attackInterval": 0.275 },
+            "4": { "spawnInterval": 1, "attackInterval": 0.275 }
+        }
     }
 }

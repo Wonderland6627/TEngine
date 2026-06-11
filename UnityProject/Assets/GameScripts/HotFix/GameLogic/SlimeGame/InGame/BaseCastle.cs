@@ -83,18 +83,8 @@ public partial class BaseCastle : BaseObject
 
     private void SpawnUnit()
     {
-        var curLevelConfig = World.Instance.GetCurrentLevelConfig();
-        if (curLevelConfig == null) 
-        {
-            Log.Error($"[{GetType().Name}] no find current level config");
-            return;
-        }
-        float spawnInterval = occupiedUnitType == UnitType.Player
-            ? curLevelConfig.playerSpawnInterval
-            : curLevelConfig.enemy_1_SpawnInterval;
-        float spawnSpeedCoe = occupiedUnitType == UnitType.Player
-            ? World.Instance.playerSlimeSpawnSpeedCoe
-            : World.Instance.enemySlimeSpawnSpeedCoe;
+        float spawnInterval = World.Instance.GetFactionSpawnInterval(occupiedUnitType);
+        float spawnSpeedCoe = World.Instance.GetFactionSpawnSpeedCoe(occupiedUnitType);
         currentSpawnSpeedCoe = spawnSpeedCoe * GetCastleSpawnSpeedCoeByCount();
         spawnDuration += Time.deltaTime * currentSpawnSpeedCoe;
         if (spawnDuration < spawnInterval) return;
@@ -119,26 +109,25 @@ public partial class BaseCastle : BaseObject
         m_textCountTxt.text = $"{Mathf.Abs(occupiedUnitCount)}";
         if (GameModule.Debugger.ActiveWindow)
         {
-            m_textCountTxt.text = $"[{ID}] {Mathf.Abs(occupiedUnitCount)} {GetUnitTypeFlag()} {currentSpawnSpeedCoe}";
+            m_textCountTxt.text = $"[{ID}] {Mathf.Abs(occupiedUnitCount)} {GetUnitTypeFlag()} {currentSpawnSpeedCoe:F2}";
         }
 
-        m_imgPlayerImg.gameObject.SetActive(false);
-        m_imgEnemy_1_Img.gameObject.SetActive(false);
         m_imgFreeImg.gameObject.SetActive(false);
-        
+        m_imgFactionImg.gameObject.SetActive(false);
+
         if (!isOccupied)
         {
             m_imgFreeImg.gameObject.SetActive(true);
             return;
         }
-        bool isPlayer = occupiedUnitType == UnitType.Player;
-        m_imgPlayerImg.gameObject.SetActive(isPlayer);
-        m_imgEnemy_1_Img.gameObject.SetActive(!isPlayer);
+
+        m_imgFactionImg.gameObject.SetActive(true);
+        m_imgFactionImg.color = GameLogic.FactionUtil.GetFactionColor(occupiedUnitType);
     }
 
     public string GetUnitTypeFlag()
     {
-        return occupiedUnitType == UnitType.Player? "P" : "E";
+        return GameLogic.FactionUtil.GetFactionFlag(occupiedUnitType);
     }
 
     private void SpawnUnit(object[] args)
@@ -166,8 +155,7 @@ public partial class BaseCastle : BaseObject
             GameModule.Timer.RemoveTimer(attackTimer);
             attackTimer = -1;
             occupiedTime++;
-            // 锦囊系统已移除 - playerGetMoreSlimeAfterOccupy 相关逻辑
-            if (curOccupiedTime > 0 && unitType == UnitType.Enemy_1) // 非空塔被敌方占领
+            if (curOccupiedTime > 0 && unitType != curUnitType)
             {
                 OnOccupiedByUnit(unitType);
             }
@@ -313,12 +301,7 @@ public partial class BaseCastle : BaseObject
             GameModule.Timer.RemoveTimer(attackTimer);
         }
         int remainingCount = count;
-        float attackInterval = 1f;
-        var curLevelConfig = World.Instance.GetCurrentLevelConfig();
-        if (curLevelConfig != null) 
-        {
-             attackInterval = occupiedUnitType == UnitType.Player ? curLevelConfig.playerAttackInterval : curLevelConfig.enemy_1_AttackInterval;
-        }
+        float attackInterval = World.Instance.GetFactionAttackInterval(occupiedUnitType);
         if (sendDirectly)
         {
             Attack();
@@ -372,15 +355,13 @@ partial class BaseCastle
 partial class BaseCastle
 {
     #region 脚本工具生成的代码
-    private Image m_imgPlayerImg;
-    private Image m_imgEnemy_1_Img;
+    private Image m_imgFactionImg;
     private Image m_imgFreeImg;
     private Text m_textCountTxt;
     private RectTransform m_rectDragArrow;
     protected override void ScriptGenerator()
     {
-        m_imgPlayerImg = FindChildComponent<Image>("m_imgPlayerImg");
-        m_imgEnemy_1_Img = FindChildComponent<Image>("m_imgEnemy_1_Img");
+        m_imgFactionImg = FindChildComponent<Image>("m_imgFactionImg");
         m_imgFreeImg = FindChildComponent<Image>("m_imgFreeImg");
         m_textCountTxt = FindChildComponent<Text>("m_textCountTxt");
         m_rectDragArrow = FindChildComponent<RectTransform>("m_rectDragArrow");

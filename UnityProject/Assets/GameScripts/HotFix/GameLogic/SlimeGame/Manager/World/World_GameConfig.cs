@@ -142,5 +142,39 @@ namespace GameLogic
         // ========== Unit 查询 ==========
 
         public UnitConfig GetUnitConfig(UnitType unitType) => unitReader.Find(u => u.unitType == (int)unitType);
+
+        // ========== 阵营参数查询（优先factions字典，fallback到旧字段） ==========
+
+        public float GetFactionSpawnInterval(UnitType type)
+        {
+            var cfg = GetCurrentLevelConfig();
+            if (cfg == null) return 1f;
+
+            if (cfg.factions != null && cfg.factions.TryGetValue((int)type, out var fc))
+                return fc.spawnInterval;
+
+            return type switch
+            {
+                UnitType.Player  => cfg.playerSpawnInterval,
+                UnitType.Enemy_1 => cfg.enemy_1_SpawnInterval,
+                _ => cfg.enemy_1_SpawnInterval,
+            };
+        }
+
+        public float GetFactionAttackInterval(UnitType type)
+        {
+            var cfg = GetCurrentLevelConfig();
+            if (cfg == null) return 0.275f;
+
+            if (cfg.factions != null && cfg.factions.TryGetValue((int)type, out var fc))
+                return fc.attackInterval;
+
+            return type switch
+            {
+                UnitType.Player  => cfg.playerAttackInterval,
+                UnitType.Enemy_1 => cfg.enemy_1_AttackInterval,
+                _ => cfg.enemy_1_AttackInterval,
+            };
+        }
     }
 }
