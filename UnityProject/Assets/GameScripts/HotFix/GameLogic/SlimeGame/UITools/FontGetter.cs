@@ -57,7 +57,7 @@ namespace GameLogic
             }
             isLoading = true;
             var fontName = "cartoon_font_1.ttf";
-            var fallbackFontUrl = $"https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/Fonts/{fontName}";
+            var fallbackFontUrl = $"https://res.slime.piratecat.top/MiniGame/Fonts/{fontName}";
             WX.GetWXFont(fallbackFontUrl, (font) =>
             {
                 GameModule.UI.ShowLoading(false);

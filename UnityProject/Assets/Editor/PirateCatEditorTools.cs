@@ -18,7 +18,7 @@ public static class PirateCatEditorTools
     private const string MiniGameConfigPath = "Assets/WX-WASM-SDK-V2/Editor/MiniGameConfig.asset";
     
     // CDN配置
-    private const string CDNBaseUrl = "https://a.unity.cn/client_api/v1/buckets/cde09f24-d39c-4845-a3e3-17344f4f2894/content/MiniGame/";
+    private const string CDNBaseUrl = "https://res.slime.piratecat.top/MiniGame/";
     
     // 备份目录
     private const string BackupBasePath = "CDN_Backup/MiniGame";
