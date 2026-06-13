@@ -22,7 +22,7 @@ MonoBehaviour:
       m_ResAdminCode: 0
       m_ServerType: 1
       m_CleanCommitPathRes: 1
-      m_InnerResourceSourceUrl: https://res.slime.piratecat.top/MiniGame/v1.1/
+      m_InnerResourceSourceUrl: https://res.slime.piratecat.top/MiniGame/v1.2/
       m_ExtraResourceSourceUrl: http://127.0.0.1:8088
       m_FormalResourceSourceUrl: http://127.0.0.1:8088
     m_AtlasFolder: Assets/AssetRaw/Atlas
