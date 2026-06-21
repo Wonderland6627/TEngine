@@ -69,8 +69,8 @@ SpriteAtlas:
     secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
-    - {fileID: 21300000, guid: 112ddf06106b8934287f9eef079ddd99, type: 3}
     - {fileID: 21300000, guid: d9fe29297b30b314581c0312b450a172, type: 3}
+    - {fileID: 21300000, guid: 112ddf06106b8934287f9eef079ddd99, type: 3}
     - {fileID: 21300000, guid: f09c815303e14c247a970605d833baa4, type: 3}
     - {fileID: 21300000, guid: 8dda1c908c1d5e242831924d235f07bb, type: 3}
     - {fileID: 21300000, guid: f2a1831df0b1de947b83efe4827ec66b, type: 3}
@@ -109,7 +109,7 @@ SpriteAtlas:
   - Unit_Blue_1_Hurt_1
   - Castle_Red
   - Unit_1004
-  - Castle_Blue
+  - Castle_Nest
   - Unit_Blue_1_Happy_1
   - Castle_Free
   - Unit_Blue_1_Happy_2

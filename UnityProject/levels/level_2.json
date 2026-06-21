@@ -7,6 +7,7 @@
             "occupiedOnStart": true,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 18,
+            "emptyCastleOccupyRequirement": -10,
             "position": {
                 "x": 0,
                 "y": -450
@@ -18,6 +19,7 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
+            "emptyCastleOccupyRequirement": -10,
             "position": {
                 "x": -150,
                 "y": -150
@@ -29,6 +31,7 @@
             "occupiedOnStart": false,
             "occupiedSlimeType": 0,
             "occupiedUnitCount": 0,
+            "emptyCastleOccupyRequirement": -10,
             "position": {
                 "x": 150,
                 "y": -150
@@ -37,20 +40,22 @@
         {
             "id": 3,
             "castleType": 0,
-            "occupiedOnStart": false,
-            "occupiedSlimeType": 0,
-            "occupiedUnitCount": 0,
+            "occupiedOnStart": true,
+            "occupiedSlimeType": 1,
+            "occupiedUnitCount": 15,
+            "emptyCastleOccupyRequirement": -10,
             "position": {
                 "x": 0,
-                "y": 150
+                "y": 25
             }
         },
         {
             "id": 4,
             "castleType": 0,
             "occupiedOnStart": true,
-            "occupiedSlimeType": 1,
+            "occupiedSlimeType": 0,
             "occupiedUnitCount": 8,
+            "emptyCastleOccupyRequirement": -10,
             "position": {
                 "x": 0,
                 "y": 450
@@ -80,9 +85,10 @@
         }
     ],
     "config": {
-        "playerSpawnInterval": 1,
+        "playerSpawnInterval": 1.0,
         "playerAttackInterval": 0.275,
-        "enemy_1_SpawnInterval": 1,
-        "enemy_1_AttackInterval": 0.275
+        "enemy_1_SpawnInterval": 1.0,
+        "enemy_1_AttackInterval": 0.275,
+        "factions": null
     }
 }

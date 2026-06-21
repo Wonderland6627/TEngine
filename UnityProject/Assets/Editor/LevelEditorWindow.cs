@@ -63,6 +63,32 @@ public class LevelEditorWindow : EditorWindow
             Event.current.Use();
         }
         
+        // Delete键快捷删除选中的城堡或道路
+        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Delete)
+        {
+            if (selectedCastleId >= 0 && currentLevel?.castles != null)
+            {
+                if (EditorUtility.DisplayDialog("确认删除", 
+                    $"确定要删除ID为 {selectedCastleId} 的城堡吗？\n这将同时删除所有相关的道路连接。", 
+                    "确定", "取消"))
+                {
+                    DeleteCastle(selectedCastleId);
+                }
+                Event.current.Use();
+            }
+            else if (selectedRoadIndex >= 0 && currentLevel?.roads != null && selectedRoadIndex < currentLevel.roads.Count)
+            {
+                var road = currentLevel.roads[selectedRoadIndex];
+                if (EditorUtility.DisplayDialog("确认删除", 
+                    $"确定要删除城堡 {road.startCastleId} ↔ 城堡 {road.endCastleId} 之间的道路吗？", 
+                    "确定", "取消"))
+                {
+                    DeleteRoad(selectedRoadIndex);
+                }
+                Event.current.Use();
+            }
+        }
+        
         DrawToolbar();
         
         EditorGUILayout.BeginHorizontal();
@@ -279,7 +305,7 @@ public class LevelEditorWindow : EditorWindow
             string labelText = $"[{castleIndex}] {castle.occupiedUnitCount}";
             Handles.Label(screenPos + Vector2.up * 20, labelText, EditorStyles.whiteLabel);
             
-            // 检测点击
+            // 检测左键点击
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
             {
                 Vector2 mousePos = Event.current.mousePosition;
@@ -926,11 +952,11 @@ public class LevelEditorWindow : EditorWindow
     /// </summary>
     private static Color GetEditorFactionColor(int slimeType) => slimeType switch
     {
-        0 => new Color(0f, 0.47f, 1f),          // 蓝 Player
-        1 => new Color(0.86f, 0.2f, 0.2f),      // 红 Enemy_1
-        2 => new Color(0.2f, 0.78f, 0.31f),     // 绿 Enemy_2
-        3 => new Color(0.59f, 0.24f, 0.86f),    // 紫 Enemy_3
-        4 => new Color(0.94f, 0.59f, 0.12f),    // 橙 Enemy_4
+        0 => new Color(85f/255f, 206f/255f, 237f/255f),   // #55CEED Player
+        1 => new Color(244f/255f, 136f/255f, 25f/255f),   // #F48819 Enemy_1
+        2 => new Color(136f/255f, 204f/255f, 90f/255f),   // #88CC5A Enemy_2
+        3 => new Color(245f/255f, 211f/255f, 24f/255f),   // #F5D318 Enemy_3
+        4 => new Color(249f/255f, 164f/255f, 180f/255f),  // #F9A4B4 Enemy_4
         _ => Color.white,
     };
 
@@ -940,10 +966,10 @@ public class LevelEditorWindow : EditorWindow
     private static string GetFactionDisplayName(int factionId) => factionId switch
     {
         0 => "玩家",
-        1 => "敌人1(红)",
+        1 => "敌人1(橙)",
         2 => "敌人2(绿)",
-        3 => "敌人3(紫)",
-        4 => "敌人4(橙)",
+        3 => "敌人3(黄)",
+        4 => "敌人4(粉)",
         _ => $"阵营{factionId}",
     };
 

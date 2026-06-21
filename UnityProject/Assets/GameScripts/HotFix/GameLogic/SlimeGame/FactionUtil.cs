@@ -13,11 +13,11 @@ namespace GameLogic
         /// ---@summary 获取阵营对应的颜色
         public static Color GetFactionColor(UnitType type) => type switch
         {
-            UnitType.Player  => new Color32(0, 120, 255, 255),
-            UnitType.Enemy_1 => new Color32(255, 165, 0, 255),
-            UnitType.Enemy_2 => new Color32(50, 200, 80, 255),
-            UnitType.Enemy_3 => new Color32(255, 255, 0, 255),
-            UnitType.Enemy_4 => new Color32(255, 105, 180, 255),
+            UnitType.Player  => new Color32(85, 206, 237, 255),
+            UnitType.Enemy_1 => new Color32(244, 136, 25, 255),
+            UnitType.Enemy_2 => new Color32(136, 204, 90, 255),
+            UnitType.Enemy_3 => new Color32(245, 211, 24, 255),
+            UnitType.Enemy_4 => new Color32(249, 164, 180, 255),
             _ => Color.white,
         };
 

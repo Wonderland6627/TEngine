@@ -46,6 +46,8 @@ MonoBehaviour:
       componentName: Transform
     - uiElementRegex: m_rect
       componentName: RectTransform
+    - uiElementRegex: m_tmp
+      componentName: TextMeshProUGUI
     - uiElementRegex: m_txt
       componentName: Text
     - uiElementRegex: m_richTxt
@@ -68,8 +70,6 @@ MonoBehaviour:
       componentName: HorizontalLayoutGroup
     - uiElementRegex: m_vlay
       componentName: VerticalLayoutGroup
-    - uiElementRegex: m_red
-      componentName: RedNoteBehaviour
     - uiElementRegex: m_slider
       componentName: Slider
     - uiElementRegex: m_tog
@@ -80,8 +80,6 @@ MonoBehaviour:
       componentName: AnimationCurve
     - uiElementRegex: m_canvasGroup
       componentName: CanvasGroup
-    - uiElementRegex: m_tmp
-      componentName: TextMeshProUGUI
   m_HybridCLRCustomGlobalSettings:
     HotUpdateAssemblies:
     - GameBase.dll
