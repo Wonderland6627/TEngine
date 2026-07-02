@@ -52,6 +52,15 @@
     "customComponents": []
   },
   "rules": [
-    "When creating or organizing nodes in a Unity Prefab, if a node or its component will be accessed dynamically at runtime (e.g., via script binding, event callbacks, or data-driven updates), you MUST name the node using the corresponding prefix from the Script Generate Rule table below. This ensures automatic script generation compatibility.\r\n\r\nScript Generate Rule Table:\r\nm_go → GameObject\r\nm_item → Transform\r\nm_tf → Transform\r\nm_rect → RectTransform\r\nm_tmp → TextMeshProUGUI\r\nm_txt → Text\r\nm_richTxt → RichTextItem\r\nm_btn → Button\r\nm_img → Image\r\nm_rimg → RawImage\r\nm_scrollBar → Scrollbar\r\nm_scrollRect → ScrollRect\r\nm_input → InputField\r\nm_slider → Slider\r\nm_tog → Toggle\r\nm_group → ToggleGroup\r\nm_curve → AnimationCurve\r\nm_canvasGroup → CanvasGroup\r\n\r\nNaming convention: Use the prefix (left column) as the node name prefix. For example, a Button node that needs runtime access should be named like \"m_btnClose\", \"m_btnConfirm\", etc. The prefix indicates which component type will be referenced in the generated script. If a node is purely visual and never needs runtime access, no prefix is required."
-  ]
+    "When creating or organizing nodes in a Unity Prefab, if a node or its component will be accessed dynamically at runtime (e.g., via script binding, event callbacks, or data-driven updates), you MUST name the node using the corresponding prefix from the Script Generate Rule table below. This ensures automatic script generation compatibility.\r\n\r\nScript Generate Rule Table:\r\nm_go → GameObject\r\nm_item → Transform\r\nm_tf → Transform\r\nm_rect → RectTransform\r\nm_tmp → TextMeshProUGUI\r\nm_txt → Text\r\nm_richTxt → RichTextItem\r\nm_btn → Button\r\nm_img → Image\r\nm_rimg → RawImage\r\nm_scrollBar → Scrollbar\r\nm_scrollRect → ScrollRect\r\nm_input → InputField\r\nm_slider → Slider\r\nm_tog → Toggle\r\nm_group → ToggleGroup\r\nm_curve → AnimationCurve\r\nm_canvasGroup → CanvasGroup\r\n\r\nNaming convention: Use the prefix (left column) as the node name prefix. For example, a Button node that needs runtime access should be named like \"m_btnClose\", \"m_btnConfirm\", etc. The prefix indicates which component type will be referenced in the generated script. If a node is purely visual and never needs runtime access, no prefix is required.",
+    "When use TMP and fill text with Chinese, use font Alibaba-PuHuiTi-Medium SDF"
+  ],
+  "indexingConfig": {
+    "indexDirectories": [
+      "Assets/AssetRaw/UIRaw"
+    ],
+    "ignorePatterns": [],
+    "topKDefault": 5,
+    "minConfidenceThreshold": 0.5
+  }
 }

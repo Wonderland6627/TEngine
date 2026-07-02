@@ -988,8 +988,8 @@ public class LevelEditorWindow : EditorWindow
         
         try
         {
-            // 压缩JSON（无格式化）
-            string json = JsonConvert.SerializeObject(levels, Formatting.None);
+            // 人类可读格式（带缩进），方便版本管理 diff 和人工检查
+            string json = JsonConvert.SerializeObject(levels, Formatting.Indented);
             File.WriteAllText(fullPath, json);
             
             AssetDatabase.Refresh();
