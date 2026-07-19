@@ -7,7 +7,8 @@ set CONF_ROOT=.
 set DATA_OUTPATH=%WORKSPACE%/UnityProject/Assets/AssetRaw/Configs/bytes/
 set CODE_OUTPATH=%WORKSPACE%/UnityProject/Assets/GameScripts/HotFix/GameProto/GameConfig/
 
-xcopy /s /e /i /y "%CONF_ROOT%\CustomTemplate\ConfigSystem.cs" "%WORKSPACE%\UnityProject\Assets\GameScripts\HotFix\GameProto\ConfigSystem.cs"
+copy /y "%CONF_ROOT%\CustomTemplate\ConfigSystem.cs" "%WORKSPACE%\UnityProject\Assets\GameScripts\HotFix\GameProto\ConfigSystem.cs"
+copy /y "%CONF_ROOT%\CustomTemplate\ExternalTypeUtil.cs" "%WORKSPACE%\UnityProject\Assets\GameScripts\HotFix\GameProto\ExternalTypeUtil.cs"
 
 dotnet %LUBAN_DLL% ^
     -t client ^
@@ -15,7 +16,8 @@ dotnet %LUBAN_DLL% ^
     -d bin^
     --conf %CONF_ROOT%\luban.conf ^
     --customTemplateDir %CONF_ROOT%\CustomTemplate\CustomTemplate_Client_LazyLoad ^
+    -x code.lineEnding=crlf ^
     -x outputCodeDir=%CODE_OUTPATH% ^
     -x outputDataDir=%DATA_OUTPATH% 
-pause
+if not defined AI_MODE pause
 

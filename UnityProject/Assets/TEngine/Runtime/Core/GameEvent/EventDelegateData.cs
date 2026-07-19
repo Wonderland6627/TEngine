@@ -91,6 +91,7 @@ namespace TEngine
                 }
 
                 _deleteList.Clear();
+                _dirty = false;
             }
         }
 
@@ -231,7 +232,7 @@ namespace TEngine
 
             CheckModify();
         }
-        
+
         /// <summary>
         /// 回调调用。
         /// </summary>

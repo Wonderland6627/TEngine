@@ -430,11 +430,22 @@ namespace TEngine.Localization
 
 		public static IEnumerable<GameObject> SceneRoots()
 		{
+#if UNITY_6000_5_OR_NEWER
+			for (int i = 0; i < SceneManager.sceneCount; i++)
+			{
+				var scene = SceneManager.GetSceneAt(i);
+				if (!scene.isLoaded)
+					continue;
+				foreach (var root in scene.GetRootGameObjects())
+					yield return root;
+			}
+#else
 			var prop = new HierarchyProperty(HierarchyType.GameObjects);
 			var expanded = new int[0];
 			while (prop.Next(expanded)) {
 				yield return prop.pptrValue as GameObject;
 			}
+#endif
 		}
 		
 		public static List<GameObject> SceneRootsList()
@@ -724,7 +735,12 @@ namespace TEngine.Localization
 		{
             if (s_RecycledEditor==null)
             {
-                FieldInfo info = typeof(EditorGUI).GetField("s_RecycledEditor", BindingFlags.NonPublic | BindingFlags.Static);
+#if UNITY_6000_0_OR_NEWER
+	            FieldInfo info = typeof(EditorGUI).GetField("s_RecycledEditorInternal", BindingFlags.NonPublic | BindingFlags.Static);
+#else
+				FieldInfo info = typeof(EditorGUI).GetField("s_RecycledEditor", BindingFlags.NonPublic | BindingFlags.Static);
+#endif
+                
                 s_RecycledEditor = info.GetValue(null);
             }
 

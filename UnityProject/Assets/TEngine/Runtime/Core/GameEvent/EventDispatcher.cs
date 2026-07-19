@@ -11,7 +11,7 @@ namespace TEngine
         /// <summary>
         /// 事件Table。
         /// </summary>
-        private static readonly Dictionary<int, EventDelegateData> _eventTable = new Dictionary<int, EventDelegateData>();
+        private readonly Dictionary<int, EventDelegateData> _eventTable = new Dictionary<int, EventDelegateData>();
 
         /// <summary>
         /// 清空事件表。
@@ -20,6 +20,7 @@ namespace TEngine
         {
             _eventTable.Clear();
         }
+        
         #region 事件管理接口
 
         /// <summary>
@@ -181,6 +182,7 @@ namespace TEngine
                 d.Callback(arg1, arg2, arg3, arg4, arg5, arg6);
             }
         }
+
         #endregion
     }
 }

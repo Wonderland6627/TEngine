@@ -13,3 +13,11 @@ Tools/FileServer/AssetRoot
 
 UnityProject/ProjectSettings/CommonBurstAotSettings.json
 UnityProject/ProjectSettings/BurstAotSettings_StandaloneWindows.json
+
+#GameEventSourceGenerator
+Tools/GameEventSourceGenerator/*/.idea
+Tools/GameEventSourceGenerator/*/bin
+Tools/GameEventSourceGenerator/*/obj
+
+#openspec
+openspec/

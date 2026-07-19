@@ -17,14 +17,23 @@ namespace YooAsset.Editor
         public const string RawFileExtension = "rawfile";
 
         /// <summary>
-        /// Unity着色器资源包名称
+        /// 默认的Unity着色器资源包名称
         /// </summary>
         public const string ShadersBundleName = "unityshaders";
 
+        /// <summary>
+        /// 默认的Unity脚本资源包名称
+        /// </summary>
+        public const string MonosBundleName = "unitymonos";
 
         public static PackRuleResult CreateShadersPackRuleResult()
         {
             PackRuleResult result = new PackRuleResult(ShadersBundleName, AssetBundleFileExtension);
+            return result;
+        }
+        public static PackRuleResult CreateMonosPackRuleResult()
+        {
+            PackRuleResult result = new PackRuleResult(MonosBundleName, AssetBundleFileExtension);
             return result;
         }
     }
@@ -143,6 +152,22 @@ namespace YooAsset.Editor
         {
             string bundleName = data.AssetPath;
             PackRuleResult result = new PackRuleResult(bundleName, DefaultPackRule.RawFileExtension);
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// 打包视频文件
+    /// </summary>
+    [DisplayName("打包视频文件")]
+    public class PackVideoFile : IPackRule
+    {
+        PackRuleResult IPackRule.GetPackRuleResult(PackRuleData data)
+        {
+            string bundleName = data.AssetPath;
+            string fileExtension = Path.GetExtension(data.AssetPath);
+            fileExtension = fileExtension.Remove(0, 1);
+            PackRuleResult result = new PackRuleResult(bundleName, fileExtension);
             return result;
         }
     }

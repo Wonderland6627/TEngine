@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace YooAsset
 {
@@ -29,11 +27,25 @@ namespace YooAsset
             if (string.IsNullOrEmpty(str))
                 return str;
 
-            int index = str.LastIndexOf(".");
+            int index = str.LastIndexOf('.');
             if (index == -1)
                 return str;
             else
                 return str.Remove(index); //"assets/config/test.unity3d" --> "assets/config/test"
+        }
+
+        /// <summary>
+        /// URL地址是否包含双斜杠
+        /// 注意：只检查协议之后的部分
+        /// </summary>
+        public static bool HasDoubleSlashes(string url)
+        {
+            if (url == null)
+                throw new ArgumentNullException();
+
+            int protocolIndex = url.IndexOf("://");
+            string partToCheck = protocolIndex == -1 ? url : url.Substring(protocolIndex + 3);
+            return partToCheck.Contains("//") || partToCheck.Contains(@"\\");
         }
 
         /// <summary>
@@ -121,7 +133,7 @@ namespace YooAsset
         public static string ReadAllText(string filePath)
         {
             if (File.Exists(filePath) == false)
-                return string.Empty;
+                return null;
             return File.ReadAllText(filePath, Encoding.UTF8);
         }
 
@@ -327,6 +339,11 @@ namespace YooAsset
             byte[] buffer = Encoding.UTF8.GetBytes(str);
             return BytesCRC32(buffer);
         }
+        public static uint StringCRC32Value(string str)
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes(str);
+            return BytesCRC32Value(buffer);
+        }
 
         /// <summary>
         /// 获取文件的CRC32
@@ -336,6 +353,13 @@ namespace YooAsset
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 return StreamCRC32(fs);
+            }
+        }
+        public static uint FileCRC32Value(string filePath)
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                return StreamCRC32Value(fs);
             }
         }
 
@@ -354,6 +378,18 @@ namespace YooAsset
                 return string.Empty;
             }
         }
+        public static uint FileCRC32ValueSafely(string filePath)
+        {
+            try
+            {
+                return FileCRC32Value(filePath);
+            }
+            catch (Exception e)
+            {
+                YooLogger.Exception(e);
+                return 0;
+            }
+        }
 
         /// <summary>
         /// 获取数据流的CRC32
@@ -364,6 +400,12 @@ namespace YooAsset
             byte[] hashBytes = hash.ComputeHash(stream);
             return ToString(hashBytes);
         }
+        public static uint StreamCRC32Value(Stream stream)
+        {
+            CRC32Algorithm hash = new CRC32Algorithm();
+            hash.ComputeHash(stream);
+            return hash.CRCValue;
+        }
 
         /// <summary>
         /// 获取字节数组的CRC32
@@ -373,6 +415,12 @@ namespace YooAsset
             CRC32Algorithm hash = new CRC32Algorithm();
             byte[] hashBytes = hash.ComputeHash(buffer);
             return ToString(hashBytes);
+        }
+        public static uint BytesCRC32Value(byte[] buffer)
+        {
+            CRC32Algorithm hash = new CRC32Algorithm();
+            hash.ComputeHash(buffer);
+            return hash.CRCValue;
         }
         #endregion
     }
