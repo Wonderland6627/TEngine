@@ -1,11 +1,41 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using YooAsset;
 using Process = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
+
+/// <summary>
+/// 版本建议对比基准模式。
+/// </summary>
+public enum VersionBaselineMode
+{
+    /// <summary>账本 → publish tag → 仅工作区</summary>
+    Auto = 0,
+    /// <summary>强制使用 lastPublish 账本</summary>
+    Ledger = 1,
+    /// <summary>强制使用最近 publish/* tag</summary>
+    LatestTag = 2,
+    /// <summary>用户指定 commit/tag</summary>
+    CustomRef = 3,
+    /// <summary>仅当前工作区（旧行为）</summary>
+    WorkdirOnly = 4,
+}
+
+/// <summary>
+/// 版本建议分析结果。
+/// </summary>
+public sealed class VersionRecommendationResult
+{
+    public string Text = string.Empty;
+    public bool HasResourceChanged;
+    public bool HasCodeChanged;
+    public bool HasAppHint;
+    public string BaselineSource = string.Empty;
+}
 
 /// <summary>
 /// 打包工具核心逻辑
@@ -23,6 +53,8 @@ public static class PirateCatEditorTools
     // 备份目录
     private const string BackupBasePath = "CDN_Backup/MiniGame";
     private const string VersionRecommendationScriptRelativePath = "Tools/version_recommendation.py";
+    private const string LastPublishLedgerRelativePath = "Tools/last_publish.json";
+    private const string ResultMarker = "@@RESULT";
     
     /// <summary>
     /// 步骤1: 更新资源版本号（更新所有相关配置文件）
@@ -137,6 +169,7 @@ public static class PirateCatEditorTools
     /// <param name="resourceVersion">资源版本号，对应 YooAsset 构建输出子目录</param>
     /// <param name="hasResourceChanged">是否修改了资源</param>
     /// <returns>是否成功</returns>
+    /// <remarks>测试上传与正式发布共用；此操作不写发布账本，测试通过后请另行点击「确认发布基线」。</remarks>
     public static bool CopyToBackupDirectory(string appVersion, string resourceVersion, bool hasResourceChanged)
     {
         try
@@ -147,7 +180,10 @@ public static class PirateCatEditorTools
             
             string backupPath = Path.Combine(BackupBasePath, appVersion);
             Debug.Log($"[PirateCatEditorTools] Files copied to backup directory successfully: {backupPath}");
-            EditorUtility.DisplayDialog("成功", $"文件已复制到备份目录：{backupPath}\n\n该目录内容可直接上传到 CDN 的 MiniGame/{appVersion}/ 路径下", "确定");
+            EditorUtility.DisplayDialog(
+                "成功",
+                $"文件已复制到备份目录：{backupPath}\n\n该目录内容可直接上传到 CDN 的 MiniGame/{appVersion}/ 路径下\n\n注意：本次复制未写入发布账本；测试验证通过后，请点击「确认发布基线」。",
+                "确定");
             return true;
         }
         catch (System.Exception e)
@@ -159,11 +195,15 @@ public static class PirateCatEditorTools
     }
 
     /// <summary>
-    /// 基于 Windows 下的 git diff 给出版本号更新建议。
+    /// 基于相对发布基准的 git diff 给出版本号更新建议。
     /// </summary>
-    public static bool TryGetVersionRecommendationWindows(out string recommendation, out string error)
+    public static bool TryGetVersionRecommendationWindows(
+        VersionBaselineMode baselineMode,
+        string baselineRef,
+        out VersionRecommendationResult result,
+        out string error)
     {
-        recommendation = string.Empty;
+        result = null;
         error = string.Empty;
 
 #if !UNITY_EDITOR_WIN
@@ -186,7 +226,191 @@ public static class PirateCatEditorTools
             return false;
         }
 
-        return TryRunPythonRecommendationScript(scriptPath, projectRoot, pythonExecutable, out recommendation, out error);
+        if (!TryRunPythonRecommendationScript(
+                scriptPath,
+                projectRoot,
+                pythonExecutable,
+                baselineMode,
+                baselineRef,
+                out string recommendation,
+                out error))
+        {
+            return false;
+        }
+
+        result = ParseRecommendationResult(recommendation);
+        return true;
+    }
+
+    /// <summary>
+    /// 读取 lastPublish 账本摘要，供 UI 展示。
+    /// </summary>
+    public static bool TryGetLastPublishSummary(out string summary)
+    {
+        summary = string.Empty;
+        string ledgerPath = GetLastPublishLedgerPath();
+        if (!File.Exists(ledgerPath))
+        {
+            summary = "尚无账本（完成一次「复制到 CDN_Backup」后会自动写入）";
+            return false;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(ledgerPath, Encoding.UTF8);
+            string commit = ExtractJsonString(json, "commit");
+            string appVersion = ExtractJsonString(json, "appVersion");
+            string resourceVersion = ExtractJsonString(json, "resourceVersion");
+            string wechatVersion = ExtractJsonString(json, "wechatVersion");
+            string publishedAt = ExtractJsonString(json, "publishedAt");
+            string mode = ExtractJsonString(json, "mode");
+
+            if (string.IsNullOrEmpty(commit))
+            {
+                summary = "账本存在但缺少 commit 字段";
+                return false;
+            }
+
+            string shortCommit = commit.Length > 12 ? commit.Substring(0, 12) : commit;
+            string wechatPart = string.IsNullOrEmpty(wechatVersion) ? "-" : wechatVersion;
+            summary = $"{shortCommit} | 微信 {wechatPart} | App {appVersion} / Res {resourceVersion} | {mode} | {publishedAt}";
+            return true;
+        }
+        catch (Exception e)
+        {
+            summary = $"读取账本失败：{e.Message}";
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 读取账本中记录的微信代码包版本（无则返回空串）。
+    /// </summary>
+    public static string GetLastPublishWechatVersion()
+    {
+        string ledgerPath = GetLastPublishLedgerPath();
+        if (!File.Exists(ledgerPath))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(ledgerPath, Encoding.UTF8);
+            return ExtractJsonString(json, "wechatVersion");
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// 发布成功后写入账本并尝试打 publish tag。
+    /// </summary>
+    /// <param name="appVersion">App 版本号（CDN 目录分区）</param>
+    /// <param name="resourceVersion">资源版本号（YooAsset 热更清单）</param>
+    /// <param name="mode">发布模式：full / code_only</param>
+    /// <param name="wechatVersion">微信小游戏后台代码包版本；传空则沿用旧账本的值（纯热更时线上代码包未变）</param>
+    public static string RecordPublishBaseline(string appVersion, string resourceVersion, string mode, string wechatVersion)
+    {
+        if (string.IsNullOrWhiteSpace(wechatVersion))
+        {
+            wechatVersion = GetLastPublishWechatVersion();
+        }
+
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        if (!TryRunGit(projectRoot, "rev-parse HEAD", out string commit, out string gitError) || string.IsNullOrWhiteSpace(commit))
+        {
+            string message = $"账本未写入：无法获取 HEAD（{gitError}）";
+            Debug.LogWarning($"[PirateCatEditorTools] {message}");
+            return message;
+        }
+
+        commit = commit.Trim();
+        string publishedAt = DateTimeOffset.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
+        string ledgerPath = GetLastPublishLedgerPath();
+        string directory = Path.GetDirectoryName(ledgerPath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        string json =
+            "{\n" +
+            "  \"lastPublish\": {\n" +
+            $"    \"wechatVersion\": \"{EscapeJson(wechatVersion)}\",\n" +
+            $"    \"appVersion\": \"{EscapeJson(appVersion)}\",\n" +
+            $"    \"resourceVersion\": \"{EscapeJson(resourceVersion)}\",\n" +
+            $"    \"commit\": \"{EscapeJson(commit)}\",\n" +
+            $"    \"publishedAt\": \"{EscapeJson(publishedAt)}\",\n" +
+            $"    \"mode\": \"{EscapeJson(mode)}\"\n" +
+            "  }\n" +
+            "}\n";
+        File.WriteAllText(ledgerPath, json, new UTF8Encoding(false));
+
+        string tagName = BuildPublishTagName(appVersion, resourceVersion);
+        string tagSummary;
+        if (TryCreatePublishTag(projectRoot, tagName, appVersion, resourceVersion, out string tagMessage))
+        {
+            tagSummary = tagMessage;
+        }
+        else
+        {
+            tagSummary = tagMessage;
+            Debug.LogWarning($"[PirateCatEditorTools] {tagMessage}");
+        }
+
+        string summary = $"已记录发布基准：{commit.Substring(0, Math.Min(12, commit.Length))}\n账本：{ledgerPath}\n{tagSummary}";
+        Debug.Log($"[PirateCatEditorTools] {summary}");
+        return summary;
+    }
+
+    /// <summary>
+    /// 微信后台正式发布后，补记账本中的微信代码包版本（不改其他字段）。
+    /// </summary>
+    public static bool TryUpdateLedgerWechatVersion(string wechatVersion, out string message)
+    {
+        message = string.Empty;
+        if (string.IsNullOrWhiteSpace(wechatVersion))
+        {
+            message = "微信代码包版本不能为空。";
+            return false;
+        }
+
+        string ledgerPath = GetLastPublishLedgerPath();
+        if (!File.Exists(ledgerPath))
+        {
+            message = "尚无发布账本，请先点击「确认发布基线」。";
+            return false;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(ledgerPath, Encoding.UTF8);
+            string escaped = EscapeJson(wechatVersion.Trim());
+            string newJson;
+            if (Regex.IsMatch(json, "\"wechatVersion\"\\s*:\\s*\"[^\"]*\""))
+            {
+                newJson = Regex.Replace(json, "\"wechatVersion\"\\s*:\\s*\"[^\"]*\"", $"\"wechatVersion\": \"{escaped}\"");
+            }
+            else
+            {
+                // 旧账本没有该字段时，插入到 lastPublish 对象的开头
+                newJson = Regex.Replace(json, "(\"lastPublish\"\\s*:\\s*\\{)", $"$1\n    \"wechatVersion\": \"{escaped}\",");
+            }
+
+            File.WriteAllText(ledgerPath, newJson, new UTF8Encoding(false));
+            message = $"已补记微信代码包版本：{wechatVersion.Trim()}";
+            Debug.Log($"[PirateCatEditorTools] {message}");
+            return true;
+        }
+        catch (Exception e)
+        {
+            message = $"补记失败：{e.Message}";
+            Debug.LogError($"[PirateCatEditorTools] {message}");
+            return false;
+        }
     }
     
     /// <summary>
@@ -434,14 +658,35 @@ public static class PirateCatEditorTools
         return File.Exists(pythonExe) ? pythonExe : string.Empty;
     }
 
-    private static bool TryRunPythonRecommendationScript(string scriptPath, string projectRoot, string pythonExecutable,
-        out string recommendation, out string error)
+    private static bool TryRunPythonRecommendationScript(
+        string scriptPath,
+        string projectRoot,
+        string pythonExecutable,
+        VersionBaselineMode baselineMode,
+        string baselineRef,
+        out string recommendation,
+        out string error)
     {
         recommendation = string.Empty;
         error = string.Empty;
 
-        string arguments = $"{QuoteArgument(scriptPath)} --project-root {QuoteArgument(projectRoot)}";
-        if (!TryRunProcess(pythonExecutable, arguments, projectRoot, out string output, out string stdError, out int exitCode))
+        string modeArg = ToPythonBaselineMode(baselineMode);
+        string ledgerPath = GetLastPublishLedgerPath();
+        var argsBuilder = new StringBuilder();
+        argsBuilder.Append(QuoteArgument(scriptPath));
+        argsBuilder.Append(" --project-root ");
+        argsBuilder.Append(QuoteArgument(projectRoot));
+        argsBuilder.Append(" --baseline-mode ");
+        argsBuilder.Append(QuoteArgument(modeArg));
+        argsBuilder.Append(" --ledger-path ");
+        argsBuilder.Append(QuoteArgument(ledgerPath));
+        if (!string.IsNullOrWhiteSpace(baselineRef))
+        {
+            argsBuilder.Append(" --baseline-ref ");
+            argsBuilder.Append(QuoteArgument(baselineRef.Trim()));
+        }
+
+        if (!TryRunProcess(pythonExecutable, argsBuilder.ToString(), projectRoot, out string output, out string stdError, out int exitCode))
         {
             error = stdError;
             return false;
@@ -463,6 +708,139 @@ public static class PirateCatEditorTools
 
         recommendation = output.Trim();
         return true;
+    }
+
+    private static string ToPythonBaselineMode(VersionBaselineMode mode)
+    {
+        switch (mode)
+        {
+            case VersionBaselineMode.Ledger:
+                return "ledger";
+            case VersionBaselineMode.LatestTag:
+                return "tag";
+            case VersionBaselineMode.CustomRef:
+                return "commit";
+            case VersionBaselineMode.WorkdirOnly:
+                return "workdir";
+            default:
+                return "auto";
+        }
+    }
+
+    private static VersionRecommendationResult ParseRecommendationResult(string recommendation)
+    {
+        var result = new VersionRecommendationResult
+        {
+            Text = recommendation
+        };
+
+        int markerIndex = recommendation.LastIndexOf(ResultMarker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            result.HasResourceChanged = recommendation.IndexOf("资源版本号：建议更新", StringComparison.Ordinal) >= 0;
+            return result;
+        }
+
+        string displayText = recommendation.Substring(0, markerIndex).TrimEnd();
+        string markerLine = recommendation.Substring(markerIndex);
+        int lineEnd = markerLine.IndexOfAny(new[] { '\r', '\n' });
+        if (lineEnd >= 0)
+        {
+            markerLine = markerLine.Substring(0, lineEnd);
+        }
+
+        result.Text = displayText;
+        result.HasResourceChanged = HasResultFlag(markerLine, "resource", "1");
+        result.HasCodeChanged = HasResultFlag(markerLine, "code", "1");
+        result.HasAppHint = HasResultFlag(markerLine, "app_hint", "1");
+        result.BaselineSource = ExtractResultValue(markerLine, "baseline");
+        return result;
+    }
+
+    private static bool HasResultFlag(string markerLine, string key, string expected)
+    {
+        return string.Equals(ExtractResultValue(markerLine, key), expected, StringComparison.Ordinal);
+    }
+
+    private static string ExtractResultValue(string markerLine, string key)
+    {
+        var match = Regex.Match(markerLine, $@"\b{Regex.Escape(key)}=([^\s]+)");
+        return match.Success ? match.Groups[1].Value : string.Empty;
+    }
+
+    private static string GetLastPublishLedgerPath()
+    {
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        return Path.Combine(projectRoot, LastPublishLedgerRelativePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+    }
+
+    private static string BuildPublishTagName(string appVersion, string resourceVersion)
+    {
+        string safeApp = SanitizeTagToken(appVersion);
+        string safeRes = SanitizeTagToken(resourceVersion);
+        return $"publish/{safeApp}/{safeRes}";
+    }
+
+    private static string SanitizeTagToken(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "unknown";
+        }
+
+        string sanitized = Regex.Replace(value.Trim(), @"[^A-Za-z0-9._\-]+", "-");
+        sanitized = sanitized.Trim('-', '.');
+        return string.IsNullOrEmpty(sanitized) ? "unknown" : sanitized;
+    }
+
+    private static bool TryCreatePublishTag(
+        string projectRoot,
+        string tagName,
+        string appVersion,
+        string resourceVersion,
+        out string message)
+    {
+        message = string.Empty;
+        if (TryRunGit(projectRoot, $"rev-parse --verify --quiet refs/tags/{tagName}", out _, out _))
+        {
+            message = $"tag 已存在，跳过：{tagName}";
+            return true;
+        }
+
+        string tagMessage = $"publish app={appVersion} res={resourceVersion}";
+        if (!TryRunGit(projectRoot, $"tag -a {QuoteArgument(tagName)} -m {QuoteArgument(tagMessage)}", out _, out string error))
+        {
+            message = $"创建 tag 失败：{error}";
+            return false;
+        }
+
+        message = $"已创建 tag：{tagName}";
+        return true;
+    }
+
+    private static bool TryRunGit(string projectRoot, string arguments, out string output, out string error)
+    {
+        return TryRunProcess("git", arguments, projectRoot, out output, out error, out int exitCode) && exitCode == 0;
+    }
+
+    private static string ExtractJsonString(string json, string key)
+    {
+        var match = Regex.Match(json, $"\"{Regex.Escape(key)}\"\\s*:\\s*\"([^\"]*)\"");
+        return match.Success ? match.Groups[1].Value : string.Empty;
+    }
+
+    private static string EscapeJson(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        return value
+            .Replace("\\", "\\\\")
+            .Replace("\"", "\\\"")
+            .Replace("\r", "\\r")
+            .Replace("\n", "\\n");
     }
 
     private static bool TryRunProcess(string fileName, string arguments, string workingDirectory, out string output,

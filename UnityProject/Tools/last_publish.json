@@ -1,0 +1,11 @@
+﻿{
+  "lastPublish": {
+    "wechatVersion": "v1.1.3",
+    "appVersion": "v1.2",
+    "resourceVersion": "v0.1.8.1",
+    "commit": "7a9237893a78fa690b2839cd326820d4bfd37e82",
+    "publishedAt": "2026-06-21T23:39:54+08:00",
+    "mode": "full",
+    "note": "按 CDN BuildReport 校正：v0.1.8.1 构建于 2026/6/21 23:39:54，与提交 7a923789（23:39:03 修改关卡编辑器和关卡）对齐。9e00bfa 仅到 v0.1.8.0；工程内 BuildVersion 升到 v0.1.8.1 未进 Git。微信后台代码包版本 v1.1.3 仅记录，与工程无关。"
+  }
+}
