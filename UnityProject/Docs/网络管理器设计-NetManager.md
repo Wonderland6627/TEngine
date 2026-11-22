@@ -36,12 +36,15 @@
 - `getUserGameInfoV2` -> `/api/minigame/getUserGameInfoV2`
 - `setUserGameInfoV2` -> `/api/minigame/setUserGameInfoV2`
 - `getUserRankListV2` -> `/api/minigame/getUserRankListV2`
-- `getLevelsConfigV2` -> `/api/minigame/getLevelsConfigV2`
 - `updateResource` -> `/api/minigame/updateResource`
 - `getResources` -> `/api/minigame/getResources`
 - `claimLevelReward` -> `/api/minigame/claimLevelReward`
 - `claimDailyCheckin` -> `/api/minigame/claimDailyCheckin`
 - `claimLevelChest` -> `/api/minigame/claimLevelChest`
+- `claimAdsGiftPack` -> `/api/minigame/claimAdsGiftPack`
+- `debugSetUserGameInfo` -> `/api/minigame/debugSetUserGameInfo`
+
+> `getLevelsConfigV2` 已废弃：关卡由本地 `levels.json` 加载。
 
 ---
 
@@ -115,8 +118,8 @@ var response = await NetManager.Instance.CallHttp<UpdateResourceResponse>(
 `ServerType`：
 
 - `Local` -> `http://localhost:3000`
-- `Dev` -> `https://express-slime-dev-216111-7-1352845565.sh.run.tcloudbase.com`
-- `Production` -> `https://express-slime-216111-7-1352845565.sh.run.tcloudbase.com`
+- `Dev` -> `https://dev.slime.piratecat.top`
+- `Production` -> `https://slime.piratecat.top`
 
 默认值：
 

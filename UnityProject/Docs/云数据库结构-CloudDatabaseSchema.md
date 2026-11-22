@@ -1,19 +1,20 @@
-# 云数据库表结构文档（当前实现）
+# 用户数据库结构文档（当前实现）
 
-> 本文档描述当前 Express 服务端 + CloudBase 文档库的实际字段结构。  
-> 文件名沿用历史命名，但内容已按现状更新。
+> 本文档描述当前 Express 服务端 + PostgreSQL 的实际字段结构。  
+> 文件名沿用历史命名（原 CloudBase），内容已按现状更新。
 
 ## 架构说明
 
-- 客户端不再直连云函数执行业务逻辑
-- 当前主链路：`Unity -> Express API -> CloudBase 文档数据库`
-- 数据集合主要由服务端 DAO 层 `utils/cloudbaseDB.js` 读写
+- 客户端不再直连云函数 / CloudBase
+- 当前主链路：`Unity -> Express API -> 云服 PostgreSQL`
+- 数据表由服务端 DAO 层 `utils/db.js` 读写
+- 关卡配置不在数据库中，客户端读取本地 `levels.json`
 
 ---
 
-## 集合：`UserGameInfos`
+## 表：`user_game_infos`
 
-### 关键字段
+### API 返回字段（客户端看到的结构）
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
@@ -25,8 +26,8 @@
 | `resources` | Object | 资源字典，key 为资源类型 ID（字符串） |
 | `goods` | Object | 物品字典，key 为 goodsId（字符串） |
 | `claimedLevelChests` | Number[] | 已领取的里程碑宝箱关卡 ID 列表 |
-| `createdAt` | Date | 创建时间 |
-| `updatedAt` | Date | 更新时间 |
+| `createdAt` | String | ISO 8601 创建时间 |
+| `updatedAt` | String | ISO 8601 更新时间 |
 
 ### `resources` 约定
 
@@ -76,13 +77,9 @@
 
 ---
 
-## 集合：`Levels`
+## 关卡配置
 
-由 `getLevelsConfigV2` 读取，默认通过固定 `_id` 读取一条配置文档。  
-客户端当前使用数据结构：
-
-- 顶层对象
-- `configs.levels` 为关卡数组
+不再使用数据库 `Levels` 表。客户端启动时加载本地资源包中的 `levels.json`。
 
 ---
 
@@ -91,13 +88,13 @@
 ### 登录与用户初始化
 
 - 接口：`getCode2Session` + `getUserGameInfoV2`
-- `getUserGameInfoV2` 在用户不存在时自动创建新文档（含默认 `resources` 和 `goods`）
+- `getUserGameInfoV2` 在用户不存在时自动创建新记录（含默认 `resources` 和 `goods`）
 
 ### 资源变更
 
 - 接口：`updateResource`
 - 写入路径：`resources.{resourceTypeId}`
-- 使用原子 `inc`
+- PostgreSQL JSONB 原子更新
 
 ### 通关奖励
 
@@ -113,18 +110,15 @@
 
 - 接口：`claimLevelChest`
 - 校验进度与重复领取后：
-  - `claimedLevelChests` push
+  - `claimedLevelChests` 去重追加
   - 资源/物品原子发放
 
 ---
 
-## 索引建议
+## 索引
 
-建议至少维护以下索引：
-
-1. `openID`（唯一或高选择性查询）
-2. `progressLevelID`（排行榜排序）
-3. `nickName`（排行榜过滤非空时可辅助）
+1. `open_id` 唯一约束
+2. 排行榜部分索引：`progress_level_id DESC WHERE progress_level_id > 0 AND nick_name <> ''`
 
 ---
 

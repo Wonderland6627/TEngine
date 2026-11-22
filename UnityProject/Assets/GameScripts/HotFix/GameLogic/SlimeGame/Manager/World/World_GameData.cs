@@ -18,7 +18,6 @@ namespace GameLogic
 #else
             new WXUserData();
 #endif
-        private static string WXCloudENV = "slimecloudservice-6enxmrfbc5bddc";
 
         public void InitWX(System.Action<bool> callback)
         {
@@ -26,18 +25,6 @@ namespace GameLogic
             WX.InitSDK((code) =>
             {
                 Log.Info($"[World] InitWX WX.InitSDK callback code: {code}");
-                // if (code != 0)
-                // {
-                //     Log.Error($"World InitWX WX.InitSDK failed with code: {code}");
-                //     callback?.Invoke(false);
-                //     return;
-                // }
-
-                WX.cloud.Init(new ICloudConfig()
-                {
-                    env = WXCloudENV,
-                    traceUser = true
-                });
                 callback?.Invoke(true);
             });
         }

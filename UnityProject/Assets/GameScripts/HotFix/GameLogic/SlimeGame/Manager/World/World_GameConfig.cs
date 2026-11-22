@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using GameConfig;
 using TEngine;
-using GameLogic.Network;
 
 namespace GameLogic
 {
@@ -86,44 +84,6 @@ namespace GameLogic
             catch (Exception e)
             {
                 Log.Error($"[World] LoadGameConfig error: {e}");
-            }
-        }
-
-        private async UniTask<bool> LoadRemoteLevelsConfig()
-        {
-            GameModule.UI.ShowLoading();
-            try
-            {
-                var response = await NetManager.Instance.CallHttp<List<LevelsConfigData>>("getLevelsConfigV2");
-                GameModule.UI.ShowLoading(false);
-                
-                if (response.IsSuccess && response.data != null && response.data.Count > 0)
-                {
-                    var firstData = response.data[0];
-                    if (firstData?.configs?.levels != null)
-                    {
-                        var levelsArray = firstData.configs.levels.ToObject<LevelConfig[]>();
-                        if (levelsArray != null && levelsArray.Length > 0)
-                        {
-                            Log.Info($"[World] LoadRemoteLevelsConfig success: {levelsArray.Length} levels");
-                            levelReader.SetValue(levelsArray.ToList());
-                            return true;
-                        }
-                    }
-                    Log.Error("[World] LoadRemoteLevelsConfig: levels data is null or empty");
-                    return false;
-                }
-                else
-                {
-                    Log.Error($"[World] LoadRemoteLevelsConfig failed: {response.ErrorMessage}");
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                GameModule.UI.ShowLoading(false);
-                Log.Error($"[World] LoadRemoteLevelsConfig error: {e}");
-                return false;
             }
         }
 

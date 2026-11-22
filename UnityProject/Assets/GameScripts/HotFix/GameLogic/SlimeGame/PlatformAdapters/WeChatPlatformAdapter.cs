@@ -9,8 +9,6 @@ namespace GameLogic.Network
     /// </summary>
     public class WeChatPlatformAdapter : IPlatformAdapter
     {
-        private static string WXCloudENV = "slimecloudservice-6enxmrfbc5bddc";
-        
         public string PlatformName => "wechat";
         
         public bool RequiresSDKInit => true;
@@ -23,12 +21,6 @@ namespace GameLogic.Network
             WX.InitSDK((code) =>
             {
                 Log.Info($"[WeChatPlatformAdapter] WX.InitSDK callback code: {code}");
-                
-                WX.cloud.Init(new ICloudConfig()
-                {
-                    env = WXCloudENV,
-                    traceUser = true
-                });
                 tcs.TrySetResult(true);
             });
             
@@ -57,4 +49,3 @@ namespace GameLogic.Network
         }
     }
 }
-

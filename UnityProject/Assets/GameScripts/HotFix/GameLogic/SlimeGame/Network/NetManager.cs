@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using TEngine;
-using WeChatWASM;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -35,7 +34,7 @@ namespace GameLogic.Network
 
     /// <summary>
     /// 网络管理器
-    /// 统一处理云函数调用和HTTP请求，返回值解析
+    /// 统一处理 HTTP 请求与返回值解析
     /// 通过 BaseLogicSys 接入 TEngine 生命周期，支持请求取消和安全销毁
     /// </summary>
     public class NetManager : BaseLogicSys<NetManager>
@@ -85,7 +84,6 @@ namespace GameLogic.Network
             { "getUserGameInfoV2", "/api/minigame/getUserGameInfoV2" },
             { "setUserGameInfoV2", "/api/minigame/setUserGameInfoV2" },
             { "getUserRankListV2", "/api/minigame/getUserRankListV2" },
-            { "getLevelsConfigV2", "/api/minigame/getLevelsConfigV2" },
             { "updateResource", "/api/minigame/updateResource" },
             { "getResources", "/api/minigame/getResources" },
             { "claimLevelReward", "/api/minigame/claimLevelReward" },
@@ -407,87 +405,6 @@ namespace GameLogic.Network
             }
         }
         
-        #endregion
-
-        #region WX云函数
-
-        /// <summary>
-        /// 调用云函数（通用方法）
-        /// 异常时返回失败的 Response，不会抛出异常
-        /// </summary>
-        /// <typeparam name="T">响应数据类型</typeparam>
-        /// <param name="functionName">云函数名称</param>
-        /// <param name="parameters">请求参数</param>
-        /// <returns>云函数响应，失败时返回 code=-1 的 Response</returns>
-        public async UniTask<Response<T>> Call<T>(
-            string functionName,
-            object parameters = null)
-        {
-            var tcs = new UniTaskCompletionSource<Response<T>>();
-
-            string requestJson = parameters != null ? (parameters is string ? (string)parameters : parameters.ToJson()) : "null";
-            Log.Info($"[NetManager] Request: {functionName}, params: {requestJson}");
-
-            WX.cloud.CallFunction(new CallFunctionParam()
-            {
-                name = functionName,
-                data = parameters,
-                success = (res) =>
-                {
-                    if (_disposed) return;
-                    try
-                    {
-                        string resultJson = res.result is string ? (string)res.result : res.result.ToJson();
-                        Log.Info($"[NetManager] Response: {functionName}, result: {resultJson}");
-                        
-                        var response = Utility.Json.ToObject<Response<T>>(resultJson);
-                        tcs.TrySetResult(response);
-                    }
-                    catch (Exception e)
-                    {
-                        var msg = $"Parse response failed for {functionName}: {e}";
-                        Log.Error($"[NetManager] {msg}");
-                        tcs.TrySetResult(new Response<T>
-                        {
-                            code = ResponseCode.CLIENT_PARSE_ERROR,
-                            msg = msg,
-                            data = default(T)
-                        });
-                    }
-                },
-                fail = (err) =>
-                {
-                    if (_disposed) return;
-                    var msg = $"Network error: {err.ToJson()}";
-                    Log.Error($"[NetManager] {msg}");
-                    tcs.TrySetResult(new Response<T>
-                    {
-                        code = ResponseCode.ERROR,
-                        msg = msg,
-                        data = default(T)
-                    });
-                }
-            });
-
-            return await tcs.Task;
-        }
-
-        /// <summary>
-        /// 调用云函数并直接返回数据（便捷方法）
-        /// 成功时返回 data，失败时返回 null
-        /// </summary>
-        /// <typeparam name="T">数据类型</typeparam>
-        /// <param name="functionName">云函数名称</param>
-        /// <param name="parameters">请求参数</param>
-        /// <returns>业务数据，失败时返回 null</returns>
-        public async UniTask<T> CallData<T>(
-            string functionName,
-            object parameters = null) where T : class
-        {
-            var response = await Call<T>(functionName, parameters);
-            return response.IsSuccess ? response.data : null;
-        }
-
         #endregion
 
         #region HTTP接口（用于Express服务端通信）
