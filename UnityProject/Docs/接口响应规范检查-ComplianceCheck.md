@@ -32,12 +32,13 @@
 - `getUserGameInfoV2`
 - `setUserGameInfoV2`
 - `getUserRankListV2`
-- `getLevelsConfigV2`
 - `updateResource`
 - `getResources`
 - `claimLevelReward`
 - `claimDailyCheckin`
 - `claimLevelChest`
+
+`getLevelsConfigV2` 已废弃，固定返回 404。关卡由客户端本地 `levels.json` 加载。
 
 ### 结论
 

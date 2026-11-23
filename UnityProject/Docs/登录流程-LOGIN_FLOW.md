@@ -55,7 +55,7 @@ if (!NetManager.Instance.NeedLogin)
 
 - 平台名：`wechat`
 - 适配器：`WeChatPlatformAdapter`
-- 需要 `WX.InitSDK()` 和 `WX.cloud.Init()`
+- 需要 `WX.InitSDK()`。业务请求走 Express HTTP，不再调用 `WX.cloud.Init()`
 - 通过 `WX.Login()` 获取 `code`
 
 ### Editor
