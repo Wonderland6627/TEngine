@@ -137,7 +137,13 @@ namespace GameLogic
                 { "platform", platform }
             };
             
+            var serverType = NetManager.Instance.CurrentServerType;
             var response = await NetManager.Instance.CallHttp<SessionData>("getCode2Session", loginRequest);
+            if (NetManager.Instance.CurrentServerType != serverType)
+            {
+                Log.Warning($"[PlatformManager] Server changed during login, discard token from {serverType}");
+                return false;
+            }
             if (!response.IsSuccess || response.data == null)
             {
                 Log.Error($"[PlatformManager] LoginWithCode failed ({platform}): {response.ErrorMessage}");

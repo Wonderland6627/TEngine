@@ -275,6 +275,15 @@ namespace GameLogic
         private float m_RankListCacheTime = 0f;
         private const float RANK_LIST_CACHE_DURATION = 60f;
 
+        /// <summary>
+        /// 切服后丢掉上一个环境的排行榜缓存。
+        /// </summary>
+        public void InvalidateRankListCache()
+        {
+            m_CachedRankList = null;
+            m_RankListCacheTime = 0f;
+        }
+
         public async UniTask<List<PlayerRankInfo>> GetUserRankList()
         {
             Log.Info("[World] GetUserRankList");

@@ -40,7 +40,7 @@ namespace GameLogic.Network
     public class NetManager : BaseLogicSys<NetManager>
     {
         // 配置
-        private const string KEY_AUTH_TOKEN = "NetManager_AuthToken";
+        private const string KEY_AUTH_TOKEN_LEGACY = "NetManager_AuthToken";
         private const string KEY_SERVER_TYPE = "NetManager_ServerType";
         
         // 网络配置
@@ -110,6 +110,8 @@ namespace GameLogic.Network
             ServerType defaultServerType = ServerType.Production;
 #endif
             _currentServerType = (ServerType)PlayerPrefs.GetInt(KEY_SERVER_TYPE, (int)defaultServerType);
+            DiscardLegacyAuthToken();
+            BindAuthTokenForCurrentServer();
             Log.Info($"[NetManager] Initialized with server: {_currentServerType} ({ServerBaseUrl})");
 
             RegisterDebuggerServerSwitch();
@@ -218,11 +220,70 @@ namespace GameLogic.Network
             get => _currentServerType;
             set
             {
+                if (_currentServerType == value)
+                {
+                    return;
+                }
+
                 _currentServerType = value;
                 PlayerPrefs.SetInt(KEY_SERVER_TYPE, (int)value);
                 PlayerPrefs.Save();
+                BindAuthTokenForCurrentServer();
                 Log.Info($"[NetManager] Server switched to {value}: {ServerBaseUrl}");
+                SyncServerTime().Forget();
+                ReloginAfterServerSwitch().Forget();
             }
+        }
+
+        /// <summary>
+        /// 每个环境单独保存登录票据。旧的全局票据不区分环境，切服后会验签失败。
+        /// </summary>
+        private static string AuthTokenKey(ServerType serverType)
+        {
+            return $"NetManager_AuthToken_{serverType}";
+        }
+
+        private void BindAuthTokenForCurrentServer()
+        {
+            _cachedTokenExpireTime = null;
+            string token = PlayerPrefs.GetString(AuthTokenKey(_currentServerType), "");
+            _authToken = string.IsNullOrEmpty(token) ? null : token;
+        }
+
+        private static void DiscardLegacyAuthToken()
+        {
+            if (!PlayerPrefs.HasKey(KEY_AUTH_TOKEN_LEGACY))
+            {
+                return;
+            }
+
+            PlayerPrefs.DeleteKey(KEY_AUTH_TOKEN_LEGACY);
+            PlayerPrefs.Save();
+            Log.Info("[NetManager] Discarded legacy auth token that was not bound to a server");
+        }
+
+        private async UniTaskVoid ReloginAfterServerSwitch()
+        {
+            if (!GameLogic.World.HasInstance)
+            {
+                return;
+            }
+
+            ServerType serverType = _currentServerType;
+            bool success = await GameLogic.World.Instance.Login();
+            if (_currentServerType != serverType)
+            {
+                return;
+            }
+
+            if (!success)
+            {
+                Log.Error($"[NetManager] Re-login failed after switching to {serverType}");
+                return;
+            }
+
+            GameLogic.World.Instance.InvalidateRankListCache();
+            GameLogic.World.Instance.FetchUserGameInfo();
         }
 
         /// <summary>
@@ -256,7 +317,7 @@ namespace GameLogic.Network
             {
                 if (_authToken == null)
                 {
-                    _authToken = PlayerPrefs.GetString(KEY_AUTH_TOKEN, "");
+                    BindAuthTokenForCurrentServer();
                 }
                 return _authToken;
             }
@@ -264,13 +325,14 @@ namespace GameLogic.Network
             {
                 _authToken = value;
                 _cachedTokenExpireTime = null;
+                string key = AuthTokenKey(_currentServerType);
                 if (string.IsNullOrEmpty(value))
                 {
-                    PlayerPrefs.DeleteKey(KEY_AUTH_TOKEN);
+                    PlayerPrefs.DeleteKey(key);
                 }
                 else
                 {
-                    PlayerPrefs.SetString(KEY_AUTH_TOKEN, value);
+                    PlayerPrefs.SetString(key, value);
                 }
                 PlayerPrefs.Save();
             }
