@@ -36,7 +36,6 @@ namespace GameLogic
 		{
 			if (rankInfos == null || rankInfos.Count == 0)
 			{
-				Log.Error("[UIRankWindow] GetMyRankInfo: rankInfos is empty");
 				return null;
 			}
 

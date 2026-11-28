@@ -6,14 +6,12 @@ namespace TEngine.Editor
 {
     /// <summary>
     /// 编辑器工具栏身份标识输入框
-    /// 仅当ServerType为Local时显示，输入的key作为登录code发送给服务端以区分不同开发者
+    /// 输入的key作为登录code发送给服务端以区分不同开发者
     /// </summary>
     [InitializeOnLoad]
     public class EditorIdentityKey
     {
         private const string PREF_KEY = "EditorIdentityKey";
-        private const string KEY_SERVER_TYPE = "NetManager_ServerType";
-        private const int SERVER_TYPE_LOCAL = 0;
         private const float POLL_INTERVAL = 1f;
 
         private static string _identityKey;
@@ -28,14 +26,6 @@ namespace TEngine.Editor
             {
                 _identityKey = DateTime.Now.ToString("yyyyMMddHHmmss");
             }
-        }
-
-        /// <summary>
-        /// Guard：仅 Local 服且由协调器结合窗口宽度决定是否绘制。
-        /// </summary>
-        internal static bool ShouldDrawIdentitySection()
-        {
-            return PlayerPrefs.GetInt(KEY_SERVER_TYPE, 0) == SERVER_TYPE_LOCAL;
         }
 
         /// <summary>

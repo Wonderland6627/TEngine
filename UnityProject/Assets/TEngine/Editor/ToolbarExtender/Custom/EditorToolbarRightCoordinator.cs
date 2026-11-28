@@ -5,7 +5,7 @@ using UnityToolbarExtender;
 namespace TEngine.Editor
 {
     /// <summary>
-    /// 统一注册 Toolbar 右侧 GUI，固定绘制顺序为：资源模式 → 服务器类型 → 身份 ID（仅 Local），并做窄屏降级。
+    /// 统一注册 Toolbar 右侧 GUI，固定绘制顺序为：资源模式 → 服务器类型 → 身份 ID，并做窄屏降级。
     /// </summary>
     [InitializeOnLoad]
     internal static class EditorToolbarRightCoordinator
@@ -37,8 +37,7 @@ namespace TEngine.Editor
 
             EditorServerType.DrawToolbarSection();
 
-            bool drawIdentity = viewWidth >= EditorToolbarRightLayout.MinToolbarWidthForIdentity
-                                && EditorIdentityKey.ShouldDrawIdentitySection();
+            bool drawIdentity = viewWidth >= EditorToolbarRightLayout.MinToolbarWidthForIdentity;
             if (drawIdentity)
             {
                 GUILayout.Space(group);
